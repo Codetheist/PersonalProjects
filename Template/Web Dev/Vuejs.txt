@@ -1,0 +1,28 @@
+Install
+npm init vue@3
+npm install vue@3
+
+Vue.js Folder Structure
+src
+	assets # hold css files, fonts, and img
+	components # holds all reusable components
+		widgets # contains all widgets *not necessary, but good to know*
+		global # components will not need to be imported into any files
+	helpers # to hold dummy data
+	layouts # is used to hold the layouts of your application
+	locales # to configure many languages for the application
+	router # all router configurations and routes
+	services # holds all API call functions
+	Utils # holds plugin configurations, filters and GlobalComponents registration function
+	views # holds vue files
+________________	
+Ex.
+src
+	assets
+	components
+	router
+	services
+	state/store
+	views
+_________________
+
