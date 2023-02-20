@@ -7,6 +7,11 @@ let gameBoard = ["", "", "", "", "", "", "", "", ""];
 let playerOne = document.getElementById("playerOne");
 let playerTwo = document.getElementById("playerTwo");
 let scoreBoard = document.getElementById("scoreBoard");
+let playerOneScore = 0;
+let playerTwoScore = 0;
+let tieScore = 0;
+let playerOneName = document.getElementById("playerOneName");
+let playerTwoName = document.getElementById("playerTwoName");
 
 const WIN_CONDITIONS = [
     [0, 1, 2],
@@ -195,23 +200,45 @@ function numberOfPlayers() {
     playerOne.addEventListener("click", () => {
         // Clear the player buttons and display the difficulty buttons
         document.querySelector("#playerButtons").innerHTML = "";
+        playerOneName = prompt("Player One, please enter your name:");
+        playerTwoName = "Computer";
         displayScore();
     });
 
     playerTwo.addEventListener("click", () => {
         // Ask user for their names
-        let playerOneName = prompt("Player One, please enter your name:");
-        let playerTwoName = prompt("Player Two, please enter your name:");
+        playerOneName = prompt("Player One, please enter your name:");
+        playerTwoName = prompt("Player Two, please enter your name:");
         // Clear the player buttons
         document.querySelector("#playerButtons").innerHTML = "";
-        // Display the player names likr this Player One: <name> | Player Two: <name>
-        document.querySelector("#playerNames").innerHTML = "Player One: " + playerOneName + " | Player Two: " + playerTwoName;
+        displayScore();
+        
     });
 }
 
 function displayScore() {
     // Display score using Tailwind CSS
     scoreBoard.innerHTML = `
+    <!-- Display player names and scores -->
+    <h3 class="text-center text-2xl mb-4">Score: </h3>
+    <div class="flex flex-col gap-16 justify-center items-center">
+        <div class="grid grid-cols-3">
+            <div class="left-0 top-0">
+                <h3 class="text-center text-2xl mb-4" id="playerOneName">${playerOneName}: </h3>
+                <div class="text-center text-2xl mb-4" id="playerOneScore">0</div>
+            </div>
+
+            <div class="top-0 left-0 right-0">
+                <h3 class="text-center text-2xl mb-4">Tie: </h3>
+                <div class="text-center text-2xl mb-4" id="tieScore">0</div>
+            </div>
+
+            <div class="top-0 right-0">
+                <h3 class="text-center text-2xl mb-4" id="playerTwoName">${playerTwoName}: </h3>
+                <div class="text-center text-2xl mb-4" id="playerTwoScore">0</div>
+            </div>
+        </div>
+    </div>
     `;
 }
 
