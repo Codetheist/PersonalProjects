@@ -24,7 +24,7 @@ const WIN_CONDITIONS = [
     [2, 4, 6]
 ];
 
-const currentTurn = () => "Player " + player + "'s turn";
+//const currentTurn = () => "Player " + player + "'s turn";
 
 GAME_STATE.innerHTML = currentTurn();
 
@@ -32,7 +32,7 @@ init();
 
 // Initialize the game
 function init() {
-    isGameActive = true;
+    isGameActive = false;
     player = "X";
     gameBoard = ["", "", "", "", "", "", "", "", ""];
     document.querySelectorAll("#cell").forEach(cell => cell.innerHTML = "");
@@ -241,6 +241,29 @@ function displayScore() {
     </div>
     `;
 }
+
+// Draw tic tac toe lines
+function drawLines() {
+    // Draw vertical lines
+    for (let i = 1; i < 3; i++) {
+        let line = document.createElement("div");
+        line.setAttribute("class", "line");
+        line.style.left = `${i * 33.33}%`;
+        document.querySelector("#board").appendChild(line);
+    }
+    // Draw horizontal lines
+    for (let i = 1; i < 3; i++) {
+        let line = document.createElement("div");
+        line.setAttribute("class", "line");
+        line.style.top = `${i * 33.33}%`;
+        line.style.transform = "rotate(90deg)";
+        document.querySelector("#board").appendChild(line);
+    }
+}
+
+drawLines();
+
+
 
 // Event listeners
 document.querySelectorAll("#cell").forEach(cell => (cell.addEventListener("click", cellClicked)));
