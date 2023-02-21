@@ -1,18 +1,18 @@
-1. Prompt the user to select One or Two mode
-2. If One is selected, prompt the user for the name of the player and the level of difficulty (easy, medium, hard)
-3. If Two is selected, prompt the user for the names of the players
-4. Prompt the user to select "X" or "O" to determine the starting player
-5. Initialize the game board with empty spaces
-6. Display the game board on the screen
-7. Begin the game loop:
+P̶r̶o̶m̶p̶t̶ t̶h̶e̶ u̶s̶e̶r̶ t̶o̶ s̶e̶l̶e̶c̶t̶ O̶n̶e̶ o̶r̶ T̶w̶o̶ m̶o̶d̶e̶
+I̶f̶ O̶n̶e̶ i̶s̶ s̶e̶l̶e̶c̶t̶e̶d̶,̶ p̶r̶o̶m̶p̶t̶ t̶h̶e̶ u̶s̶e̶r̶ f̶o̶r̶ t̶h̶e̶ n̶a̶m̶e̶ o̶f̶ t̶h̶e̶ p̶l̶a̶y̶e̶r̶ a̶n̶d̶ t̶h̶e̶ l̶e̶v̶e̶l̶ o̶f̶ d̶i̶f̶f̶i̶c̶u̶l̶t̶y̶ (̶e̶a̶s̶y̶,̶ m̶e̶d̶i̶u̶m̶,̶ h̶a̶r̶d̶)̶
+I̶f̶ T̶w̶o̶ i̶s̶ s̶e̶l̶e̶c̶t̶e̶d̶,̶ p̶r̶o̶m̶p̶t̶ t̶h̶e̶ u̶s̶e̶r̶ f̶o̶r̶ t̶h̶e̶ n̶a̶m̶e̶s̶ o̶f̶ t̶h̶e̶ p̶l̶a̶y̶e̶r̶s̶
+P̶r̶o̶m̶p̶t̶ t̶h̶e̶ u̶s̶e̶r̶ t̶o̶ s̶e̶l̶e̶c̶t̶ "̶X̶"̶ o̶r̶ "̶O̶"̶ t̶o̶ d̶e̶t̶e̶r̶m̶i̶n̶e̶ t̶h̶e̶ s̶t̶a̶r̶t̶i̶n̶g̶ p̶l̶a̶y̶e̶r̶
+Initialize the game board with empty spaces
+Display the game board on the screen
+Begin the game loop:
    a. If it is the player's turn, prompt the player to select a position on the board to place their piece
    b. If it is the computer's turn, use the selected difficulty level to determine the move to make
    c. Update the game board with the new piece
    d. Check for a winner or tie
    e. If there is a winner or tie, update the scores and display the winner/tie message
    f. If the game is over, prompt the user to play again or quit
-8. If the user selects to play again, reset the game board and go back to step 4
-9. If the user selects to quit, display the final scores and exit the game
+If the user selects to play again, reset the game board and go back to step 4
+If the user selects to quit, display the final scores and exit the game
 
 Difficulty levels:
 - Easy: randomly select an empty position on the board
