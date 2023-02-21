@@ -1,17 +1,26 @@
-const GAME_STATE = document.querySelector("#status");
+// Constant variables
+//const GAME_STATE = document.querySelector("#status");
+const PLAYER_SELECTION = document.getElementById("playerSelection");
+//const GAME_BOARD = document.getElementById("board");
 
+// Changeable variables
 let isGameActive = true;
-let player = "X";
 let difficulty = "";
 let gameBoard = ["", "", "", "", "", "", "", "", ""];
-let playerOne = document.getElementById("playerOne");
-let playerTwo = document.getElementById("playerTwo");
+let onePlayer = document.getElementById("playerOne");
+let twoPlayers = document.getElementById("playerTwo");
 let scoreBoard = document.getElementById("scoreBoard");
 let playerOneScore = 0;
 let playerTwoScore = 0;
 let tieScore = 0;
 let playerOneName = document.getElementById("playerOneName");
 let playerTwoName = document.getElementById("playerTwoName");
+let gameBoards = document.getElementById("board");
+let playerX = document.getElementById("playerX");
+let playerO = document.getElementById("playerO");
+let difficultyButton = document.getElementById("gameDifficultyLevel");
+let gamePiece = document.getElementById("gamePiece");
+let playerButtons = document.getElementById("playerButtons");
 
 const WIN_CONDITIONS = [
     [0, 1, 2],
@@ -25,13 +34,19 @@ const WIN_CONDITIONS = [
 ];
 
 //const currentTurn = () => "Player " + player + "'s turn";
-
-GAME_STATE.innerHTML = currentTurn();
-
 init();
 
 // Initialize the game
 function init() {
+    PLAYER_SELECTION.innerHTML = `
+    <div class="flex flex-col justify-center items-center">
+        <h3 class="text-center text-2xl mb-4">How many players?</h3>
+        <div class="grid grid-cols-2 gap-6" id="playerButtons">
+            <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" onclick="numberOfPlayers()" id="playerOne">One</button>
+            <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" onclick="numberOfPlayers()" id="playerTwo">Two</button>
+        </div>
+    </div>
+    `;
     isGameActive = false;
     player = "X";
     gameBoard = ["", "", "", "", "", "", "", "", ""];
@@ -49,7 +64,6 @@ function playGame(CELL_CLICKED, CELL_NUMBER) {
 // Change the player turn
 function changePlayer() {
     player = player === "X" ? "O" : "X";
-    GAME_STATE.innerHTML = currentTurn();
 }
 
 // Create Game Logic
@@ -70,14 +84,12 @@ function gameLogic() {
     }
 
     if (isRoundOver) {
-        GAME_STATE.innerHTML = winMessage();
         isGameActive = false;
         return;
     }
 
     let isDraw = !gameBoard.includes("");
     if (isDraw) {
-        GAME_STATE.innerHTML = tieMessage();
         isGameActive = false;
         return;
     }
@@ -110,42 +122,27 @@ function cellClicked(event) {
 
 // Function for game difficulty
 function gameDifficulty() {
-    // Create a button to select difficulty
-    let difficultyButton = document.createElement("button");
-    difficultyButton.setAttribute("id", "difficulty");
-    difficultyButton.innerHTML = "Select Difficulty";
-    document.querySelector("#difficulty").appendChild(difficultyButton);
-    // Create a div to display the difficulty
-    let difficultyDisplay = document.createElement("div");
-    difficultyDisplay.setAttribute("id", "difficultyDisplay");
-    document.querySelector("#difficultyDisplay").appendChild(difficultyDisplay);
-    // Create a button to select easy difficulty
-    let easyButton = document.createElement("button");
-    easyButton.setAttribute("id", "easy");
-    easyButton.innerHTML = "Easy";
-    document.querySelector("#easy").appendChild(easyButton);
-    // Create a button to select medium difficulty
-    let mediumButton = document.createElement("button");
-    mediumButton.setAttribute("id", "medium");
-    mediumButton.innerHTML = "Medium";
-    document.querySelector("#medium").appendChild(mediumButton);
-    // Create a button to select hard difficulty
-    let hardButton = document.createElement("button");
-    hardButton.setAttribute("id", "hard");
-    hardButton.innerHTML = "Hard";
-    document.querySelector("#hard").appendChild(hardButton);
-    // Add event listeners to the difficulty buttons
+    difficultyButton.innerHTML = `
+    <div class="flex flex-col justify-center items-center">
+        <h3 class="text-center text-2xl mb-4">Select the difficulty:</h3>
+        <div class="grid grid-cols-3 gap-12 mt-8">
+            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="easy">Easy</button>
+            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="medium">Medium</button>
+            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="hard">Hard</button>
+        </div>
+    </div>
+    `;
+    let easyButton = document.getElementById("easy");
+    let mediumButton = document.getElementById("medium");
+    let hardButton = document.getElementById("hard");
     document.querySelector("#easy").addEventListener("click", () => {
-        difficulty = "easy";
-        document.querySelector("#difficultyDisplay").innerHTML = "Difficulty: Easy";
+        difficulty = easyButton;
     });
     document.querySelector("#medium").addEventListener("click", () => {
-        difficulty = "medium";
-        document.querySelector("#difficultyDisplay").innerHTML = "Difficulty: Medium";
+        difficulty = mediumButton;
     });
     document.querySelector("#hard").addEventListener("click", () => {
-        difficulty = "hard";
-        document.querySelector("#difficultyDisplay").innerHTML = "Difficulty: Hard";
+        difficulty = hardButton;
     });
 }
 
@@ -195,25 +192,28 @@ function computerTurn(gameBoard, difficulty) {
 }
 
 // Select number of players
-function numberOfPlayers() {
-    // Create an event listener for the player buttons
-    playerOne.addEventListener("click", () => {
+function numberOfPlayers() {    
+    /*// Create an event listener for the player buttons
+    onePlayer.addEventListener("click", () => {
         // Clear the player buttons and display the difficulty buttons
         document.querySelector("#playerButtons").innerHTML = "";
         playerOneName = prompt("Player One, please enter your name:");
         playerTwoName = "Computer";
+        chooseXorO();
+        gameDifficulty();
         displayScore();
+        displayGameBoard();
     });
 
-    playerTwo.addEventListener("click", () => {
+    twoPlayers.addEventListener("click", () => {
         // Ask user for their names
         playerOneName = prompt("Player One, please enter your name:");
         playerTwoName = prompt("Player Two, please enter your name:");
         // Clear the player buttons
         document.querySelector("#playerButtons").innerHTML = "";
         displayScore();
-        
-    });
+        displayGameBoard();
+    });*/
 }
 
 function displayScore() {
@@ -242,34 +242,42 @@ function displayScore() {
     `;
 }
 
-// Draw tic tac toe lines
-function drawLines() {
-    // Draw vertical lines
-    for (let i = 1; i < 3; i++) {
-        let line = document.createElement("div");
-        line.setAttribute("class", "line");
-        line.style.left = `${i * 33.33}%`;
-        document.querySelector("#board").appendChild(line);
-    }
-    // Draw horizontal lines
-    for (let i = 1; i < 3; i++) {
-        let line = document.createElement("div");
-        line.setAttribute("class", "line");
-        line.style.top = `${i * 33.33}%`;
-        line.style.transform = "rotate(90deg)";
-        document.querySelector("#board").appendChild(line);
-    }
+// Draw tic tac toe board
+function displayGameBoard() {
+    gameBoards.innerHTML = `
+    <div class="flex justify-center text-white">
+        <div class="grid grid-cols-3 gap-2 border-8 h-96 w-96">
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="0" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="1" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="2" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="3" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="4" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="5" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="6" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="7" id="cell"></div>
+            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl" data-cell-index="8" id="cell"></div>
+        </div>
+    </div>
+    `;
 }
 
-drawLines();
-
-
+// Function to ask the user to choose X or O
+function chooseXorO() {
+    // Display the player buttons
+    gamePiece.innerHTML = `
+    <div class="flex flex-col justify-center items-center">
+        <h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
+            <div class="grid grid-cols-2 gap-10 mt-8">
+                <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerX">X</button>
+                <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerO">O</button>
+            </div>
+    </div>
+    `;
+}
 
 // Event listeners
 document.querySelectorAll("#cell").forEach(cell => (cell.addEventListener("click", cellClicked)));
 document.querySelector("#reset").addEventListener("click", resetGame);
-playerOne.addEventListener("click", numberOfPlayers);
-document.querySelector("#playerTwo").addEventListener("click", numberOfPlayers);
 
 
 // Reset the game
