@@ -28,80 +28,28 @@
             </div>
         </div>
 
-        <main>
-            <div class="container mx-auto">
-                <!--Title in the midde of the page with padding from the nav bar-->
-                <div class="py-8">
-                    <h1 class="text-center text-4xl py-8">Tic Tac Toe</h1>
-
-                    <!-- Ask user if it's sigle or two playe with buttions in a col layoutr-->
-                    <!--<div class="flex flex-col gap-y-4 items-center" id="playerButtons">
-                        <h3 class="text-center text-2xl mb-4">How many players?</h3>
-                        <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" onclick="numberOfPlayers()" id="playerOne">One</button>
-                        <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" onclick="numberOfPlayers()" id="playerTwo">Two</button>
-                    </div>-->
-                </div>
-
-                <h3 class="text-center text-2xl mb-2">Score: </h3>
-                    <div class="flex flex-col gap-14 justify-center items-center">
-                        <div class="grid grid-cols-3">
-                            <div class="left-0 top-0">
-                                <h3 class="text-center text-2xl mb-4" id="playerOneName">Player: </h3>
-                                <div class="text-center text-2xl mb-4" id="playerOneScore">0</div>
-                            </div>
-                            
-                            <div class="top-0 left-0 right-0">
-                                <h3 class="text-center text-2xl mb-4">Tie: </h3>
-                                <div class="text-center text-2xl mb-4" id="tieScore">0</div>
-                            </div>
-                            
-                            <div class="top-0 right-0">
-                                <h3 class="text-center text-2xl mb-4" id="playerTwoName">Computer: </h3>
-                                <div class="text-center text-2xl mb-4" id="playerTwoScore">0</div>
-                            </div>
-                        </div>
-                    </div>
-
-                <div>
-                    <!--Display Score -->
-                    <div id="scoreBoard"></div>
-                    
-                    <!--Display the board-->
-                    <div class="flex justify-center text-white">
-                        <div class="grid grid-cols-3 gap-2 border-8 h-96 w-96">
-                            <div class="bg-black p-5 rounded cursor-pointer text-center" data-cell-index="0" id="cell">X</div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="1" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="2" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="3" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="4" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="5" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="6" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="7" id="cell"></div>
-                            <div class="bg-black p-5 rounded cursor-pointer" data-cell-index="8" id="cell"></div>
-                        </div>
-                    </div>
-                    
-
-                    <div id="board">
-                        <!--<div data-cell-index="0" id="cell"></div>
-                        <div data-cell-index="1" id="cell"></div>
-                        <div data-cell-index="2" id="cell"></div>
-                        <div data-cell-index="3" id="cell"></div>
-                        <div data-cell-index="4" id="cell"></div>
-                        <div data-cell-index="5" id="cell"></div>
-                        <div data-cell-index="6" id="cell"></div>
-                        <div data-cell-index="7" id="cell"></div>
-                        <div data-cell-index="8" id="cell"></div>-->
-                    </div>
-
-                    <h2 id="status"></h2>
-
-                    <!--<button class="w3-button w3-theme-d2 w3-margin-top" onclick="resetGame()" id="reset">Reset Game</button>-->
-                    <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
-                        <source src="audio/home.mp3" type="audio/mp3" />
-                    </audio>-->
-                    </div>  
-                </div>
+        <main class="container mx-auto">
+            <!--Title in the midde of the page with padding from the nav bar-->
+            <div class="py-8">
+                <h1 class="text-center text-4xl py-8">Tic Tac Toe</h1>
+            </div>
+            
+            <div>
+                <!--Game mode-->
+                <div id="playerSelection"></div>
+                <!--Game Piece-->
+                <div id="gamePiece"></div>
+                <!--Game Difficulty-->
+                <div id="gameDifficultyLevel"></div>
+                <!--Display Score -->
+                <div id="scoreBoard"></div>
+                <!--Display the board-->
+                <div id="board"></div>
+                <!--<h2 id="status"></h2>-->
+                <!--<button class="w3-button w3-theme-d2 w3-margin-top" onclick="resetGame()" id="reset">Reset Game</button>-->
+                <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
+                    <source src="audio/home.mp3" type="audio/mp3" />
+                </audio>-->
             </div>
         </main>
     </body>
