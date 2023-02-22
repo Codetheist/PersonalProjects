@@ -97,7 +97,6 @@ function cellClicked(event) {
 
 // Function for game difficulty
 function gameDifficulty(event) {
-    document.querySelector("#gamePiece").innerHTML = "";
     if (event && event.target && event.target.id) {
         let easyButton = document.getElementById("easy");
         let mediumButton = document.getElementById("medium");
@@ -117,15 +116,12 @@ function gameDifficulty(event) {
 
         if (difficulty === "easy") {
             difficulty = easyButton;
-            gameLogic();
         } else if (difficulty === "medium") {
             difficulty = mediumButton;
             computerTurn(gameBoard, difficulty);
         } else if (difficulty === "hard") {
             difficulty = hardButton;
             computerTurn(gameBoard, difficulty);
-        } else {
-            alert("Please select a difficulty level.");
         }
     }
 }
@@ -269,48 +265,50 @@ function displayGameBoard() {
 
 // Function to ask the user to choose X or O
 function chooseXorO(event) {
-    // Display the player buttons
-    gamePiece.innerHTML = `
-        <div class="flex flex-col justify-center items-center">
-            <h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
-                <div class="grid grid-cols-2 gap-10 mt-8">
-                    <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerX">X</button>
-                    <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerO">O</button>
-                </div>
-        </div>
-        `;
     if (event && event.target && event.target.id) {
+        const GAME_PIECE_ID = event.target.id;
         if (playerTwoName === "Computer") {
-            if (event.target.id === "playerX") {
+            // Display the player buttons
+            gamePiece.innerHTML = `
+            <div class="flex flex-col justify-center items-center">
+                <h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
+                    <div class="grid grid-cols-2 gap-10 mt-8">
+                        <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerX">X</button>
+                        <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerO">O</button>
+                    </div>
+            </div>
+            `;
+            if (GAME_PIECE_ID === "playerX") {
                 document.querySelector("#gamePiece").innerHTML = "";
                 playerPiece = "X";
                 computerPiece = "O";
-                // Add event listener to the game difficulty buttons
-                //document.querySelector("#gameDifficultyLevel").addEventListener("click", gameDifficulty);
-            } else if (event.target.id === "playerO") {
+                console.log(`Player piece is ${playerPiece} and computer piece is ${computerPiece}`);
+            } else if (GAME_PIECE_ID === "playerO") {
                 document.querySelector("#gamePiece").innerHTML = "";
                 playerPiece = "O";
                 computerPiece = "X";
-                gameDifficulty();
-                // Add event listener to the game board
-                //document.querySelector("#gameBoards").addEventListener("click", handleCellClick);
+                console.log(`Player piece is ${playerPiece} and computer piece is ${computerPiece}`);
             }
         } else {
-            if (event.target.id === "playerX") {
+            gamePiece.innerHTML = `
+            <div class="flex flex-col justify-center items-center">
+                <h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
+                    <div class="grid grid-cols-2 gap-10 mt-8">
+                        <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerX">X</button>
+                        <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerO">O</button>
+                    </div>
+            </div>
+            `;
+            if (GAME_PIECE_ID === "playerX") {
                 document.querySelector("#gamePiece").innerHTML = "";
                 playerX = "X";
                 playerO = "O";
-                displayGameBoard();
-                // Add event listener to the game board
-                document.querySelector("#gameBoards").addEventListener("click", handleCellClick);
-            } else if (event.target.id === "playerO") {
+                console.log(`${playerOneName} is ${playerX} and ${playerTwoName} is ${playerO}`);
+            } else if (GAME_PIECE_ID === "playerO") {
                 document.querySelector("#gamePiece").innerHTML = "";
                 playerO = "O";
                 playerX = "X";
-                gamePiece.innerHTML = "";
-                displayGameBoard();
-                // Add event listener to the game board
-                document.querySelector("#gameBoards").addEventListener("click", handleCellClick);
+                console.log(`${playerOneName} is ${playerO} and ${playerTwoName} is ${playerX}`);
             }
         }
     }
@@ -320,9 +318,7 @@ function chooseXorO(event) {
 document.querySelectorAll("#cell").forEach(cell => (cell.addEventListener("click", cellClicked)));
 //document.querySelector("#reset").addEventListener("click", resetGame);
 document.addEventListener("click", numberOfPlayers);
-//document.addEventListener("click", chooseXorO);
-document.addEventListener("click", gameDifficulty);
-
+document.addEventListener("click", chooseXorO);
 
 // Reset the game
 function resetGame() {
