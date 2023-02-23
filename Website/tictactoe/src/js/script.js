@@ -236,13 +236,13 @@ function displayBoard() {
 function gameLogic() {
     let currentPlayer = playerOneName;
 
-    /*// Show player vs player or computer vs player status
+    // Show player vs player or computer vs player status
     let gameStatus = document.querySelector("#gameStatus");
     if (playerTwoName === "Computer") {
         gameStatus.textContent = "Computer vs Player";
     } else {
         gameStatus.textContent = "Player vs Player";
-    }*/
+    }
 
     // Add click event listeners to each cell
     document.querySelectorAll("#cell").forEach((cell) => {
