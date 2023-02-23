@@ -5,9 +5,7 @@
 
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-
+        
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"/>
         <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"/>
@@ -22,29 +20,32 @@
     <body>
         <div class="w3-top">
             <div class="w3-bar w3-card w3-black w3-left-align w3-large">
-                <!-- Place holder nav bar-->
                 <a href="#" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i class="fa fa-home w3-margin-right"></i>Logo</a>
             </div>
         </div>
 
         <main class="container mx-auto">
-            <!--Title in the midde of the page with padding from the nav bar-->
             <div class="py-8">
                 <h1 class="text-center text-4xl py-8">Tic Tac Toe</h1>
             </div>
             
             <div>
-                <!--Game mode-->
-                <div id="playerSelection"></div>
-                <!--Game Piece-->
-                <div id="gamePiece"></div>
-                <!--Game Difficulty-->
-                <div id="gameDifficultyLevel"></div>
-                <!--Display Score -->
-                <div id="scoreBoard"></div>
-                <!--Display the board-->
-                <div id="board"></div>
-                <!--<h2 id="status"></h2>-->
+                <section>
+                    <!--Game mode-->
+                    <div id="playerSelection"></div>
+                    <!--Game Piece-->
+                    <div id="gamePiece"></div>
+                    <!--Game Difficulty-->
+                    <div id="gameDifficultyLevel"></div>
+                </section>
+
+                <article>
+                    <!--Display Score -->
+                    <div id="scoreBoard"></div>
+                    <!--Display the board-->
+                    <div id="board"></div>
+                </article>
+                <h2 id="status"></h2>
                 <!--<button class="w3-button w3-theme-d2 w3-margin-top" onclick="resetGame()" id="reset">Reset Game</button>-->
                 <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
                     <source src="audio/home.mp3" type="audio/mp3" />
