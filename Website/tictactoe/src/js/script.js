@@ -251,7 +251,7 @@ function gameLogic() {
             cell.textContent = currentPlayer.symbol;
 
             // Check for win or tie
-            if (checkWin() || checkTie()) {
+            if (checkWin(currentPlayer) || checkTie(gameBoard)) {
                 updateScore();
                 resetBoard();
             } else {
@@ -369,7 +369,7 @@ function playGame(CELL_CLICKED, CELL_NUMBER) {
 }
 
 function switchPlayer() {
-    currentPlayer = currentPlayer === playerX ? playerO : playerX;
+    currentPlayer == currentPlayer === playerX ? playerO : playerX;
 }
 
 
@@ -448,7 +448,7 @@ function checkForWin(gameBoard, playerPiece) {
     return isRoundOver;
 }
 
-function isTie(gameBoard) {
+function checkTie(gameBoard) {
     // If all cells are filled and no player has won, it's a tie
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
@@ -475,4 +475,38 @@ function winMessage() {
             ? `${playerOneName} wins!`
             : `${playerTwoName} wins!`;
     }
+}
+
+// Check for win
+checkWin = (gameBoard, playerPiece) => {
+    let isRoundOver = false;
+    for (let i = 0; i <= 7; i++) {
+        const winCondition = WIN_CONDITIONS[i];
+        let a = gameBoard[winCondition[0]];
+        let b = gameBoard[winCondition[1]];
+        let c = gameBoard[winCondition[2]];
+        if (a === "" || b === "" || c === "") {
+            continue;
+        }
+        if (a === b && b === c) {
+            isRoundOver = true;
+            break
+        }
+    }
+
+    if (isRoundOver) {
+        gameStatusElement.innerHTML = winMessage();
+        updateScore();
+        return;
+    }
+
+    return isRoundOver;
+}
+
+// Reset board
+function resetBoard() {
+    gameBoard = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = playerX;
+    gameStatusElement.innerHTML = "";
+    document.querySelectorAll(".cell").forEach(cell => cell.innerHTML = "");
 }
