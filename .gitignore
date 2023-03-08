@@ -26,5 +26,4 @@ Thumbs.db
 
 # Environment
 /Django/.env
-/Django/*/.env
 /Website/*/.env
