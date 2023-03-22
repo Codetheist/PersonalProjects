@@ -27,8 +27,7 @@ print(f"Simple, right? Anyway, let's play the game {player_name}")
 time.sleep(1)
 
 secret_word = []
-
-wordBank = open("Hangman_Word_Bank.txt", "rt")
+wordBank = open("./Python/Games/Hangman/Hangman_Word_Bank.txt", "r")
 for i in wordBank:
     game_words = str(i)
     game_words = game_words.rstrip("\n")
