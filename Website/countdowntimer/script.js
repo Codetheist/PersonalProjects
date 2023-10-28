@@ -31,13 +31,8 @@ function calculateCountdown() {
     // Check to see if the input is valid and not empty make sure Februrary is valid
     if (year.value == "" || month.value == "" || day.value == "" || hour.value == "" || minute.value == "" || second.value == "") {
         alert("Please enter a valid date");
-    } else if (year.value < 0 || month.value < 0 || day.value < 0 || hour.value < 0 || minute.value < 0 || second.value < 0) {
+    } else if (year.value < 0 || month.value < 0 || day.value < 0 || hour.value < 0 || minute.value < 0 || second.value < 0 || year.value > 9999 || month.value > 12 || day.value > 31 || hour.value > 23 || minute.value > 59 || second.value > 59 || (month.value == 2 && day.value > 29) || (month.value == 2 && day.value == 29 && (year.value % 4 != 0))) {
         alert("Please enter a valid date");
-    } else if (year.value > 9999 || month.value > 12 || day.value > 31 || hour.value > 23 || minute.value > 59 || second.value > 59) {
-        alert("Please enter a valid date");
-    } else if (month.value == 2 && day.value > 29) {
-        alert("Please enter a valid date");
-    } else if (month.value == 2 && day.value == 29 && (year.value % 4 != 0)) {
         alert("Please enter a valid date");
     } else {
 

@@ -53,6 +53,9 @@ function displayNowPlayingMovies() {
         .then((data) => {
             movieData = data.results;
             displayMovieData();
+        })
+        .catch((error) => {
+            console.error('Error fetching now playing movies:', error);
         });
 }
 
@@ -72,8 +75,11 @@ function displayMovieData() {
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
-            movieTime.innerHTML = data.runtime + " minutes";
-            movieGenre.innerHTML = data.genres[0].name;
+            movieTime.textContent = data.runtime + " minutes";
+            movieGenre.textContent = data.genres[0].name;
+        })
+        .catch((error) => {
+            console.error('Error fetching movie data:', error);
         });
 
     // Loop through the movie data
@@ -91,10 +97,12 @@ function displayMovieData() {
 
         // Display the movie data
         moviePoster.src = "https://image.tmdb.org/t/p/original" + backgroundImage;
-        movieTitle.innerHTML = title;
-        movieDescription.innerHTML = description;
-        movieRelease.innerHTML = releaseDate;
-        movieTime.innerHTML = time + " minutes";
+        movieTitle.textContent = title;
+        let descriptionText = document.createElement("p");
+        descriptionText.textContent = description;
+        movieDescription.appendChild(descriptionText);
+        movieRelease.textContent = releaseDate;
+        movieTime.textContent = time + " minutes";
     }
 }
 
