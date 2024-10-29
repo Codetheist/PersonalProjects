@@ -1,8 +1,8 @@
 # Dependency caches
 node_modules*
 packages*
-package.json
-package-lock.json
+package.json*
+package-lock.json*
 
 # Compiled code
 .o
