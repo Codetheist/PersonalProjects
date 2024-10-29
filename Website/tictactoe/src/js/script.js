@@ -11,23 +11,20 @@ const WIN_CONDITIONS = [
 ];
 
 // State variables
-let gameState = null;
 let playerOneName = null;
 let playerTwoName = null;
-let playerX = null;
-let playerO = null;
 let computerPiece = null;
 let playerPiece = null;
-let gameBoard = null;
+let gameBoard = Array(9).fill("");
 let playerOneScore = 0;
 let playerTwoScore = 0;
 let tieScore = 0;
+let gameDifficulty = null;
 
 // DOM elements
 const gameStatusElement = document.querySelector("#status");
 const playerSelectionElement = document.getElementById("playerSelection");
 const boardElement = document.getElementById("board");
-const playerButtonsElement = document.getElementById("playerButtons");
 const gameDifficultyLevelElement = document.getElementById("gameDifficultyLevel");
 const gamePieceElement = document.getElementById("gamePiece");
 const scoreBoardElement = document.getElementById("scoreBoard");
@@ -41,22 +38,24 @@ function init() {
 	<div class="flex flex-col justify-center items-center">
 		<h3 class="text-center text-2xl mb-4">How many players?</h3>
 		<div class="grid grid-cols-2 gap-6" id="playerButtons">
-            <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" onclick="handlePlayerSelection()" id="onePlayer">One</button>
-            <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" onclick="handlePlayerSelection()" id="twoPlayers">Two</button>
+            <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" id="onePlayer">One</button>
+            <button type="button" class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md" id="twoPlayers">Two</button>
         </div>
     </div>
     `;
-    playerSelectionElement.addEventListener("click", handlePlayerSelection);
-    gameBoard = ["", "", "", "", "", "", "", "", ""];
-    document.querySelectorAll("#cell").forEach(cell => cell.innerHTML = "");
+    gameBoard.fill("");
+    scoreBoardElement.innerHTML = "";
+
+    document.getElementById("onePlayer").addEventListener("click", handlePlayerSelection);
+    document.getElementById("twoPlayers").addEventListener("click", handlePlayerSelection);
 }
 
 // Handle player selection
 function handlePlayerSelection(event) {
+    // Clear previous selections
+    playerSelectionElement.innerHTML = "";
     const { id } = event.target;
     if (id === "onePlayer") {
-        // Clear the player buttons and choose X or O
-        playerSelectionElement.innerHTML = "";
         // Ask the user to type their name
         playerOneName = prompt("Player One, please enter your name:");
         playerTwoName = "Computer";
@@ -65,327 +64,171 @@ function handlePlayerSelection(event) {
         // Ask user for their names
         playerOneName = prompt("Player One, please enter your name:");
         playerTwoName = prompt("Player Two, please enter your name:");
-        // Clear the player buttons and choose X or O
-        playerSelectionElement.innerHTML = "";
         chooseXorO();
     }
 }
 
-// Extract common code into a function
-function displayGamePieceButtons(playerPieceOptions, playerPieceCallback) {
-    gamePieceElement.innerHTML = `
-    <div class="flex flex-col justify-center items-center">
-        <h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
-        <div class="grid grid-cols-2 gap-10 mt-8">
-            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerX">${playerPieceOptions[0]}</button>
-            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerO">${playerPieceOptions[1]}</button>
-        </div>
-    </div>
-    `;
-    document.getElementById('playerX').addEventListener('click', () => playerPieceCallback(playerPieceOptions[0]));
-    document.getElementById('playerO').addEventListener('click', () => playerPieceCallback(playerPieceOptions[1]));
-}
-
 // Ask the user to choose X or O
-function chooseXorO(event) {
+function chooseXorO() {
     gamePieceElement.innerHTML = `
 		<div class="flex flex-col justify-center items-center">
 			<h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
 				<div class="grid grid-cols-2 gap-10 mt-8">
-					<button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerX">X</button>
-					<button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="playerO">O</button>
+					<button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="gamePieceX">X</button>
+					<button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="gamePieceO">O</button>
 				</div>
 		</div>
 	`;
-    if (!event || !event.target || !event.target.id) {
-        //const playerId = event.target.id;
+    document.getElementById("gamePieceX").addEventListener("click", () => setPlayerPiece("X"));
+    document.getElementById("gamePieceO").addEventListener("click", () => setPlayerPiece("O"));
+}
 
-        if (playerTwoName === "Computer") {
-            // Display the player buttons
-            displayGamePieceButtons(['X', 'O'], (playerPiece) => {
-                playerPiece === 'X' ? [playerPiece, computerPiece] = ['X', 'O'] : [playerPiece, computerPiece] = ['O', 'X'];
-                document.removeEventListener('click', chooseXorO);
-                document.addEventListener('click', displayDifficultyButtons);
-            });
-        } else {
-            // Display the player buttons
-            displayGamePieceButtons(['X', 'O'], (playerPiece) => {
-                playerPiece === 'X' ? [playerX, playerO] = ['X', 'O'] : [playerO, playerX] = ['O', 'X'];
-                // Display the player names and their game pieces
-                if (playerX === 'X') {
-                    const gameStateText = `${playerOneName} is ${playerX} and ${playerTwoName} is ${playerO}`;
-                    gameState = gameStateText;
-                } else {
-                    const gameStateText = `${playerOneName} is ${playerO} and ${playerTwoName} is ${playerX}`;
-                    gameState = gameStateText;
-                }
-                document.removeEventListener('click', chooseXorO);
-                document.addEventListener('click', displayBoard);
-            });
-        }
+// Set the player's piece
+function setPlayerPiece(piece) {
+    playerPiece = piece;
+    computerPiece = piece === "X" ? "O" : "X";
+    currentPlayer = playerOneName;
+
+    if (playerTwoName === "Computer") {
+        // Clear the game piece selection
+        gamePieceElement.innerHTML = "";
+        displayDifficultyButtons(); // Show difficulty selection for one player
+    } else {
+        displayBoard(); // Directly show the board for two players
     }
 }
 
 // Display Difficulty Level
 function displayDifficultyButtons() {
-    const EASY_BUTTON_ID = "easy";
-    const MEDIUM_BUTTON_ID = "medium";
-    const HARD_BUTTON_ID = "hard";
-
-    // Display the difficulty buttons
-    document.querySelector("#gamePiece").innerHTML = "";
     gameDifficultyLevelElement.innerHTML = `
     <div class="flex flex-col justify-center items-center">
         <h3 class="text-center text-2xl mb-4">Select the difficulty:</h3>
         <div class="grid grid-cols-3 gap-12 mt-8">
-            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="${EASY_BUTTON_ID}">Easy</button>
-            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="${MEDIUM_BUTTON_ID}">Medium</button>
-            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="${HARD_BUTTON_ID}">Hard</button>
+            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="easy">Easy</button>
+            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="medium">Medium</button>
+            <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="hard">Hard</button>
         </div>
     </div>
     `;
+    document.getElementById("easy").addEventListener("click", () => setGameDifficulty("easy"));
+    document.getElementById("medium").addEventListener("click", () => setGameDifficulty("medium"));
+    document.getElementById("hard").addEventListener("click", () => setGameDifficulty("hard"));
 }
 
-function gameDifficulty(event) {
-    
-    // Set the difficulty level
-    let difficulty;
-
-    // Check if the player is playing against the computer
-    if (playerTwoName === "Computer") {
-        // Check if the event was triggered and get the difficulty from the event
-        if (event && event.target && event.target.id) {
-            difficulty = event.target.id;
-            switch (difficulty) {
-                case EASY_BUTTON_ID:
-                    difficulty = "easy";
-                    break;
-                case MEDIUM_BUTTON_ID:
-                    difficulty = "medium";
-                    //displayBoard();
-                    break;
-                case HARD_BUTTON_ID:
-                    difficulty = "hard";
-                    //displayBoard();
-                    break;
-                default:
-                    break;
-            }
-            // Display the difficulty button again
-            displayDifficultyButtons();
-        } else {
-            // If no event was triggered, display board
-            displayBoard();
-        }
-    } else {
-        // If the player is playing against another player, display the board
-        displayBoard();
-    }
+// Set the game difficulty
+function setGameDifficulty(difficulty) {
+    gameDifficulty = difficulty;
+    displayBoard();
 }
 
 // Display board
 function displayBoard() {
-    const gameDifficultyLevel = document.querySelector("#gameDifficultyLevel");
-    gameDifficultyLevel.innerHTML = "";
-    document.querySelector("#gamePiece").innerHTML = "";
+    gameDifficultyLevelElement.innerHTML = ""; // Clear difficulty selection
+    gamePieceElement.innerHTML = ""; // Clear piece selection
+    scoreBoardElement.innerHTML = ""; // Hide the scoreboard until the game starts
 
-    const gameBoard = `
-    <div class="flex justify-center text-white">
-        <div class="grid grid-cols-3 gap-2 border-8 h-96 w-96">
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="0"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="1"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="2"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="3"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="4"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="5"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="6"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="7"></div>
-            <div class="bg-black p-5 rounded cursor-pointer flex justify-center items-center text-6xl cell" data-cell-index="8"></div>
-        </div>
-    </div>
-    `;
-    boardElement.innerHTML = gameBoard;
-
-    const scoreBoard = `
-    <h3 class="text-center text-2xl mb-4">Score: </h3>
-    <div class="flex flex-col gap-16 justify-center items-center">
-        <div class="grid grid-cols-3">
-            <div class="left-0 top-0">
-                <h3 class="text-center text-2xl mb-4" id="playerOneName">${playerOneName}: </h3>
-                <div class="text-center text-2xl mb-4" id="playerOneScore">${playerOneScore}</div>
-            </div>
-
-            <div class="top-0 left-0 right-0">
-                <h3 class="text-center text-2xl mb-4">Tie: </h3>
-                <div class="text-center text-2xl mb-4" id="tieScore">${tieScore}</div>
-            </div>
-
-            <div class="top-0 right-0">
-                <h3 class="text-center text-2xl mb-4" id="playerTwoName">${playerTwoName}: </h3>
-                <div class="text-center text-2xl mb-4" id="playerTwoScore">${playerTwoScore}</div>
+    // Create the game board
+    boardElement.innerHTML = `
+        <div class="flex justify-center text-white">
+            <div class="grid grid-cols-3 gap-4">
+                ${gameBoard.map((_, i) => `<div class="cell" data-cell-index="${i}"></div>`).join("")}
             </div>
         </div>
-    </div>
     `;
-    scoreBoardElement.innerHTML = scoreBoard;
 
-    gameLogic();
-}
+    // Show the scoreboard only after the game starts
+    scoreBoardElement.innerHTML = `
+        <h3 class="text-center text-2xl mb-4">Score: </h3>
+        <div class="flex flex-col gap-16 justify-center items-center">
+            <div class="grid grid-cols-3">
+                <div><h3>${playerOneName}: <span id="playerOneScore">${playerOneScore}</span></h3></div>
+                <div><h3>Ties: <span id="tieScore">${tieScore}</span></h3></div>
+                <div><h3>${playerTwoName}: <span id="playerTwoScore">${playerTwoScore}</span></h3></div>
+            </div>
+        </div>
+    `;
 
-// Create Game Logic
-function gameLogic() {
-    let currentPlayer = playerOneName;
-
-    // Show player vs player or computer vs player status
-    let gameStatus = document.querySelector("#gameStatus");
-    if (playerTwoName === "Computer") {
-        gameStatus.textContent = "Computer vs Player";
-    } else {
-        gameStatus.textContent = "Player vs Player";
-    }
-
-    // Add click event listeners to each cell
-    document.querySelectorAll("#cell").forEach((cell) => {
-        cell.addEventListener("click", () => {
-            // Mark cell with player's symbol
-            cell.textContent = currentPlayer.symbol;
-
-            // Check for win or tie
-            if (checkWin(currentPlayer) || checkTie(gameBoard)) {
-                updateScore();
-                resetBoard();
-            } else {
-                // Switch to the other player
-                currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
-            }
-        });
+    // Update game board display
+    document.querySelectorAll(".cell").forEach(cell => {
+        cell.addEventListener("click", cellClicked);
     });
-
-    //playersTurn();
 }
 
 // Cell click event
 function cellClicked(event) {
-    try {
-        const CELL_CLICKED = event.target;
-        const CELL_NUMBER = parseInt(CELL_CLICKED.getAttribute("data-cell-index"));
-
-        if (isNaN(CELL_NUMBER)) {
-            throw new Error("Invalid cell index");
+    const CELL_INDEX = event.target.getAttribute("data-cell-index");
+    if (gameBoard[CELL_INDEX] !== "" || currentPlayer !== playerOneName) {
+        return;
+    }
+    gameBoard[CELL_INDEX] = playerPiece;
+    updateGameBoard();
+    if (checkForWin(gameBoard, playerPiece)) {
+        gameStatusElement.innerHTML = winMessage();
+        playerOneScore++;
+        updateScore();
+        resetBoard();
+    } else if (checkTie(gameBoard)) {
+        gameStatusElement.innerHTML = "It's a tie!";
+        tieScore++;
+        updateScore();
+        resetBoard();
+    } else {
+        currentPlayer = playerTwoName;
+        if (playerTwoName === "Computer") {
+            setTimeout(computerTurn, 500);
         }
-
-        if (gameBoard[CELL_NUMBER] !== "") {
-            return;
-        }
-
-        CELL_CLICKED.style.color = currentPlayer === "X" ? "#2b2b2b" : "#f4f4f4";
-        playGame(CELL_CLICKED, CELL_NUMBER);
-        gameLogic();
-        updateGameStatus();
-    } catch (error) {
-        console.error(error);
     }
 }
 
 // Computer turn
-function computerTurn(gameBoard, difficulty, computerPiece) {
-    let emptyCells = [];
-    let computerMove;
-
-    switch (difficulty) {
+function computerTurn() {
+    let move;
+    switch (gameDifficulty) {
         case "easy":
-            // Loop through the board to find an empty cell to play in
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    if (gameBoard[i][j] === "") {
-                        emptyCells.push([i, j]);
-                    }
-                }
-            }
-            if (emptyCells.length > 0) {
-                computerMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            } else {
-                console.log("No available moves.");
-            }
+            move = randomMove();
             break;
-
         case "medium":
-            // Check if the computer can win, block if not, otherwise choose a random empty cell
-            computerMove = findWinningMove(gameBoard, computerPiece) ||
-                findWinningMove(gameBoard, getOpponentPiece(computerPiece)) ||
-                chooseRandomMove(gameBoard);
+            move = findWinningMove() || randomMove();
             break;
-
         case "hard":
-            // Use the minimax algorithm to choose the best move
-            computerMove = minimax(gameBoard, computerPiece).position;
+            move = minimax(gameBoard, computerPiece).position;
             break;
-
-        default:
-            console.error(`Invalid difficulty level: ${difficulty}`);
     }
-
-    return computerMove;
-}
-
-// Players turn
-function playersTurn(event) {
-    // Get the cell that was clicked
-    const CELL_CLICKED = event.target;
-    const CELL_NUMBER = parseInt(CELL_CLICKED.getAttribute("data-cell-index"));
-
-    // If the cell is already filled or the game is over, do nothing
-    if (gameBoard[CELL_NUMBER] !== "") {
-        return;
+    gameBoard[move] = computerPiece;
+    updateGameBoard();
+    if (checkForWin(gameBoard, computerPiece)) {
+        gameStatusElement.innerHTML = winMessage();
+        playerTwoScore++;
+        updateScore();
+        resetBoard();
+    } else if (checkTie(gameBoard)) {
+        gameStatusElement.innerHTML = "It's a tie!";
+        tieScore++;
+        updateScore();
+        resetBoard();
+    } else {
+        currentPlayer = playerOneName;
     }
-
-    // Update the game board with the player's move
-    gameBoard[CELL_NUMBER] = currentPlayer;
-
-    // Update the UI to show the player's move
-    CELL_CLICKED.innerHTML = currentPlayer;
-    CELL_CLICKED.style.color = currentPlayer === "X" ? "#2b2b2b" : "#f4f4f4";
-
-    // Check if the player has won
-    if (checkForWin(currentPlayer)) {
-        endGame(false);
-        return;
-    }
-
-    // Check if the game is a tie
-    if (isTie()) {
-        endGame(true);
-        return;
-    }
-
-    // Switch to the other player's turn
-    switchPlayer();
 }
-
-// Play game
-function playGame(CELL_CLICKED, CELL_NUMBER) {
-    gameBoard[CELL_NUMBER] = currentPlayer;
-    CELL_CLICKED.innerHTML = currentPlayer;
-}
-
-function switchPlayer() {
-    currentPlayer == currentPlayer === playerX ? playerO : playerX;
-}
-
 
 // Update score
 function updateScore() {
-    playerOneScore > playerTwoScore
-        ? document.getElementById("playerOneScore").innerHTML = ++playerOneScore
-        : playerOneScore < playerTwoScore
-            ? document.getElementById("playerTwoScore").innerHTML = ++playerTwoScore
-            : document.getElementById("tieScore").innerHTML = ++tieScore;
+    document.getElementById("playerOneScore").textContent = playerOneScore;
+    document.getElementById("tieScore").textContent = tieScore;
+    document.getElementById("playerTwoScore").textContent = playerTwoScore;
+}
+
+// Update gameboard
+function updateGameBoard() {
+    document.querySelectorAll(".cell").forEach((cell, i) => {
+        cell.textContent = gameBoard[i];
+    });
 }
 
 // Use the minimax algorithm to choose the best move
 function minimax(gameBoard, player) {
     // Base cases
-    if (checkForWinner(gameBoard, computerPiece)) {
+    if (checkForWin(gameBoard, computerPiece)) {
         return { score: 10 };
     } else if (checkForWinner(gameBoard, playerPiece)) {
         return { score: -10 };
@@ -424,89 +267,44 @@ function minimax(gameBoard, player) {
 }
 
 function checkForWin(gameBoard, playerPiece) {
-    let isRoundOver = false;
-    for (let i = 0; i <= 7; i++) {
-        const winCondition = WIN_CONDITIONS[i];
-        let a = gameBoard[winCondition[0]];
-        let b = gameBoard[winCondition[1]];
-        let c = gameBoard[winCondition[2]];
-        if (a === "" || b === "" || c === "") {
-            continue;
-        }
-        if (a === b && b === c) {
-            isRoundOver = true;
-            break
+    for (let i = 0; i < WIN_CONDITIONS.length; i++) {
+        const [a, b, c] = WIN_CONDITIONS[i];
+
+        // Check all positions are the same and not empty
+        if (gameBoard[a] === playerPiece && gameBoard[b] === playerPiece && gameBoard[c] === playerPiece) {
+            return true;
         }
     }
-
-    if (isRoundOver) {
-        gameStatusElement.innerHTML = winMessage();
-        updateScore();
-        return;
-    }
-
-    return isRoundOver;
+    return false;
 }
 
 function checkTie(gameBoard) {
     // If all cells are filled and no player has won, it's a tie
-    for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-            if (gameBoard[i][j] === "") {
-                return false;
-            }
-        }
+    if (gameBoard.every(cell => cell !== "")) {
         gameStatusElement.innerHTML = "It's a tie!";
         tieScore++;
+        return true;
     }
-
-    return true;
+    return false;
 }
 
 // Win message
 function winMessage() {
     // If the game is against the computer, display a different message
     if (playerTwoName === "Computer") {
-        return currentPlayer === playerX
+        return currentPlayer === playerPiece
             ? "You win!"
             : "You lose!";
     } else {
-        return currentPlayer === playerX
+        return currentPlayer === playerPiece
             ? `${playerOneName} wins!`
             : `${playerTwoName} wins!`;
     }
 }
 
-// Check for win
-checkWin = (gameBoard, playerPiece) => {
-    let isRoundOver = false;
-    for (let i = 0; i <= 7; i++) {
-        const winCondition = WIN_CONDITIONS[i];
-        let a = gameBoard[winCondition[0]];
-        let b = gameBoard[winCondition[1]];
-        let c = gameBoard[winCondition[2]];
-        if (a === "" || b === "" || c === "") {
-            continue;
-        }
-        if (a === b && b === c) {
-            isRoundOver = true;
-            break
-        }
-    }
-
-    if (isRoundOver) {
-        gameStatusElement.innerHTML = winMessage();
-        updateScore();
-        return;
-    }
-
-    return isRoundOver;
-}
-
 // Reset board
 function resetBoard() {
-    gameBoard = ["", "", "", "", "", "", "", "", ""];
-    currentPlayer = playerX;
+    gameBoard.fill("");
     gameStatusElement.innerHTML = "";
-    document.querySelectorAll(".cell").forEach(cell => cell.innerHTML = "");
+    displayBoard();
 }
