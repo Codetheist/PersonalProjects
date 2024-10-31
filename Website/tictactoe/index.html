@@ -11,8 +11,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"/>
 
         <!--Tailwind CSS-->
-        <link href="./dist/output.css" rel="stylesheet">
-
+        <!--<link href="./dist/output.css" rel="stylesheet">-->
+        <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css"/>
         <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
     </head>
@@ -24,32 +24,37 @@
             </div>
         </div> -->
 
-        <main class="container mx-auto">
-            <div class="py-8">
+        <main class="container mx-auto py-8">
+            <div class="flex flex-col items-center justify-center min-h-screen">
                 <h1 class="text-center text-4xl py-8">Tic Tac Toe</h1>
-            </div>
-            <div>
-                <section>
+
+                <section class="py-4">
                     <!--Game mode-->
-                    <div id="playerSelection"></div>
+                    <div id="playerSelection" class="flex flex-col text-center items-center"></div>
                     <!--Game Piece-->
-                    <div id="gamePiece"></div>
+                    <div id="gamePiece" class="flex flex-col text-center items-center"></div>
                     <!--Game Difficulty-->
-                    <div id="gameDifficultyLevel"></div>
+                    <div id="gameDifficultyLevel" class="flex flex-col text-center items-center"></div>
                 </section>
                 
-                <article>
+                <article class="py-4">
                     <!--Display Score -->
-                    <div id="scoreBoard"></div>
+                    <div id="scoreBoard" class="flex flex-col text-center items-center"></div>
                     <!--Display the board-->
-                    <div id="board"></div>
+                    <div id="board" class="flex text-center text-white"></div>
                 </article>
-                <h2 id="status"></h2>
+
+                <!--Status-->
+                <h2 id="status" class="text-center py-4"></h2>
+
                 <!-- Reset Game Button -->
-                <!-- <button class="w3-button w3-theme-d2 w3-margin-top" onclick="resetBoard()" id="reset">Reset Game</button> -->
-                <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
-                    <source src="audio/home.mp3" type="audio/mp3" />
-                </audio>-->
+                <div class="flex justify-center">
+                    <button class="mt-4 px-4 py-2 bg-gray-800 text-white rounded" onclick="resetBoard()" id="reset">Reset Game</button>
+                    <!--<button class="text-center w3-button w3-theme-d2 w3-margin-top" onclick="resetBoard()" id="reset">Reset Game</button>-->
+                    <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
+                        <source src="audio/home.mp3" type="audio/mp3" />
+                    </audio>-->
+                </div>
             </div>
         </main>
     </body>
@@ -58,5 +63,6 @@
     <!--<script src="..\..\script.js" defer></script>
     <script src="..\..\demo\tictactoe\src\js\script.js" defer></script>-->
     <!--<script src="../tictactoe/src/js/script.js" defer></script>-->
-    <script src="/Website/tictactoe/src/js/script.js" defer></script>
+    <!--<script src="/Website/tictactoe/src/js/script.js" defer></script>-->
+    <script src="src/js/script.js" defer></script>
 </html>
