@@ -11,14 +11,15 @@ const WIN_CONDITIONS = [
 ];
 
 // State variables
+let gameBoard = Array(9).fill("");
 let playerOneName = null;
 let playerTwoName = null;
 let computerPiece = null;
 let playerPiece = null;
-let gameBoard = Array(9).fill("");
+let pieceToUse = null;
 let playerOneScore = 0;
 let playerTwoScore = 0;
-let tieScore = 0;
+let catScore = 0;
 let gameDifficulty = null;
 let currentPlayer = null;
 
@@ -29,6 +30,8 @@ const boardElement = document.getElementById("board");
 const gameDifficultyLevelElement = document.getElementById("gameDifficultyLevel");
 const gamePieceElement = document.getElementById("gamePiece");
 const scoreBoardElement = document.getElementById("scoreBoard");
+const resetButton = document.getElementById("reset");
+const audioElement = document.getElementById("audio");
 
 // Event listeners
 document.addEventListener("DOMContentLoaded", init);
@@ -58,15 +61,43 @@ function displayPlayerSelection() {
 
 // Handle player selection
 function handlePlayerSelection(mode) {
+    // Check if player names are empty
+    let validName = false;
     playerSelectionElement.innerHTML = ""; // Clear previous options
     if (mode === "one") {
         playerOneName = prompt("Player One, please enter your name:");
-        playerTwoName = "Computer";
-        chooseXorO();
+        while (!validName) {
+            // Check to see if prompt was canceled to go back to initial screen
+            if (playerOneName === null) {
+                displayPlayerSelection();
+                return;
+            } else if (playerOneName.trim() === "") { // Check to see if name was entered if not give message name cannot be empty keep asking until name is entered
+                alert("Name cannot be empty");
+                playerOneName = prompt("Player One, please enter your name:");
+            } else {
+                validName = true;
+                playerTwoName = "Computer";
+                chooseXorO();
+            }
+        }
     } else {
         playerOneName = prompt("Player One, please enter your name:");
         playerTwoName = prompt("Player Two, please enter your name:");
-        chooseXorO();
+        while (!validName) {
+            // Check if prompt was canceled on either name to go back to initial screen
+            if (playerOneName === null || playerTwoName === null) {
+                displayPlayerSelection();
+                return;
+                // Check to see if either names are empty if so give message name cannot be empty
+            } else if (playerOneName.trim() === "" || playerTwoName.trim() === "") {
+                alert("Name cannot be empty");
+                playerOneName = prompt("Player One, please enter your name:");
+                playerTwoName = prompt("Player Two, please enter your name:");
+            } else {
+                validName = true;
+                chooseXorO();
+            }
+        }
     }
 }
 
@@ -131,7 +162,7 @@ function displayBoard() {
         <div class="flex flex-col gap-16 justify-center items-center">
             <div class="grid grid-cols-3">
                 <div><h3>${playerOneName}: <span id="playerOneScore">${playerOneScore}</span></h3></div>
-                <div><h3>Ties: <span id="tieScore">${tieScore}</span></h3></div>
+                <div><h3>Cat: <span id="catScore">${catScore}</span></h3></div>
                 <div><h3>${playerTwoName}: <span id="playerTwoScore">${playerTwoScore}</span></h3></div>
             </div>
         </div>
@@ -144,10 +175,16 @@ function displayBoard() {
         </div>
     `;
 
+    // Display reset button
+    resetButton.innerHTML = `<button class="mt-4 px-4 py-2 bg-gray-800 text-white rounded" onclick="resetGame()">Reset Game</button>`;
+
     // Add click event listeners to the cells
     document.querySelectorAll(".cell").forEach(cell => {
         cell.addEventListener("click", cellClicked);
     });
+
+    // Play audio
+    playAudio();
 }
 
 // Cell click event
@@ -155,23 +192,43 @@ function cellClicked(event) {
     const cell = event.target;
     const cellIndex = cell.getAttribute("data-cell-index");
 
-    // Debugging
-    console.log("Cell clicked:", cellIndex);
-
     // Check if the cell is empty and it's the player's turn
     if (gameBoard[cellIndex] !== "") return;
 
-    // Player's move
-    makeMove(cellIndex, playerPiece);
+    // Determin which piece to play
+    if (currentPlayer === playerOneName) {
+        pieceToUse = playerPiece;
+    } else {
+        // If another player is playing
+        if (playerTwoName !== "Computer") {
+            if (playerPiece === "X") {
+                pieceToUse = "O";
+            } else {
+                pieceToUse = "X";
+            }
+        }
+    }
+
+    // Players move
+    makeMove(cellIndex, pieceToUse);
 
     // Check game status after the player's move
-    if (checkGameStatus(playerPiece)) return;
+    if (checkGameStatus(pieceToUse)) return;
 
     // Switch to computer's turn if applicable
     if (playerTwoName === "Computer") {
         // Play computer move after player's move
         setTimeout(computerMove, 500);
+    } else {
+        // Switch players if two players
+        if (currentPlayer === playerOneName) {
+            currentPlayer = playerTwoName;
+        } else {
+            currentPlayer = playerOneName;
+        }
+        console.log(currentPlayer);
     }
+    updateStatus(`${currentPlayer}'s turn`);
 }
 
 // Make a move on the board
@@ -205,13 +262,13 @@ function checkGameStatus(piece) {
     if (checkForWin(gameBoard, piece)) {
         updateStatus(`${piece === playerPiece ? playerOneName : playerTwoName} wins!`);
         updateScore(piece);
-        setTimeout(resetBoard, 1000); // Reset board after a short delay
+        setTimeout(clearBoard, 1000); // Reset board after a short delay
         return true;
     } else if (checkTie()) {
-        updateStatus("It's a tie!");
-        tieScore++;
-        document.getElementById("tieScore").textContent = tieScore;
-        setTimeout(resetBoard, 1000);
+        updateStatus("It is a cat game!");
+        catScore++;
+        document.getElementById("catScore").textContent = catScore;
+        setTimeout(clearBoard, 1000);
         return true;
     }
 
@@ -237,18 +294,14 @@ function updateScore(piece) {
     }
 }
 
-// Reset the game board
-function resetBoard() {
+// Clear the game board
+function clearBoard() {
     gameBoard.fill("");
     displayBoard();
-    // Debugging
-    console.log("Game board reset");
 }
 
 // Update the game board UI
 function updateGameBoard() {
-    // Debugging
-    console.log("Game board updated");
     gameBoard.forEach((piece, index) => {
         const cell = document.querySelector(`.cell[data-cell-index="${index}"]`);
         cell.textContent = piece;
@@ -311,4 +364,32 @@ function minimax(board, piece) {
     return piece === computerPiece
         ? moves.reduce((bestMove, move) => (move.score > bestMove.score ? move : bestMove), { score: -Infinity })
         : moves.reduce((bestMove, move) => (move.score < bestMove.score ? move : bestMove), { score: Infinity });
+}
+
+// Audio
+function playAudio() {
+    audioElement.innerHTML = `
+    <audio id="crossfade" class="w3-display-bottommiddle" controls loop autoplay>
+        <source src="audio/home.mp3" type="audio/mp3" />
+    </audio>`
+}
+
+// Reset the game
+function resetGame() {
+    playerOneName = null;
+    playerTwoName = null;
+    computerPiece = null;
+    playerPiece = null;
+    gameBoard = Array(9).fill("");
+    playerOneScore = 0;
+    playerTwoScore = 0;
+    catScore = 0;
+    gameDifficulty = null;
+    currentPlayer = null;
+    gameStatusElement.textContent = "";
+    scoreBoardElement.innerHTML = "";
+    boardElement.innerHTML = "";
+    resetButton.innerHTML = "";
+    audioElement.innerHTML = "";
+    displayPlayerSelection();
 }
