@@ -18,11 +18,11 @@
     </head>
 
     <body>
-        <!-- <div class="w3-top">
+        <div class="w3-top">
             <div class="w3-bar w3-card w3-black w3-left-align w3-large">
                 <a href="#" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i class="fa fa-home w3-margin-right"></i>Logo</a>
             </div>
-        </div> -->
+        </div>
 
         <main class="container mx-auto py-8">
             <div class="flex flex-col items-center justify-center min-h-screen">
@@ -49,12 +49,14 @@
 
                 <!-- Reset Game Button -->
                 <div class="flex justify-center">
-                    <button class="mt-4 px-4 py-2 bg-gray-800 text-white rounded" onclick="resetBoard()" id="reset">Reset Game</button>
-                    <!--<button class="text-center w3-button w3-theme-d2 w3-margin-top" onclick="resetBoard()" id="reset">Reset Game</button>-->
-                    <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
+                    <div id="reset"></div>
+                </div>
+
+                <!--Audio-->
+                <!--<audio class="w3-display-bottommiddle" controls loop autoplay>
                         <source src="audio/home.mp3" type="audio/mp3" />
                     </audio>-->
-                </div>
+                <div id="audio"></div>
             </div>
         </main>
     </body>
