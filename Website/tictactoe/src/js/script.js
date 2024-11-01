@@ -55,8 +55,12 @@ function displayPlayerSelection() {
         </div>
     `;
 
-    document.getElementById("onePlayer").addEventListener("click", () => handlePlayerSelection("one"));
-    document.getElementById("twoPlayers").addEventListener("click", () => handlePlayerSelection("two"));
+    document.getElementById("onePlayer").addEventListener("click", function () {
+        handlePlayerSelection("one")
+    });
+    document.getElementById("twoPlayers").addEventListener("click", function () {
+        handlePlayerSelection("two")
+    });
 }
 
 // Handle player selection
@@ -106,28 +110,57 @@ function chooseXorO() {
     gamePieceElement.innerHTML = `
         <div class="flex flex-col justify-center items-center">
             <h3 class="text-center text-2xl mb-4">Do you want to be X or O?</h3>
-            <div class="grid grid-cols-2 gap-10 mt-8">
+            <div class="grid grid-cols-3 gap-10 mt-8">
                 <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="gamePieceX">X</button>
                 <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="gamePieceO">O</button>
+                <button class="inline-block px-6 py-2.5 bg-gray-800 text-white font-medium text-md rounded" id="randomPiece">Random</button>
             </div>
         </div>
     `;
-    document.getElementById("gamePieceX").addEventListener("click", () => setPlayerPiece("X"));
-    document.getElementById("gamePieceO").addEventListener("click", () => setPlayerPiece("O"));
+    document.getElementById("gamePieceX").addEventListener("click", function () {
+        setPlayerPiece("X");
+    });
+    document.getElementById("gamePieceO").addEventListener("click", function () {
+        setPlayerPiece("O");
+    });
+    document.getElementById("randomPiece").addEventListener("click", function () {
+        let randomSelection = Math.random();
+        if (randomSelection < 0.5) {
+            setPlayerPiece("X");
+        } else {
+            setPlayerPiece("O");
+        }
+    });
 }
 
 // Set the player's piece
 function setPlayerPiece(piece) {
     playerPiece = piece;
-    computerPiece = piece === "X" ? "O" : "X";
-    currentPlayer = playerOneName;
+
+    if (piece === "X") {
+        computerPiece = "O";
+        currentPlayer = playerOneName;
+    } else if (piece === "O") {
+        computerPiece = "X";
+        currentPlayer = playerTwoName;
+    }
+
+    if (computerPiece === "X") {
+        currentPlayer = playerTwoName;
+    } else {
+        currentPlayer = playerOneName;
+    }
+
+    gamePieceElement.innerHTML = "";
 
     if (playerTwoName === "Computer") {
-        gamePieceElement.innerHTML = "";
         displayDifficultyButtons();
     } else {
         displayBoard();
     }
+
+    // Update stauts to current player
+    updateStatus(`${currentPlayer}'s turn`)
 }
 
 // Display Difficulty Level
@@ -142,9 +175,15 @@ function displayDifficultyButtons() {
             </div>
         </div>
     `;
-    document.getElementById("easy").addEventListener("click", () => setGameDifficulty("easy"));
-    document.getElementById("medium").addEventListener("click", () => setGameDifficulty("medium"));
-    document.getElementById("hard").addEventListener("click", () => setGameDifficulty("hard"));
+    document.getElementById("easy").addEventListener("click", function () {
+        setGameDifficulty("easy")
+    });
+    document.getElementById("medium").addEventListener("click", function () {
+        setGameDifficulty("medium")
+    });
+    document.getElementById("hard").addEventListener("click", function () {
+        setGameDifficulty("hard")
+    });
 }
 
 // Set the game difficulty
@@ -193,14 +232,17 @@ function cellClicked(event) {
     const cellIndex = cell.getAttribute("data-cell-index");
 
     // Check if the cell is empty and it's the player's turn
-    if (gameBoard[cellIndex] !== "") return;
+    if (gameBoard[cellIndex] !== "" || currentPlayer === null) {
+        return;
+    }
 
     // Determin which piece to play
     if (currentPlayer === playerOneName) {
         pieceToUse = playerPiece;
     } else {
-        // If another player is playing
-        if (playerTwoName !== "Computer") {
+        if (playerTwoName === "Computer") {
+            pieceToUse = computerPiece;
+        } else {
             if (playerPiece === "X") {
                 pieceToUse = "O";
             } else {
@@ -213,7 +255,9 @@ function cellClicked(event) {
     makeMove(cellIndex, pieceToUse);
 
     // Check game status after the player's move
-    if (checkGameStatus(pieceToUse)) return;
+    if (checkGameStatus(pieceToUse)) {
+        return;
+    }
 
     // Switch to computer's turn if applicable
     if (playerTwoName === "Computer") {
@@ -226,9 +270,9 @@ function cellClicked(event) {
         } else {
             currentPlayer = playerOneName;
         }
+        updateStatus(`${currentPlayer}'s turn`);
         console.log(currentPlayer);
     }
-    updateStatus(`${currentPlayer}'s turn`);
 }
 
 // Make a move on the board
@@ -260,7 +304,13 @@ function computerMove() {
 // Check the game status for win/tie after a move
 function checkGameStatus(piece) {
     if (checkForWin(gameBoard, piece)) {
-        updateStatus(`${piece === playerPiece ? playerOneName : playerTwoName} wins!`);
+        let winnerName;
+        if (piece === playerPiece) {
+            winnerName = playerOneName;
+        } else {
+            winnerName = playerTwoName;
+        }
+        updateStatus(`${winnerName} wins!`);
         updateScore(piece);
         setTimeout(clearBoard, 1000); // Reset board after a short delay
         return true;
@@ -273,7 +323,11 @@ function checkGameStatus(piece) {
     }
 
     // Switch player if no win/tie
-    currentPlayer = currentPlayer === playerOneName ? playerTwoName : playerOneName;
+    if (currentPlayer === playerOneName) {
+        currentPlayer = playerTwoName;
+    } else {
+        currentPlayer = playerOneName;
+    }
     updateStatus(`${currentPlayer}'s turn`);
     return false;
 }
@@ -326,8 +380,14 @@ function checkTie() {
 
 // Generate a random move for the computer
 function randomMove() {
-    const emptyCells = gameBoard.map((cell, index) => (cell === "" ? index : null)).filter(index => index !== null);
-    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    const emptyCells = [];
+    for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === "") {
+            emptyCells.push(i);
+        }
+    }
+    const randomIndex = Math.floor(Math.random() * emptyCells.length)
+    return emptyCells[randomIndex];
 }
 
 // Find a winning move for the computer
@@ -347,23 +407,69 @@ function findWinningMove() {
 
 // Minimax algorithm for hard difficulty
 function minimax(board, piece) {
-    const availableCells = board.map((cell, index) => (cell === "" ? index : null)).filter(index => index !== null);
+    let opponentPiece;
+    const availableCells = [];
 
-    if (checkForWin(board, playerPiece)) return { score: -10 };
-    if (checkForWin(board, computerPiece)) return { score: 10 };
-    if (availableCells.length === 0) return { score: 0 };
+    for (let i = 0; i < board.length; i++) {
+        if (board[i] === "") {
+            availableCells.push(i);
+        }
+    }
+
+    if (checkForWin(board, playerPiece)) {
+        return { score: -10 };
+    }
+    if (checkForWin(board, computerPiece)) {
+        return { score: 10 };
+    }
+    if (availableCells.length === 0) {
+        return { score: 0 };
+    }
 
     let moves = [];
-    for (const cell of availableCells) {
+    for (let j = 0; j < availableCells.length; j++) {
+        const cell = availableCells[j];
         board[cell] = piece;
-        const result = minimax(board, piece === computerPiece ? playerPiece : computerPiece);
-        moves.push({ score: result.score, position: cell });
+        if (piece === computerPiece) {
+            opponentPiece = playerPiece;
+        } else {
+            opponentPiece = computerPiece;
+        }
+        const result = minimax(board, opponentPiece);
+
+        const move = {
+            score: result.score,
+            position: cell
+        };
+
+        moves.push(move);
         board[cell] = ""; // Reset the cell
     }
 
-    return piece === computerPiece
-        ? moves.reduce((bestMove, move) => (move.score > bestMove.score ? move : bestMove), { score: -Infinity })
-        : moves.reduce((bestMove, move) => (move.score < bestMove.score ? move : bestMove), { score: Infinity });
+    let bestMove;
+    if (piece === computerPiece) {
+        bestMove = {
+            score: -Infinity
+        };
+        for (let k = 0; k < moves.length; k++) {
+            const move = moves[k];
+            if (move.score > bestMove.score) {
+                bestMove = move;
+            }
+        }
+    } else {
+        bestMove = {
+            score: Infinity
+        };
+        for (let k = 0; k < moves.length; k++) {
+            const move = moves[k];
+            if (move.score < bestMove.score) {
+                bestMove = move;
+            }
+        }
+    }
+
+    return bestMove
 }
 
 // Audio
