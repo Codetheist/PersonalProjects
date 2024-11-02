@@ -15,8 +15,8 @@ let gameBoard = Array(9).fill("");
 let playerOneName = null;
 let playerTwoName = null;
 let computerPiece = null;
-let playerPiece = null;
-let pieceToUse = null;
+let playerOnePiece = null;
+let playerTwoPiece = null;
 let playerOneScore = 0;
 let playerTwoScore = 0;
 let catScore = 0;
@@ -124,7 +124,7 @@ function chooseXorO() {
         setPlayerPiece("O");
     });
     document.getElementById("randomPiece").addEventListener("click", function () {
-        let randomSelection = Math.random();
+        const randomSelection = Math.random();
         if (randomSelection < 0.5) {
             setPlayerPiece("X");
         } else {
@@ -135,20 +135,22 @@ function chooseXorO() {
 
 // Set the player's piece
 function setPlayerPiece(piece) {
-    playerPiece = piece;
+    playerOnePiece = piece;
 
-    if (piece === "X") {
-        computerPiece = "O";
-        currentPlayer = playerOneName;
-    } else if (piece === "O") {
-        computerPiece = "X";
-        currentPlayer = playerTwoName;
-    }
-
-    if (computerPiece === "X") {
-        currentPlayer = playerTwoName;
+    // Set the computer's piece if playing against the computer
+    if (playerTwoName === "Computer") {
+        if (playerOnePiece === "X") {
+            computerPiece = "O";
+        } else {
+            computerPiece = "X";
+        }
     } else {
-        currentPlayer = playerOneName;
+        // Set the second player's piece if playing against another player
+        if (playerOnePiece === "X") {
+            playerTwoPiece = "O";
+        } else {
+            playerTwoPiece = "X";
+        }
     }
 
     gamePieceElement.innerHTML = "";
@@ -158,9 +160,6 @@ function setPlayerPiece(piece) {
     } else {
         displayBoard();
     }
-
-    // Update stauts to current player
-    updateStatus(`${currentPlayer}'s turn`)
 }
 
 // Display Difficulty Level
@@ -217,41 +216,110 @@ function displayBoard() {
     // Display reset button
     resetButton.innerHTML = `<button class="mt-4 px-4 py-2 bg-gray-800 text-white rounded" onclick="resetGame()">Reset Game</button>`;
 
-    // Add click event listeners to the cells
-    document.querySelectorAll(".cell").forEach(cell => {
-        cell.addEventListener("click", cellClicked);
-    });
+    // Add click event listeners to the cells against another player
+    if (playerTwoName === "Computer") {
+        // Add click event listeners to the cells against the computer
+        document.querySelectorAll(".cell").forEach(cell => {
+            cell.addEventListener("click", playingAgainstComputer);
+        });
+    } else {
+        document.querySelectorAll(".cell").forEach(cell => {
+            cell.addEventListener("click", playingAgainstPlayer);
+        });
+    }
+
+    // Find who is X goes first use the status to display who goes first
+    if (playerOnePiece === "X") {
+        currentPlayer = playerOneName;
+    } else {
+        currentPlayer = playerTwoName;
+    }
+    updateStatus(`${currentPlayer}'s turn`);
 
     // Play audio
     playAudio();
 }
 
-// Cell click event
-function cellClicked(event) {
+// Cell click event against the computer
+function playingAgainstComputer(event) {
     const cell = event.target;
     const cellIndex = cell.getAttribute("data-cell-index");
 
     // Check if the cell is empty and it's the player's turn
-    if (gameBoard[cellIndex] !== "" || currentPlayer === null) {
+    if (gameBoard[cellIndex] !== "") {
         return;
     }
 
-    // Determin which piece to play
+    // Players move
+    makeMove(cellIndex, playerOnePiece);
+
+    console.log("Player's move: ", cellIndex);
+    console.log("Game board: ", gameBoard);
+    console.log("Player's piece: ", playerOnePiece);
+    console.log("Computer's piece: ", computerPiece);
+    console.log("Current player: ", currentPlayer);
+    console.log("Game difficulty: ", gameDifficulty);
+    console.log("Game status: ", checkGameStatus(playerOnePiece));
+    console.log("Current player: ", currentPlayer);
+    console.log("Player One: ", playerOneName);
+    console.log("Player Two: ", playerTwoName);
+    console.log("Computer piece: ", computerPiece);
+
+    // Check game status after the player's move
+    if (checkGameStatus(playerOnePiece)) {
+        return;
+    }
+
+    // Play computer move after player's move
+    if (playerTwoName === "Computer") {
+        setTimeout(computerMove, 500);
+    }
+}
+
+// Playing against another player
+function playingAgainstPlayer(event) {
+    const cell = event.target;
+    const cellIndex = cell.getAttribute("data-cell-index");
+
+    // Check if the cell is empty and it's the player's turn
+    if (gameBoard[cellIndex] !== "") {
+        return;
+    }
+
+    // Debugging
+    console.log("Player's move: ", cellIndex);
+    console.log("Game board: ", gameBoard);
+    console.log("Player's piece: ", playerOnePiece);
+    console.log("Current player: ", currentPlayer);
+    console.log("Game status: ", checkGameStatus(playerOnePiece));
+    console.log("Current player: ", currentPlayer);
+    console.log("Player One: ", playerOneName);
+    console.log("Player Two: ", playerTwoName);
+    //console.log(`Player Two's piece: ${playerOnePiece === "X" ? "O" : "X"}`);
+
+    let pieceToUse;
+
     if (currentPlayer === playerOneName) {
-        pieceToUse = playerPiece;
+        pieceToUse = playerOnePiece;
+        //Debugging
+        console.log("Player One's piece: ", pieceToUse);
     } else {
-        if (playerTwoName === "Computer") {
+        if (computerPiece) {
             pieceToUse = computerPiece;
         } else {
-            if (playerPiece === "X") {
+            if (playerOnePiece === "X") {
                 pieceToUse = "O";
+                //Debugging
+                console.log("Player Two's piece: ", pieceToUse);
             } else {
                 pieceToUse = "X";
+                //Debugging
+                console.log("Player Two's piece: ", pieceToUse);
             }
         }
     }
 
-    // Players move
+    // Make the move
     makeMove(cellIndex, pieceToUse);
 
     // Check game status after the player's move
@@ -259,24 +327,21 @@ function cellClicked(event) {
         return;
     }
 
-    // Switch to computer's turn if applicable
-    if (playerTwoName === "Computer") {
-        // Play computer move after player's move
-        setTimeout(computerMove, 500);
+    // Switch player after the move
+    if (currentPlayer === playerOneName) {
+        currentPlayer = playerTwoName;
     } else {
-        // Switch players if two players
-        if (currentPlayer === playerOneName) {
-            currentPlayer = playerTwoName;
-        } else {
-            currentPlayer = playerOneName;
-        }
-        updateStatus(`${currentPlayer}'s turn`);
-        console.log(currentPlayer);
+        currentPlayer = playerOneName;
     }
+
+    // Update the status
+    updateStatus(`${currentPlayer}'s turn`);
 }
 
 // Make a move on the board
 function makeMove(cellIndex, piece) {
+    // Debugging
+    console.log(`Making move: ${piece} at cell: ${cellIndex}`);
     gameBoard[cellIndex] = piece;
     updateGameBoard();
 }
@@ -305,20 +370,20 @@ function computerMove() {
 function checkGameStatus(piece) {
     if (checkForWin(gameBoard, piece)) {
         let winnerName;
-        if (piece === playerPiece) {
+        if (piece === playerOnePiece) {
             winnerName = playerOneName;
         } else {
             winnerName = playerTwoName;
         }
         updateStatus(`${winnerName} wins!`);
         updateScore(piece);
-        setTimeout(clearBoard, 1000); // Reset board after a short delay
+        setTimeout(clearBoard, 500); // Reset board after a short delay
         return true;
     } else if (checkTie()) {
         updateStatus("It is a cat game!");
         catScore++;
         document.getElementById("catScore").textContent = catScore;
-        setTimeout(clearBoard, 1000);
+        setTimeout(clearBoard, 500);
         return true;
     }
 
@@ -330,16 +395,17 @@ function checkGameStatus(piece) {
     }
     updateStatus(`${currentPlayer}'s turn`);
     return false;
+
 }
 
-// Update the status display
+// Update the game status
 function updateStatus(message) {
     gameStatusElement.textContent = message;
 }
 
 // Update the scoreboard
 function updateScore(piece) {
-    if (piece === playerPiece) {
+    if (piece === playerOnePiece) {
         playerOneScore++;
         document.getElementById("playerOneScore").textContent = playerOneScore;
     } else {
@@ -351,6 +417,7 @@ function updateScore(piece) {
 // Clear the game board
 function clearBoard() {
     gameBoard.fill("");
+    gameStatusElement.textContent = "";
     displayBoard();
 }
 
@@ -415,8 +482,13 @@ function minimax(board, piece) {
             availableCells.push(i);
         }
     }
+    if (piece === computerPiece) {
+        opponentPiece = playerOnePiece;
+    } else {
+        opponentPiece = computerPiece;
+    }
 
-    if (checkForWin(board, playerPiece)) {
+    if (checkForWin(board, playerOnePiece)) {
         return { score: -10 };
     }
     if (checkForWin(board, computerPiece)) {
@@ -430,20 +502,21 @@ function minimax(board, piece) {
     for (let j = 0; j < availableCells.length; j++) {
         const cell = availableCells[j];
         board[cell] = piece;
-        if (piece === computerPiece) {
-            opponentPiece = playerPiece;
-        } else {
-            opponentPiece = computerPiece;
-        }
+
+        // Recursively call minimax
         const result = minimax(board, opponentPiece);
 
+        // Store the result
         const move = {
             score: result.score,
             position: cell
         };
 
+        // Store the move
         moves.push(move);
-        board[cell] = ""; // Reset the cell
+
+        // Reset the cell
+        board[cell] = "";
     }
 
     let bestMove;
@@ -474,10 +547,10 @@ function minimax(board, piece) {
 
 // Audio
 function playAudio() {
-    audioElement.innerHTML = `
+    /*audioElement.innerHTML = `
     <audio id="crossfade" class="w3-display-bottommiddle" controls loop autoplay>
         <source src="audio/home.mp3" type="audio/mp3" />
-    </audio>`
+    </audio>`*/
 }
 
 // Reset the game
@@ -485,7 +558,7 @@ function resetGame() {
     playerOneName = null;
     playerTwoName = null;
     computerPiece = null;
-    playerPiece = null;
+    playerOnePiece = null;
     gameBoard = Array(9).fill("");
     playerOneScore = 0;
     playerTwoScore = 0;
