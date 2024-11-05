@@ -1,3 +1,4 @@
+New:
 // Constants
 const WIN_CONDITIONS = [
     [0, 1, 2],
@@ -253,27 +254,12 @@ function playingAgainstComputer(event) {
     // Players move
     makeMove(cellIndex, playerOnePiece);
 
-    console.log("Player's move: ", cellIndex);
-    console.log("Game board: ", gameBoard);
-    console.log("Player's piece: ", playerOnePiece);
-    console.log("Computer's piece: ", computerPiece);
-    console.log("Current player: ", currentPlayer);
-    console.log("Game difficulty: ", gameDifficulty);
-    console.log("Game status: ", checkGameStatus(playerOnePiece));
-    console.log("Current player: ", currentPlayer);
-    console.log("Player One: ", playerOneName);
-    console.log("Player Two: ", playerTwoName);
-    console.log("Computer piece: ", computerPiece);
-
     // Check game status after the player's move
     if (checkGameStatus(playerOnePiece)) {
         return;
     }
 
-    // Play computer move after player's move
-    if (playerTwoName === "Computer") {
-        setTimeout(computerMove, 500);
-    }
+    setTimeout(computerMove, 500);
 }
 
 // Playing against another player
@@ -286,41 +272,17 @@ function playingAgainstPlayer(event) {
         return;
     }
 
-    // Debugging
-    console.log("Player's move: ", cellIndex);
-    console.log("Game board: ", gameBoard);
-    console.log("Player's piece: ", playerOnePiece);
-    console.log("Current player: ", currentPlayer);
-    console.log("Game status: ", checkGameStatus(playerOnePiece));
-    console.log("Current player: ", currentPlayer);
-    console.log("Player One: ", playerOneName);
-    console.log("Player Two: ", playerTwoName);
-    //console.log(`Player Two's piece: ${playerOnePiece === "X" ? "O" : "X"}`);
-
     let pieceToUse;
 
     if (currentPlayer === playerOneName) {
         pieceToUse = playerOnePiece;
-        //Debugging
-        console.log("Player One's piece: ", pieceToUse);
     } else {
-        if (computerPiece) {
-            pieceToUse = computerPiece;
-        } else {
-            if (playerOnePiece === "X") {
-                pieceToUse = "O";
-                //Debugging
-                console.log("Player Two's piece: ", pieceToUse);
-            } else {
-                pieceToUse = "X";
-                //Debugging
-                console.log("Player Two's piece: ", pieceToUse);
-            }
-        }
+        pieceToUse = playerTwoPiece;
     }
 
     // Make the move
     makeMove(cellIndex, pieceToUse);
+    console.log(`${currentPlayer} just played ${pieceToUse}`);
 
     // Check game status after the player's move
     if (checkGameStatus(pieceToUse)) {
@@ -340,10 +302,10 @@ function playingAgainstPlayer(event) {
 
 // Make a move on the board
 function makeMove(cellIndex, piece) {
-    // Debugging
-    console.log(`Making move: ${piece} at cell: ${cellIndex}`);
     gameBoard[cellIndex] = piece;
-    updateGameBoard();
+    requestAnimationFrame(() => {
+        updateGameBoard();
+    });
 }
 
 // Computer move logic
@@ -425,11 +387,13 @@ function clearBoard() {
 function updateGameBoard() {
     gameBoard.forEach((piece, index) => {
         const cell = document.querySelector(`.cell[data-cell-index="${index}"]`);
-        cell.textContent = piece;
-        // Add border for visual separation
-        cell.style.border = "2px solid black";
-        // Giving background color for visual separation
-        cell.style.backgroundColor = "lightgray";
+        if (cell) {
+            cell.textContent = piece;
+            // Add border for visual separation
+            cell.style.border = "2px solid black";
+            // Giving background color for visual separation
+            cell.style.backgroundColor = "lightgray";
+        }
     });
 }
 
