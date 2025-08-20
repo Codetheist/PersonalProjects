@@ -3,6 +3,7 @@ node_modules*
 packages*
 package.json*
 package-lock.json*
+Project\ Ideas/
 
 # Compiled code
 .o
