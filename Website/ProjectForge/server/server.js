@@ -9,6 +9,10 @@ const connectLiveReload = require("connect-livereload");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
+<<<<<<< HEAD
+=======
+const RateLimit = require("express-rate-limit");
+>>>>>>> 530cc1bbe15b14874ca4898bcf536c3c0105a555
 
 // Application config
 const { config } = require("./config");
@@ -30,6 +34,14 @@ const { db, initDb, parseTaskRow } = require("./db/db");
 
 const app = express();
 
+<<<<<<< HEAD
+=======
+const rootLimiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs for the root route
+});
+
+>>>>>>> 530cc1bbe15b14874ca4898bcf536c3c0105a555
 app.use(cors({
     origin: config.corsOrigin,
     credentials: true
@@ -75,7 +87,11 @@ app.use("/api/tasks", ({
 }));*/
 
 // Root route
+<<<<<<< HEAD
 app.get("/", (req, res) => {
+=======
+app.get("/", rootLimiter, (req, res) => {
+>>>>>>> 530cc1bbe15b14874ca4898bcf536c3c0105a555
     res.sendFile(path.join(staticDir, 'index.html'));
 });
 
