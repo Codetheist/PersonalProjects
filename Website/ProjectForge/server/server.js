@@ -9,6 +9,7 @@ const connectLiveReload = require("connect-livereload");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
+const RateLimit = require("express-rate-limit");
 
 // Application config
 const { config } = require("./config");
@@ -29,6 +30,11 @@ const { buildTasksRepo } = require("./db/tasks.repo");*/
 const { db, initDb, parseTaskRow } = require("./db/db");
 
 const app = express();
+
+const rootLimiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs for the root route
+});
 
 app.use(cors({
     origin: config.corsOrigin,
@@ -75,7 +81,7 @@ app.use("/api/tasks", ({
 }));*/
 
 // Root route
-app.get("/", (req, res) => {
+app.get("/", rootLimiter, (req, res) => {
     res.sendFile(path.join(staticDir, 'index.html'));
 });
 
