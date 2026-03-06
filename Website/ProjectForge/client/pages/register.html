@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../assets/css/styles.css">
+	<title>Project Forge - Register</title>
+</head>
+<body id="top">
+	<a href="#main-content">Skip to main content</a>
+	
+	<header>
+		<h1></h1>
+		<nav aria-label="Primary">
+		<a href="index.html">Home</a>
+		<a href="tasks.html">Tasks</a>
+        <a href="login.html">Login</a>
+	</nav>
+	</header>
+	<main id="main-content">
+		<section aria-labelledby="register-heading">
+            <h2 id="register-heading">Create account</h2>
+            <form id="register-form">
+                <div class="form-grid">
+                    <label>
+                        Email
+                        <input type="email" id="register-email" required />
+                    </label>
+
+                    <label>
+                        Password (8+ characters)
+                        <input type="password" id="register-password" required minlength="8">
+                    </label>
+                </div>
+                <button type="submit">Create account</button>
+                <p id="register-error" role="alert" aria-live="polite"></p>
+            </form>
+
+            <p>
+                Already have an account?
+                <a href="login.html">Sign in</a>
+            </p>
+		</section>
+	</main>
+	<footer>
+		<p>&copy; 2025 Project Forge.</p>
+		<p><a href="#top">Back to Top</a></p>
+	</footer>
+	<script src="../assets/js/app.js"></script>
+</body>
+</html>
