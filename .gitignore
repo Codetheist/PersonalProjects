@@ -28,6 +28,8 @@ Thumbs.db
 .vscode
 
 # Environment
-/Django/.env
-/Website/*/.env
+.env
+.env.*
+**/.env
+**/.env.*
 *.vsidx
