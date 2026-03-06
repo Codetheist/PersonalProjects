@@ -5,7 +5,11 @@
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.3",
+<<<<<<< HEAD
     "@tailwindcss/line-clamp": "^0.4.2",
+=======
+    "@tailwindcss/line-clamp": "^0.4.4",
+>>>>>>> 530cc1bbe15b14874ca4898bcf536c3c0105a555
     "@tailwindcss/typography": "^0.5.9"
   }
 }
