@@ -34,5 +34,5 @@ random.shuffle(password)
 # Convert the password list into a string
 password = "".join(password)
 
-# Print the password
-print(f"Your password is: {password}")
+# Inform the user that a password was generated without revealing it
+print("Your password has been generated. Please store it securely.")
