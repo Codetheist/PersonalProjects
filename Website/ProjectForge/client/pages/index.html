@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="../assets/css/styles.css">
+		<title>Project Forge</title>
+	</head>
+	<body id="top">
+		<a class="skip-link" href="#main-content">Skip to main content</a>
+
+		<header class="site-header">
+			<nav class="navBar" aria-label="Primary">
+			<div class="navLinks">
+				<a href="index.html">Home</a>
+				<a href="members.html">Members</a>
+				<a href="project.html">Project</a>
+				<a href="projects.html">Create a Project</a>
+				<a href="task.html">Create a Task</a>
+			</div>
+			<div class="authButtons">
+				<a class="buttonLook primaryButton" href="register.html">Sign Up</a>
+				<a class="buttonLook" href="login.html">Login</a>
+			</div>
+			</nav>
+		</header>
+		
+		<main id="main-content">
+			<section class="hero" aria-labelledby="hero-title">
+				<div class="heroText">
+					<h1 id="hero-title">Project Forge</h1>
+				
+					<p class="heroSubtitle">A simple hub for projects, tasks, deadlines, and team progress.</p>
+					<p class="heroSupport">Create a project, assign tasks, and track progress without digging through threads.</p>
+				
+					<div class="ctaRow" role="group" aria-label="Primary actions">
+						<a class="buttonLook createButton" href="projects.html">Create a Project</a>
+						<a class="buttonLook demoButton" href="project.html?demo=1">Try Demo</a>
+					</div>
+					
+					<p class="ctaHelp">No account required for demo</p>
+					<p class="ctaProof">Includes sample projects and tasks</p>
+				</div>
+				<div class="heroPreview" aria-label="App preview">
+					<div class="previewCard">
+						<div class="previewHeader">
+							<div class="previewTitle">Demo: Signal Lantern</div>
+							<div class="previewMeta">Glassgarden Workspace • Owner: Avery • Members: 3</div>
+							<div class="previewGoal">Turn scattered ideas into shippable tasks.</div>
+						</div>
+						
+						<div class="previewStats">
+							<div class="stat">
+								<div class="statLabel">To do</div>
+								<div class="statValue">4</div>
+							</div>
+							<div class="stat">
+								<div class="statLabel">In Progress</div>
+								<div class="statValue">3</div>
+							</div>
+							<div class="stat">
+								<div class="statLabel">Done</div>
+								<div class="statValue">5</div>
+							</div>
+						</div>
+						
+						<div class="previewProgress" aria-label="Progress">
+							<div class="progressBar" role="progressbar" aria-valuenow="X" aria-valuemin="0" aria-valuemax="100">
+								<div class="progressFill" style="width: 42%;"></div>
+							</div>
+							<div class="progressText">42% complete (5/12 done)</div>
+						</div>
+						
+						<div class="milestoneStrip" aria-label="Milestones">
+							<span class="muted">Milestones:</span>
+							<span class="milestone">Setup Foundations</span>
+							<span class="milestoneSep">→</span>
+							<span class="milestone current">Build Core Flow</span>
+							<span class="milestoneSep">→</span>
+							<span class="milestone">Polish and Launch</span>
+						</div>
+						
+						<ul class="previewList" aria-label="Sample tasks">
+							<li class="taskRow">
+								<span class="badge badge-todo">To do</span>
+								<span class="taskText">Draft the workflow (statuses + rules)</span>
+								<span class="taskDue">Due Fri</span>
+							</li>
+							<li class="taskRow">
+								<span class="badge badge-inprogress">In Progress</span>
+								<span class="taskText">Design the UI mockups</span>
+								<span class="taskDue">Due Wed</span>
+							</li>
+							<li class="taskRow">
+								<span class="badge badge-done">Done</span>
+								<span class="taskText">Set up the database schema</span>
+								<span class="taskDue">Due Mon</span>
+							</li>
+							<li class="taskRow">
+								<span class="badge badge-done">Done</span>
+								<span class="taskText">Add progress summary (counts + %)</span>
+								<span class="taskDue">Done</span>
+							</li>
+						</ul>
+						
+						<div class="previewFooter">
+							<span class="muted">Views:</span> List • Board • Timeline
+							<span class="previewUpdate muted">• Last update: 2m ago</span>
+						</div>
+					</div>
+				</div>
+			</section>
+			
+			<section class="howItWorks" aria-labelledby="how-title">
+				<h2 id="how-title">Quick Highlights</h2>
+				<div class="steps">
+					<article class="step">
+						<h3>Create a Project</h3>
+						<p>Project timelines and milestones</p>
+					</article>
+					<article class="step">
+						<h3>Task Assignments</h3>
+						<p>Task assignments and statuses</p>
+					</article>
+					<article class="step">
+						<h3>Real-time Updates</h3>
+						<p>Real-time updates and comments</p>
+					</article>
+					<article class="step">
+						<h3>Filters and Views</h3>
+						<p>Filters, search, and saved views</p>
+					</article>
+				</div>
+			</section>
+			
+			<section class="coreFeatures" aria-labelledby="features-title">
+				<h2 id="features-title">Core Features</h2>
+				<ul class="featureGrid">
+					<li class="featureItem">Tasks with statuses, priorities, due dates</li>
+					<li class="featureItem">Milestones and deadlines</li>
+					<li class="featureItem">Comments and file attachments</li>
+					<li class="featureItem">Role-based access</li>
+					<li class="featureItem">Views: list, kanban, calendar</li>
+					<li class="featureItem">Search, tags, and filters</li>
+				</ul>
+			</section>
+		</main>
+		
+		<footer class="site-footer">
+			<a class="backToTop" href="#top">Back to Top</a>
+			<p class="copyright">&copy; <span id="year"></span> Project Forge</p>
+		</footer>
+		
+		<script src="../assets/js/app.js"></script>
+	</body>
+</html>

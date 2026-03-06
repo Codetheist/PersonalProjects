@@ -1,0 +1,433 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: radial-gradient(1200px 800px at 20% 20%, rgba(109,211,251,.10), transparent 55%),
+    radial-gradient(900px 700px at 80% 10%, rgba(126,134,255,.08), transparent 55%), #0b0c10;
+    color: #e9eef5;
+    font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    line-height: 1.5;
+}
+
+a {
+    color: #5aa9ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p {
+    margin: 0 0 12px;
+}
+
+ul {
+    margin: 12px 0 0;
+    padding-left: 18px;
+}
+
+/* Base / Accessibility / Document Hooks */
+#top {}
+
+.skip-link {}
+
+#year {}
+
+/* Layout / Main Container */
+#main-content {
+    max-width: 1100px;
+    margin: auto;
+    padding: 24px;
+}
+
+/* Header / Navigation */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+}
+
+/* Nav Bar */
+.navBar {
+    display: flex;
+    align-items: center;
+    max-width: 1100px;
+    padding: 14px 24px;
+    margin: 0 auto;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: 1.125rem;
+    flex-wrap: wrap;
+}
+
+.navLinks a {
+    display: inline-block;
+    font-weight: 600;
+    font-size: .875rem;
+    padding: 8px 10px;
+    color: #e9eef5;
+    border-radius: 10px;
+}
+
+/* Buttons (Reusable) */
+.authButtons {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+}
+
+.buttonLook {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem 1rem;
+    border: 1px solid #212734;
+    border-radius: .6rem;
+    background: #1b2230;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.buttonLook:hover {
+    filter: brightness(1.08);
+}
+
+.buttonLook:active {
+    transform: translateY(1px);
+}
+
+.buttonLook:focus-visible {
+    outline: 2px solid #5aa9ff;
+    outline-offset: 3px;
+}
+
+.primaryButton {
+    background: #6dd3fb;
+    color: #072433;
+    border-color: transparent;
+}
+
+.createButton {
+    background: #6dd3fb;
+    color: #072433;
+    border-color: red;
+}
+
+.createButton:hover {
+    opacity: .95;
+    text-decoration: none;
+}
+
+.demoButton {
+    background: blue;
+    color: #e9eef5;
+    border-color: red;
+}
+
+.demoButton:hover {
+    background: green;
+    text-decoration: none;
+}
+
+/* Hero Section */
+.hero {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    align-items: start;
+    gap: 26px;
+    padding: 24px 0 8px;
+}
+
+.heroText {
+    color: purple;
+}
+
+#hero-title {
+    color: green;
+}
+
+.heroSubtitle {
+    color: pink;
+}
+
+.heroSupport {
+    color: blue;
+}
+
+.ctaRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 6px 0 10px;
+}
+
+.ctaHelp {
+    margin: 0;
+    font-size: 13px;
+    color: #b8c2d1;
+}
+
+.ctaProof {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: b8c2d1;
+}
+
+/* Hero Preview Card */
+.heroPreview .previewCard {
+    background: gold;
+    border: 1px solid;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px;
+    padding: 16px;
+}
+
+.previewHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid;
+    margin-bottom: 14px;
+}
+
+.previewTitle {
+    font-weight: 900;
+    font-size: 16px;
+}
+
+.previewMeta {
+    color: #b8c2d1;
+    font-size: 13px;
+}
+
+.previewGoal {}
+
+.previewStats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.stat {
+    background: silver;
+    border: blue;
+    border-radius: 50%;
+    padding: 10px;
+}
+
+.statLabel {
+    color: brown;
+    font-size: 16px;
+    margin-bottom: 80px;
+}
+
+.statValue {
+    font-weight: 800;
+    font-size: 24px;
+}
+
+/* Progress */
+.previewProgress {
+    margin:;
+}
+
+.progressBar {
+    height:;
+    border-radius:;
+    background:;
+    border:;
+    overflow:;
+}
+
+.progressFill {
+    height: 24px;
+    background: lawngreen;
+}
+
+.progressText {
+    margin-top: 50px;
+    font-size: 500;
+    color: magenta;
+}
+
+/* Milestones */
+.milestoneStrip {}
+
+.milestone {}
+
+.milestoneSep {}
+
+.milestone.current {}
+
+/* Task List */
+.previewList {
+    list-style:;
+    padding:;
+    margin:;
+    display:;
+    flex-direction:;
+    gap:;
+}
+
+.taskRow {
+    display:;
+    grid-template-columns:;
+    align-items:;
+    gap:;
+    padding:;
+    border-radius:;
+    background:;
+    border:;
+}
+
+.badge.badge-todo {}
+
+.taskText {
+    font-weight:;
+}
+
+.taskDue {
+    color:;
+    font-size:;
+}
+
+.badge.badge-inprogress {}
+
+.badge.badge-done {}
+
+.previewFooter {
+    margin-top:;
+    padding-top:;
+    border-top:;
+    color:;
+    font-size:;
+}
+
+.previewUpdate {}
+
+/* Sections (How It Works / Features) */
+.howItWorks .coreFeatures {
+    margin-top:;
+    padding-top:;
+    border-top:;
+}
+
+#how-title {}
+
+.steps {
+    display:;
+    grid-template-columns:;
+    gap:;
+}
+
+.step {
+    background:;
+    border:;
+    border-radius:;
+    padding:;
+}
+
+#features-title {}
+
+.featureGrid {
+    display:;
+    grid-template-columns:;
+    gap:;
+    list-style:;
+    padding:;
+    margin:;
+}
+
+.featureGrid li {
+    background:;
+    border:;
+    border-radius:;
+    padding:;
+    color:;
+}
+
+.featureItem {}
+
+/* Footer */
+.site-footer {
+    margin-top: 46px;
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.backToTop {
+    color:;
+    font-weight:;
+}
+
+.copyright {
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Utilities */
+.muted {}
+
+/* Responsive Page */
+/* Large tablets & small laptops */
+@media (max-width: 1024px) {
+    .navBar {
+        flex-wrap: wrap;
+        gap: .75rem;
+    }
+    .navLinks {
+        flex-wrap: wrap;
+        gap: 1.25rem;
+    }
+}
+
+/* Tablets & big phones */
+@media (max-width: 768px) {
+    .navLinks {
+        gap: .9rem;
+        justify-content: center;
+    }
+    .authButtons {
+        margin-left: 0;
+    }
+}
+
+/* Phones */
+@media (max-width: 480px) {
+    .navBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .navLinks {
+        flex-direction: column;
+        align-items: center;
+        gap: .6rem;
+        white-space: normal;
+    }
+    .authButtons {
+        justify-content: center;
+        gap: .6rem;
+    }
+    .buttonLook {
+        width: 100%;
+        text-align: center;
+    }
+}
