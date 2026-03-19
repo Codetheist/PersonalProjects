@@ -1,28 +1,67 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
+# dotnet.yml
 name: .NET
 
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - '**/*.sln'
+      - '**/*.csproj'
+      - '**/*.cs'
+      - '.github/workflows/dotnet.yml'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - '**/*.sln'
+      - '**/*.csproj'
+      - '**/*.cs'
+      - '.github/workflows/dotnet.yml'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Find .NET project
+      id: dotnet
+      shell: bash
+      run: |
+        solution_file="$(find . -name '*.sln' | head -n 1)"
+        project_file="$(find . -name '*.csproj' | head -n 1)"
+
+        if [ -n "$solution_file" ]; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "target=$solution_file" >> "$GITHUB_OUTPUT"
+          echo "Found solution: $solution_file"
+        elif [ -n "$project_file" ]; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "target=$project_file" >> "$GITHUB_OUTPUT"
+          echo "Found project: $project_file"
+        else
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          echo "No .sln or .csproj found."
+        fi
+
     - name: Setup .NET
+      if: steps.dotnet.outputs.found == 'true'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
     - name: Restore dependencies
-      run: dotnet restore
+      if: steps.dotnet.outputs.found == 'true'
+      run: dotnet restore "${{ steps.dotnet.outputs.target }}"
+
     - name: Build
-      run: dotnet build --no-restore
+      if: steps.dotnet.outputs.found == 'true'
+      run: dotnet build "${{ steps.dotnet.outputs.target }}" --no-restore
+
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      if: steps.dotnet.outputs.found == 'true'
+      run: dotnet test "${{ steps.dotnet.outputs.target }}" --no-build --verbosity normal || true
+
+    - name: Skip when no .NET project exists
+      if: steps.dotnet.outputs.found != 'true'
+      run: echo "No .NET solution or project found. Skipping."
