@@ -1,2 +1,2 @@
-# Personal_Programming_Projects
-This repository contains my projects in various programming languages that I have studied or am interested in.
+# Personal Programming Projects
+This repository contains projects I’ve made while learning and improving my programming skills across different languages and technologies.
