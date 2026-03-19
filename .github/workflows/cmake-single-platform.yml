@@ -14,6 +14,7 @@ on:
       - 'C/**'
       - '**/CMakeLists.txt'
       - '.github/workflows/cmake-single-platform.yml'
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
