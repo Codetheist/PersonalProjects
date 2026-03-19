@@ -1,34 +1,70 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
+# node.js.yml
 name: Node.js CI
 
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Website/**'
+      - 'Template/**'
+      - 'DevProjects/**'
+      - '.github/workflows/node.js.yml'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Website/**'
+      - 'Template/**'
+      - 'DevProjects/**'
+      - '.github/workflows/node.js.yml'
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Check for package.json
+      id: nodecheck
+      shell: bash
+      run: |
+        if [ -f "package.json" ]; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          echo "No root package.json found."
+        fi
+
     - name: Use Node.js ${{ matrix.node-version }}
+      if: steps.nodecheck.outputs.found == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+
+    - name: Install dependencies
+      if: steps.nodecheck.outputs.found == 'true'
+      run: npm ci
+
+    - name: Build
+      if: steps.nodecheck.outputs.found == 'true'
+      run: npm run build --if-present
+
+    - name: Test
+      if: steps.nodecheck.outputs.found == 'true'
+      run: npm test --if-present
+
+    - name: Skip when no Node project exists
+      if: steps.nodecheck.outputs.found != 'true'
+      run: echo "No root package.json found. Skipping."
