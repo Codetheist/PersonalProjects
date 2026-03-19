@@ -20,7 +20,7 @@ on:
       - 'Template/**'
       - 'DevProjects/**'
       - '.github/workflows/node.js.yml'
-
+  workflow_dispatch:
 permissions:
   contents: read
 
