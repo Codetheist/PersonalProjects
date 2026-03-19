@@ -14,6 +14,7 @@ on:
       - 'Python/**'
       - 'requirements.txt'
       - '.github/workflows/python-app.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
