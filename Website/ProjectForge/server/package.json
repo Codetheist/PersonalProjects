@@ -28,7 +28,7 @@
   "devDependencies": {
     "cross-env": "^10.1.0",
     "enlist": "^0.1.0",
-    "eslint": "^9.39.3",
+    "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "jest": "^30.2.0",
