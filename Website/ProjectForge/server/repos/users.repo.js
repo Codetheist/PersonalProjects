@@ -1,10 +1,12 @@
+// imports
 const { uid } = require("../utils/ids");
-const { createError, httpError } = require("../utils/errors");
+const { createError } = require("../utils/httpError");
 const argon2 = require("argon2");
+const { dbConnection } = require("../db/db");
 
 class UsersRepo {
-    constructor(db) {
-        this.db = db;
+    constructor() {
+        this.db = dbConnection;
     }
     
     async createUser({ username, email, password }) {
@@ -12,31 +14,32 @@ class UsersRepo {
         email = (email ?? "").trim();
 
         if (typeof password !== "string" || password.length < 8 || password !== password.trim()) {
-            throw createError.NotFound("Password must be at least 8 characters long and cannot have leading or trailing whitespace.");
+            throw createError.BadRequest("Password must be at least 8 characters long and cannot have leading or trailing whitespace.");
         }
 
         const id = uid();
         const password_hash = await argon2.hash(password);
 
         try {
-            await this.db.run(
-                `INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)`,
-                [id, username, email, password_hash]
-            );
+            this.db.prepare(`
+                INSERT INTO users (id, username, email, password_hash)
+                VALUES (?, ?, ?, ?)
+            `).run(id, username, email, password_hash);
         } catch (databaseError) {
             if (databaseError.message.includes("UNIQUE constraint failed: users.username")) {
-                throw httpErrors(400,"Username already exists.");
+                throw createError.BadRequest("Username already exists.");
             }
             if (databaseError.message.includes("UNIQUE constraint failed: users.email")) {
-                throw httpErrors(400,"Email already exists.");
+                throw createError.BadRequest("Email already exists.");
             }
-            throw httpErrors(500,"Database error.");
+            throw createError.InternalServerError("Database error.");
         }
 
-        return this.db.get(
-            `SELECT id, username, email, created_at, updated_at, is_active, deleted_at
-            FROM users WHERE id = ?`, [id]
-        );
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE id = ?
+        `).get(id);
         
 
     }
@@ -46,13 +49,12 @@ class UsersRepo {
         if (!identifier) {
             return null;
         }
-        const user = await this.db.get(
-            `SELECT id, username, email, password_hash, created_at, updated_at, is_active, deleted_at
+        const user = this.db.prepare(`
+            SELECT id, username, email, password_hash, created_at, updated_at, is_active, deleted_at
             FROM users
             WHERE (email = ? OR username = ?)
-            AND is_active = 1`,
-            [identifier, identifier]
-        );
+            AND is_active = 1
+        `).get(identifier, identifier);
         if (!user) {
             return null;
         }
@@ -68,34 +70,70 @@ class UsersRepo {
         return userWithoutPassword;
     }
 
-    async deactivateUser(userId) {
-        await this.db.run(
-            `UPDATE users
+    deactivateUser(userId) {
+        this.db.prepare(`
+            UPDATE users
             SET is_active = 0,
                 deleted_at = unixepoch()
-            WHERE id = ?`,
-            [userId]
-        );
+            WHERE id = ?
+        `).run(userId);
 
-        return this.db.get(
-            `SELECT id, username, email, created_at, updated_at, is_active, deleted_at
-            FROM users WHERE id = ?`, [userId]
-        );
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE id = ?
+        `).get(userId);
     }
 
-    async restoreUser(userId) {
-        await this.db.run(
-            `UPDATE users
+    restoreUser(userId) {
+        this.db.prepare(`
+            UPDATE users
             SET is_active = 1,
                 deleted_at = NULL
-            WHERE id = ?`,
-            [userId]
-        );
+            WHERE id = ?
+        `).run(userId);
 
-        return this.db.get(
-            `SELECT id, username, email, created_at, updated_at, is_active, deleted_at
-            FROM users WHERE id = ?`, [userId]
-        );
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE id = ?
+        `).get(userId);
+    }
+
+    findUserById(userId) {
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE id = ?
+        `).get(userId);
+    }
+
+    findUserByEmail(email) {
+        email = (email ?? "").trim();
+        
+        if (!email) {
+            return null;
+        }
+        
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE email = ?
+        `).get(email);
+    }
+
+    findUserByUsername(username) {
+        username = (username ?? "").trim();
+        
+        if (!username) {
+            return null;
+        }
+
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE username = ?
+        `).get(username);
     }
 }
 
