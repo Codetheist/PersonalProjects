@@ -18,4 +18,6 @@ if (!config.jwtSecret) {
     throw new Error("Missing JWT_SECRET in environment.");
 }
 
-module.exports = { config };
+module.exports = {
+    config
+};
