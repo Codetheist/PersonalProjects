@@ -1,59 +1,79 @@
-const { createError, httpError } = require("../utils/errors");
+// imports
+const { createError } = require("../utils/httpError");
+const { dbConnection } = require("../db/db");
 
 class MembersRepo {
-    constructor(db) {
-        this.db = db;
+    constructor() {
+        this.db = dbConnection;
     }
     
     // Create
-    async addMember(project_id, user_id, role = 'member') {
+    addMember(project_id, user_id, role = 'member') {
         if (role !== 'admin' && role !== 'member') {
-            throw createError(httpError.BAD_REQUEST, "Invalid role");
+            throw createError.BadRequest("Invalid role");
         }
 
-        await this.db("project_members").insert({ project_id, user_id, role });
+        this.db.prepare(`
+            INSERT INTO project_members (project_id, user_id, role)
+            VALUES (?, ?, ?)
+        `).run(project_id, user_id, role);
+
+        return this.getMembership(project_id, user_id);
     }
 
     
     // Read
-    async getMembership(project_id, user_id) {
-        const membership = await this.db("project_members")
-            .where({ project_id, user_id })
-            .first();
+    getMembership(project_id, user_id) {
+        const membership = this.db.prepare(`
+            SELECT *
+            FROM project_members
+            WHERE project_id = ? AND user_id = ?
+        `).get(project_id, user_id);
         if (!membership) {
-            throw createError(httpError.NOT_FOUND, "Membership not found");
+            throw createError.NotFound("Membership not found");
         }
         return membership;
     }
-    async getMembersByProjectId(project_id) {
-        return await this.db("project_members")
-            .where({ project_id });
+    
+    getMembersByProjectId(project_id) {
+        return this.db.prepare(`
+            SELECT *
+            FROM project_members
+            WHERE project_id = ?
+        `).all(project_id);
     }
-    async getProjectsByUserId(user_id) {
-        return await this.db("project_members")
-            .where({ user_id });
+    
+    getProjectsByUserId(user_id) {
+        return this.db.prepare(`
+            SELECT *
+            FROM project_members
+            WHERE user_id = ?
+        `).all(user_id);
     }
     
     // Update
-    async updateMemberRole(project_id, user_id, newRole) {
+    updateMemberRole(project_id, user_id, newRole) {
         if (newRole !== 'admin' && newRole !== 'member') {
-            throw createError(httpError.BAD_REQUEST, "Invalid role");
+            throw createError.BadRequest("Invalid role");
         }
-        await this.db("project_members")
-            .where({ project_id, user_id })
-            .update({ role: newRole });
+        this.db.prepare(`
+            UPDATE project_members
+            SET role = ?
+            WHERE project_id = ? AND user_id = ?
+        `).run(newRole, project_id, user_id);
         
-        const updatedMembership = await this.getMembership(project_id, user_id);
+        const updatedMembership = this.getMembership(project_id, user_id);
         return updatedMembership;
 
     }
     
     // Delete
-    async removeMember(project_id, user_id) {
-        const membership = await this.getMembership(project_id, user_id);
-        await this.db("project_members")
-            .where({ project_id, user_id })
-            .del();
+    removeMember(project_id, user_id) {
+        const membership = this.getMembership(project_id, user_id);
+        this.db.prepare(`
+            DELETE FROM project_members
+            WHERE project_id = ? AND user_id = ?
+        `).run(project_id, user_id);
         return { success: true, message: "Member removed", membership };
     }
 }
