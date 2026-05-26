@@ -4,6 +4,14 @@ const { validate } = require('../validation/validate');
 const express = require('express');
 const { UsersRepo } = require('../repos/users.repo');
 /*
+    TODO: Add auth middleware to protect routes that require authentication.
+    This middleware should check for a valid session and user ID, and attach the user object to the request if authenticated.
+    It should also handle unauthorized access by returning a 401 response.
+    
+    TODO: Add rate limiting middleware to authentication routes to prevent brute-force attacks.
+*/
+
+/*
     TODO: Implement the following auth features:
     Session-based authentication
     Password hashing and verification
