@@ -4,83 +4,83 @@ require("dotenv").config();
 // Core dependencies
 const express = require("express");
 const path = require("path");
-const liveReload = require("livereload");
-const connectLiveReload = require("connect-livereload");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const crypto = require("crypto");
+const session = require("express-session");
+const helmet = require('helmet');
+const compression = require('compression');
 
 // Application config
 const { config } = require("./config");
 
-// Middleware functions
-//const { requireAuth } = require("./middleware/auth");
-//const { errorHandler } = require("./middleware/error");
+// Database
+const { initDb } = require("./db/db");
 
-// Route builders
-const { buildAuthRouter } = require("./routes/auth.routes");
-const { buildTasksRouter } = require("./routes/tasks.routes");
+// Middleware
+const { corsMiddleware } = require('./middleware/cors');
+const { apiRateLimiter } = require('./middleware/rateLimit');
+const { notFound, errorHandler } = require('./middleware/error');
 
-// Reposity factories
-/*const { buildUsersRepo } = require("./db/users.repo");
-const { buildTasksRepo } = require("./db/tasks.repo");*/
+// Routes
+// import from ./routes/auth.routes.js
+// import from ./routes/projects.routes.js
+// import from ./routes/tasks.routes.js
+// import from ./routes/comments.routes.js
+// import from ./routes/members.routes.js
 
-// Database utilities
-const { db, initDb, parseTaskRow } = require("./db/db");
+// Initialize the database
+initDb();
 
+// Initialize Express app
 const app = express();
 
-app.use(cors({
-    origin: config.corsOrigin,
-    credentials: true
-}));
+// Security
+app.use(helmet());
+app.use(corsMiddleware);
+app.use(compression());
+
+// Rate limiting
+app.use("/api", apiRateLimiter);
+
+// Body parsing
 app.use(express.json());
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
-// Static Pages and Reloading Pages
+
+// Session
+if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET is required");
+}
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+    },
+}));
+
+// Static Pages
 const staticDir = path.resolve(__dirname, '..', 'client', 'pages');
-const liveReloadServer = liveReload.createServer({
-    exts: ['html', 'css', 'js', 'png', 'jpg', 'svg'],
-    delay: 100
-});
-liveReloadServer.watch(staticDir);
-
-app.use(connectLiveReload());
-
-//
-app.use(express.static(staticDir, {
-    etag: false,
-    lastModified: false,
-    setHeaders(res) {
-        res.setHeader('Cache-Control', 'no-store');
-    }
-}));
-
-// initDb();
-
-/*const usersRepo = buildUsersRepo(db);
-const tasksRepo = buildTasksRepo(db);*/
-
-const JWT_SECRET = config.jwtSecret;
-const COOKIE_NAME = config.cookieName;
-
-// const requireAuthMw = requireAuth(JWT_SECRET, COOKIE_NAME);
-
-/*app.use("/api/auth", ({
-    //
-}));
-
-app.use("/api/tasks", ({
-    //
-}));*/
 
 // Root route
 app.get("/", (req, res) => {
     res.sendFile(path.join(staticDir, 'index.html'));
 });
 
-//app.use(errorHandler);
+// API routes
+// app.use('/api/auth', authRoutes(db))
+// app.use('/api/projects', projectsRoutes(db))
+// app.use('/api/tasks', tasksRoutes(db))
+// app.use('/api/comments', commentsRoutes(db))
+// app.use('/api/members', membersRoutes(db))
 
+// Error handling
+app.use(notFound);
+app.use(errorHandler);
+
+// Start the server
 app.listen(config.port, () => {
     console.log(`Project Forge is running on port ${config.port}`);
 });
