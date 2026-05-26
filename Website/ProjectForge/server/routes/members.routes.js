@@ -2,6 +2,9 @@ const {projectMemberAddSchema, projectMemberUpdateSchema, projectMemberParamsSch
 const { asyncHandler } = require('../utils/asyncHandler');
 const { validate } = require('../validation/validate');
 /*
+    TODO: Add auth middleware
+*/
+/*
     TODO: Implement the following routes:
     - Get members by project
     - Add member to project
