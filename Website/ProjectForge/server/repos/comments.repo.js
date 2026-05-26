@@ -37,7 +37,10 @@ class CommentsRepo {
             VALUES (?, ?, ?, ?, ?)
         `).run(id, task_id, created_by_user_id, created_by_username, body);
         
-        return  { success: true, message: "Comment created", comment: { id, task_id, created_by_user_id, created_by_username, body } };
+        return { 
+            comment: this.getCommentById(id),
+            message: "Comment created",
+        };
     }
     
     // Read
@@ -91,7 +94,10 @@ class CommentsRepo {
             `).run(body.trim(), id);
         }
         
-        return { success: true, message: "Comment updated" };
+        return {
+            comment: this.getCommentById(id),
+            message: "Comment updated",
+        };
     }
     
     // Delete
@@ -111,7 +117,10 @@ class CommentsRepo {
             WHERE id = ?
         `).run(id);
         
-        return { success: true, message: "Comment deleted" };
+        return { 
+            comment: comment,
+            message: "Comment deleted" 
+        };
     }
 }
 
