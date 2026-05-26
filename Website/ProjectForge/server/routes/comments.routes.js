@@ -2,6 +2,9 @@ const {commentCreateSchema, commentUpdateSchema, commentIdParamSchema, taskIdPar
 const { asyncHandler } = require('../utils/asyncHandler');
 const { validate } = require('../validation/validate');
 /*
+    TODO: Add auth middleware
+*/
+/*
     TODO: Implement the following routes:
     - Get comments by task
     - Create comment
