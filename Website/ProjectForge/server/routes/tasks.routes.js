@@ -2,6 +2,11 @@ const {taskCreateSchema, taskUpdateSchema, taskIdParamSchema, projectIdParamSche
 const { asyncHandler } = require('../utils/asyncHandler');
 const { validate } = require('../validation/validate');
 /*
+    TODO: Add authentication and authorization middleware to protect the routes as needed. 
+    For example, you might want to ensure that only authenticated users can create, update, or delete tasks,
+    and that users can only access tasks related to projects they are a part of.
+*/
+/*
     TODO: Implement the following routes:
     - Get all tasks
     - Get tasks by project
