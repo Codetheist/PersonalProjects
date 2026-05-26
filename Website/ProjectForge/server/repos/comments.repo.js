@@ -1,13 +1,15 @@
+// imports
 const { uid } = require("../utils/ids");
-const { createError, httpError } = require("../utils/errors");
+const { createError } = require("../utils/httpError");
+const { dbConnection } = require("../db/db");
 
 class CommentsRepo {
-    constructor(db) {
-        this.db = db;
+    constructor() {
+        this.db = dbConnection;
     }
     
     // Create
-    async createComment({ task_id, created_by_user_id, created_by_username, body }) { 
+    createComment({ task_id, created_by_user_id, created_by_username, body }) { 
         const id = uid();
         task_id = (task_id ?? "").trim();
         created_by_user_id = (created_by_user_id ?? "").trim();
@@ -15,73 +17,99 @@ class CommentsRepo {
         body = (body ?? "").trim();
         
         if (!task_id) {
-            throw createError(httpError.BAD_REQUEST, "Task ID is required");
+            throw createError.BadRequest("Task ID is required");
         }
         
         if (!created_by_user_id) {
-            throw createError(httpError.BAD_REQUEST, "Created by user ID is required");
+            throw createError.BadRequest("Created by user ID is required");
         }
         
         if (!created_by_username) {
-            throw createError(httpError.BAD_REQUEST, "Created by username is required");
+            throw createError.BadRequest("Created by username is required");
         }
         
         if (body.length < 1 || body.length > 5000) {
-            throw createError(httpError.BAD_REQUEST, "Comment body must be between 1 and 5000 characters long");
+            throw createError.BadRequest("Comment body must be between 1 and 5000 characters long");
         }
 
-        await this.db("comments").insert({ id, task_id, created_by_user_id, created_by_username, body });
+        this.db.prepare(`
+            INSERT INTO comments (id, task_id, created_by_user_id, created_by_username, body)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(id, task_id, created_by_user_id, created_by_username, body);
         
         return  { success: true, message: "Comment created", comment: { id, task_id, created_by_user_id, created_by_username, body } };
     }
     
     // Read
-    async getCommentById(id) {
-        const comment = await this.db("comments").where({ id }).first();
+    getCommentById(id) {
+        const comment = this.db.prepare(`
+            SELECT *
+            FROM comments
+            WHERE id = ?
+        `).get(id);
         
         if (!comment) {
-            throw createError(httpError.NOT_FOUND, "Comment not found");
+            throw createError.NotFound("Comment not found");
         }
         
         return comment;
     }
     
-    async getCommentsByTaskId(task_id) {
-        const comments = await this.db("comments").where({ task_id });
+    getCommentsByTaskId(task_id) {
+        const comments = this.db.prepare(`
+            SELECT *
+            FROM comments
+            WHERE task_id = ?
+        `).all(task_id);
         
         return comments;
 
     }
     
     // Update
-    async updateComment(id, updates = {}) {
-        const comment = await this.db("comments").where({ id }).first();
+    updateComment(id, updates = {}) {
+        const comment = this.db.prepare(`
+            SELECT *
+            FROM comments
+            WHERE id = ?
+        `).get(id);
         
         if (!comment) {
-            throw createError(httpError.NOT_FOUND, "Comment not found");
+            throw createError.NotFound("Comment not found");
         }
         
         const { body } = updates;
         
         if (body !== undefined) {
             if (typeof body !== "string" || body.trim().length < 1 || body.trim().length > 5000) {
-                throw createError(httpError.BAD_REQUEST, "Comment body must be between 1 and 5000 characters long");
+                throw createError.BadRequest("Comment body must be between 1 and 5000 characters long");
             }
-            await this.db("comments").where({ id }).update({ body: body.trim() });
+            this.db.prepare(`
+                UPDATE comments
+                SET body = ?
+                WHERE id = ?
+            `).run(body.trim(), id);
         }
         
         return { success: true, message: "Comment updated" };
     }
     
     // Delete
-    async deleteComment(id) {
-        const comment = await this.db("comments").where({ id }).first();
+    deleteComment(id) {
+        const comment = this.db.prepare(`
+            SELECT *
+            FROM comments
+            WHERE id = ?
+        `).get(id);
         
         if (!comment) {
-            throw createError(httpError.NOT_FOUND, "Comment not found");
+            throw createError.NotFound("Comment not found");
         }
         
-        await this.db("comments").where({ id }).del();
+        this.db.prepare(`
+            DELETE FROM comments
+            WHERE id = ?
+        `).run(id);
         
         return { success: true, message: "Comment deleted" };
     }
