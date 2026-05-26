@@ -1,13 +1,15 @@
+// imports
 const { uid } = require("../utils/ids");
-const { createError, httpError } = require("../utils/errors");
+const { createError } = require("../utils/httpError");
+const { dbConnection } = require("../db/db");
 
 class TasksRepo {
-    constructor(db) {
-        this.db = db;
+    constructor() {
+        this.db = dbConnection;
     }
     
     // Create
-    async createTask({project_id, title, description, status, priority, due_date }) {
+    createTask({project_id, title, description, status, priority, due_date }) {
         const id = uid();
         project_id = (project_id ?? "").trim();
         title = (title ?? "").trim();
@@ -17,79 +19,90 @@ class TasksRepo {
         due_date = (due_date ?? "").trim() || null;
 
         if (!project_id) {
-            throw createError(httpError.BAD_REQUEST, "Project ID is required");
+            throw createError.BadRequest("Project ID is required");
         }
 
         if (title.length < 3) {
-            throw createError(httpError.BAD_REQUEST, "Title must be at least 3 characters long");
+            throw createError.BadRequest("Title must be at least 3 characters long");
         }
 
         if (!["todo", "doing", "done"].includes(status)) {
-            throw createError(httpError.BAD_REQUEST, "Invalid status value");
+            throw createError.BadRequest("Invalid status value");
         }
 
         if (!["low", "medium", "high"].includes(priority)) {
-            throw createError(httpError.BAD_REQUEST, "Invalid priority value");
+            throw createError.BadRequest("Invalid priority value");
         }
 
         if (!isValidDate(due_date)) {
-            throw createError(httpError.BAD_REQUEST, "Invalid due date format (YYYY-MM-DD)");
+            throw createError.BadRequest("Invalid due date format (YYYY-MM-DD)");
         }
 
-        const project = await this.db("projects")
-            .select("id")
-            .where({ id: project_id })
-            .first();
+        const project = this.db.prepare(`
+            SELECT id
+            FROM projects
+            WHERE id = ?
+        `).get(project_id);
         
         if (!project) {
-            throw createError(httpError.NOT_FOUND, "Project not found");
+            throw createError.NotFound("Project not found");
         }
+        
+        this.db.prepare(`
+            INSERT INTO tasks (id, project_id, title, description, status, priority, due_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(id, project_id, title, description, status, priority, due_date);
 
-        const task = {
-            id,
-            project_id,
-            title,
-            description,
-            status,
-            priority,
-            due_date
-        };
-
-        await this.db("tasks").insert(task);
-
-        return { task: await this.getTaskById(id), message: "Task created successfully" };
+        return { task: this.getTaskById(id), message: "Task created successfully" };
     }
 	
 	// Read	
-    async getTaskById(id) {
-        const task = await this.db("tasks")
-            .select("*")
-            .where({ id })
-            .first();
+    getTaskById(id) {
+        const task = this.db.prepare(`
+            SELECT *
+            FROM tasks
+            WHERE id = ?
+        `).get(id);
         if (!task) {
-            throw createError(httpError.NOT_FOUND, "Task not found");
+            throw createError.NotFound("Task not found");
         }
         return task;
     }
+
+    getTasksByProjectId(project_id) {
+        const tasks = this.db.prepare(`
+            SELECT *
+            FROM tasks
+            WHERE project_id = ?
+        `).all(project_id);
+        
+        return tasks;
+    }
 	
-    async getAllTasks() {
-        return await this.db("tasks").select("*");
+    getAllTasks() {
+        const tasks = this.db.prepare(`
+            SELECT *
+            FROM tasks
+        `).all();
+
+        return tasks;
     }
     
     // Update
-    async updateTask(id, updates = {}) {
+    updateTask(id, updates = {}) {
         id = (id ?? "").trim();
         if (!id) {
-            throw createError(httpError.BAD_REQUEST, "Task ID is required");
+            throw createError.BadRequest("Task ID is required");
         }
 
-        const task = await this.db("tasks")
-            .select("*")
-            .where({ id })
-            .first();
+        const task = this.db.prepare(`
+            SELECT *
+            FROM tasks
+            WHERE id = ?
+        `).get(id);
         
         if (!task) {
-            throw createError(httpError.NOT_FOUND, "Task not found");
+            throw createError.NotFound("Task not found");
         }
 
         const updatedTask = {};
@@ -98,7 +111,7 @@ class TasksRepo {
             const title = (updates.title ?? "").trim();
             
             if (title.length < 3) {
-                throw createError(httpError.BAD_REQUEST, "Title must be at least 3 characters long");
+                throw createError.BadRequest("Title must be at least 3 characters long");
             }
             
             updatedTask.title = title;
@@ -112,7 +125,7 @@ class TasksRepo {
             const status = (updates.status ?? "").trim().toLowerCase();
             
             if (!["todo", "doing", "done"].includes(status)) {
-                throw createError(httpError.BAD_REQUEST, "Invalid status value");
+                throw createError.BadRequest("Invalid status value");
             }
             
             updatedTask.status = status;
@@ -122,7 +135,7 @@ class TasksRepo {
             const priority = (updates.priority ?? "").trim().toLowerCase();
 
             if (!["low", "medium", "high"].includes(priority)) {
-                throw createError(httpError.BAD_REQUEST, "Invalid priority value");
+                throw createError.BadRequest("Invalid priority value");
             }
             
             updatedTask.priority = priority;
@@ -132,39 +145,60 @@ class TasksRepo {
             const due_date = (updates.due_date ?? "").trim() || null;
 
             if (!isValidDate(due_date)) {
-                throw createError(httpError.BAD_REQUEST, "Invalid due date format (YYYY-MM-DD)");
+                throw createError.BadRequest("Invalid due date format (YYYY-MM-DD)");
             }
             
             updatedTask.due_date = due_date;
         }
 
         if (Object.keys(updatedTask).length === 0) {
-            throw createError(httpError.BAD_REQUEST, "No valid fields to update");
+            throw createError.BadRequest("No valid fields to update");
         }
 
-        await this.db("tasks")
-            .where({ id })
-            .update(updatedTask);
+        const nextTitle = "title" in updatedTask ? updatedTask.title : task.title;
+        const nextDescription = "description" in updatedTask ? updatedTask.description : task.description;
+        const nextStatus = "status" in updatedTask ? updatedTask.status : task.status;
+        const nextPriority = "priority" in updatedTask ? updatedTask.priority : task.priority;
+        const nextDueDate = "due_date" in updatedTask ? updatedTask.due_date : task.due_date;
+
+        this.db.prepare(`
+            UPDATE tasks
+            SET title = ?, description = ?, status = ?, priority = ?, due_date = ?
+            WHERE id = ?
+        `).run(
+            nextTitle,
+            nextDescription,
+            nextStatus,
+            nextPriority,
+            nextDueDate,
+            id
+        );
         
-        return { task: await this.getTaskById(id), message: "Task updated successfully" };
+        return { task: this.getTaskById(id), message: "Task updated successfully" };
 
     }
     
     // Delete
-    async deleteTask(id) {
-        
-        const task = await this.db("tasks")
-            .select("*")
-            .where({ id })
-            .first();
-        
-        if (!task) {
-            throw createError(httpError.NOT_FOUND, "Task not found");
+    deleteTask(id) {
+        id = (id ?? "").trim();
+        if (!id) {
+            throw createError.BadRequest("Task ID is required");
         }
 
-        await this.db("tasks")
-            .where({ id })
-            .delete();
+        const task = this.db.prepare(`
+            SELECT *
+            FROM tasks
+            WHERE id = ?
+        `).get(id);
+        
+        if (!task) {
+            throw createError.NotFound("Task not found");
+        }
+
+        this.db.prepare(`
+            DELETE FROM tasks
+            WHERE id = ?
+        `).run(id);
         
         return { task, message: "Task deleted successfully" };
     }
@@ -182,7 +216,6 @@ function isValidDate(date) {
         dateObj.getDate() === day
     );
 }
-
 
 module.exports = {
     TasksRepo
