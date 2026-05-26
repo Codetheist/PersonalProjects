@@ -2,6 +2,9 @@ const {projectCreateSchema, projectUpdateSchema, projectIdParamSchema} = require
 const { asyncHandler } = require('../utils/asyncHandler');
 const { validate } = require('../validation/validate');
 /*
+    TODO: Add auth middleware
+*/
+/*
     TODO: Implement the following routes:
     - Get all projects
     - Get single project
