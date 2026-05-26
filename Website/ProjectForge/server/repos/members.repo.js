@@ -13,14 +13,21 @@ class MembersRepo {
             throw createError.BadRequest("Invalid role");
         }
 
-        this.db.prepare(`
-            INSERT INTO project_members (project_id, user_id, role)
-            VALUES (?, ?, ?)
-        `).run(project_id, user_id, role);
+        try {
+            this.db.prepare(`
+                INSERT INTO project_members (project_id, user_id, role)
+                VALUES (?, ?, ?)
+            `).run(project_id, user_id, role);
+        } catch (err) {
+            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' ||
+                err.message.includes('UNIQUE constraint failed')) {
+                throw createError.Conflict("User is already a member of this project");
+            }
+            throw err;
+        }
 
         return this.getMembership(project_id, user_id);
     }
-
     
     // Read
     getMembership(project_id, user_id) {
@@ -64,7 +71,6 @@ class MembersRepo {
         
         const updatedMembership = this.getMembership(project_id, user_id);
         return updatedMembership;
-
     }
     
     // Delete
