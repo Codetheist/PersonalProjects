@@ -1,53 +1,54 @@
-const {projectCreateSchema, projectUpdateSchema, projectIdParamSchema} = require('../validation/schemas');
+// Imports
+const { projectCreateSchema, projectUpdateSchema, projectIdParamSchema } = require('../validation/schemas');
 const { asyncHandler } = require('../utils/asyncHandler');
-const { validate } = require('../validation/validate');
-/*
-    TODO: Add auth middleware
-*/
-/*
-    TODO: Implement the following routes:
-    - Get all projects
-    - Get single project
-    - Create project
-    - Update project
-    - Delete project
-*/
+const { validate, validateProjectId } = require('../validation/validate');
+const express = require('express');
+const { ProjectsRepo } = require('../repos/projects.repo');
+const { requireAuth, requireProjectOwner, requireProjectMembership } = require('../middleware/auth');
+const { loadProject } = require('../middleware/loader');
 
-function projectsRoutes(db) {
-    const router = express.Router();
-    // repo instance
+// Create router and repo instances
+const router = express.Router();
+const projectsRepo = new ProjectsRepo();
 
-    // Get all projects
-    // get all projects
-    // return projects
+// Create project
+router.post("/", requireAuth, asyncHandler(async (req, res) => {
+    const projectData = validate(projectCreateSchema, req.body);
 
-    // Get single project
-    // validate params
-    // get single project
-    // handle not found if needed
-    // return project
+    const { project, message } = await projectsRepo.createProject({
+        owner_id: req.user.id,
+        ...projectData
+    });
 
-    // Create project
-    // validate body
-    // create project
-    // return created project
+    res.status(201).json({ project, message });
+}));
 
-    // Update project
-    // validate params
-    // validate body
-    // update project
-    // handle not found if needed
-    // return updated project
+// Read projects
+router.get("/", requireAuth, asyncHandler(async (req, res) => {
+    const projects = await projectsRepo.getProjectsByOwnerId(req.user.id);
+    
+    res.json({ projects });
+}));
 
-    // Delete project
-    // validate params
-    // delete project
-    // handle not found if needed
-    // return success response
+router.get("/:project_id", requireAuth, validateProjectId, loadProject, requireProjectMembership, asyncHandler(async (req, res) => {
+    res.json({ project: req.project });
+}));
 
-    return router;
-}
+// Update project
+router.patch("/:project_id", requireAuth, validateProjectId, loadProject, requireProjectOwner, asyncHandler(async (req, res) => {
+    const projectData = validate(projectUpdateSchema, req.body);
+    
+    const { project, message } = await projectsRepo.updateProject(req.projectId, projectData);
+    
+    res.json({ project, message });
+}));
 
-module.exports = {
-    projectsRoutes
-};
+// Delete project
+router.delete("/:project_id", requireAuth, validateProjectId, loadProject, requireProjectOwner, asyncHandler(async (req, res) => {
+    const { message } = await projectsRepo.deleteProject(req.projectId);
+    
+    res.json({ message });
+}));
+
+// Export
+module.exports = router;
