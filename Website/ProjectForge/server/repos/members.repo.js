@@ -1,5 +1,5 @@
-// imports
-const { createError } = require("../utils/httpError");
+// Imports
+const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
 
 class MembersRepo {
@@ -10,7 +10,7 @@ class MembersRepo {
     // Create
     addMember(project_id, user_id, role = 'member') {
         if (role !== 'admin' && role !== 'member') {
-            throw createError.BadRequest("Invalid role");
+            throw httpError(400, "Invalid role");
         }
 
         try {
@@ -21,7 +21,7 @@ class MembersRepo {
         } catch (err) {
             if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' ||
                 err.message.includes('UNIQUE constraint failed')) {
-                throw createError.Conflict("User is already a member of this project");
+                throw httpError(409, "User is already a member of this project");
             }
             throw err;
         }
@@ -36,17 +36,20 @@ class MembersRepo {
             FROM project_members
             WHERE project_id = ? AND user_id = ?
         `).get(project_id, user_id);
-        if (!membership) {
-            throw createError.NotFound("Membership not found");
-        }
+        
         return membership;
     }
     
     getMembersByProjectId(project_id) {
         return this.db.prepare(`
-            SELECT *
-            FROM project_members
-            WHERE project_id = ?
+            SELECT
+                pm.project_id,
+                pm.user_id,
+                pm.role,
+                u.username
+            FROM project_members pm
+            JOIN users u ON pm.user_id = u.id
+            WHERE pm.project_id = ?
         `).all(project_id);
     }
     
@@ -61,7 +64,7 @@ class MembersRepo {
     // Update
     updateMemberRole(project_id, user_id, newRole) {
         if (newRole !== 'admin' && newRole !== 'member') {
-            throw createError.BadRequest("Invalid role");
+            throw httpError(400, "Invalid role");
         }
         this.db.prepare(`
             UPDATE project_members
@@ -70,12 +73,18 @@ class MembersRepo {
         `).run(newRole, project_id, user_id);
         
         const updatedMembership = this.getMembership(project_id, user_id);
+        if (!updatedMembership) {
+            throw httpError(404, "Membership not found");
+        }
         return updatedMembership;
     }
     
     // Delete
     removeMember(project_id, user_id) {
         const membership = this.getMembership(project_id, user_id);
+        if (!membership) {
+            throw httpError(404, "Membership not found");
+        }
         this.db.prepare(`
             DELETE FROM project_members
             WHERE project_id = ? AND user_id = ?
