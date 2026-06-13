@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/assets/css/style.css">
+	<title>Dashboard</title>
+</head>
+<body id="top">
+	<a href="#main-content">Skip to main content</a>
+    <!--Nav-->
+    <nav class="navBar" aria-label="Primary">
+        <div class="navLinks">
+            <a href="/">Home</a>
+        </div>
+        <div class="authButtons">
+            <button class="buttonLook" id="logoutButton" hidden>Logout</button>
+        </div>
+    </nav>
+
+	<header>
+		<h1>
+            Welcome, <span id="dashboardUsername"></span>!
+        </h1>
+	</header>
+	<main id="main-content">
+		<!--Create Project button-->
+        <section class="projectActions" role="region" aria-label="Project actions">
+            <button id="createProjectButton" class="buttonLook primaryButton">Create New Project</button>
+            <form id="createProjectForm" class="projectForm" hidden>
+                <label for="projectName">Project Name:</label>
+                <input type="text" id="createProjectName" name="name" required>
+                
+                <label for="projectDescription">Description:</label>
+                <textarea id="createProjectDescription" name="description"></textarea>
+                
+                <label for="projectStatus">Status:</label>
+                <select id="createProjectStatus" name="status">
+                    <option value="active" selected="selected">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="archived">Archived</option>
+                </select>
+                
+                <label for="projectDueDate">Due Date:</label>
+                <input type="date" id="createProjectDueDate" name="due_date">
+                
+                <button type="submit" class="buttonLook primaryButton">Create Project</button>
+                <p id="createProjectError" class="errorMessage"></p>
+            </form>
+        </section>
+
+        <!--Projects List-->
+        <section id="projectsList" class="projectsList" role="region" aria-label="Your projects"></section>
+	</main>
+	<footer class="site-footer">
+        <a class="backToTop" href="#top">Back to Top</a>
+        <p class="copyright">&copy; <span id="year"></span> Project Forge</p>
+    </footer>
+	<script type="module" src="/assets/js/core/app.js"></script>
+</body>
+</html>
