@@ -1,6 +1,6 @@
-// imports
+// Imports
 const { uid } = require("../utils/ids");
-const { createError } = require("../utils/httpError");
+const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
 const { isValidDate } = require("../utils/date");
 
@@ -18,20 +18,16 @@ class ProjectsRepo {
         status = (status ?? "active").trim();
         due_date = (due_date ?? "").trim() || null;
 
-        if (!owner_id) {
-            throw createError.BadRequest("Owner ID is required");
-        }
-
         if (!name || name.length < 3) {
-            throw createError.BadRequest("Project name must be at least 3 characters long");
+            throw httpError(400, "Project name must be at least 3 characters long");
         }
 
         if (!isValidDate(due_date)) {
-            throw createError.BadRequest("Invalid due date format (YYYY-MM-DD)");
+            throw httpError(400, "Invalid due date format (YYYY-MM-DD)");
         }
 
         if (!["active", "completed", "archived"].includes(status)) {
-            throw createError.BadRequest("Invalid project status");
+            throw httpError(400, "Invalid project status");
         }
 
         const user = this.db.prepare(`
@@ -39,11 +35,11 @@ class ProjectsRepo {
             FROM users
             WHERE id = ?
         `).get(owner_id);
-        
+
         if (!user) {
-            throw createError.NotFound("Owner user not found");
+            throw httpError(404, "Owner user not found");
         }
-        
+
         const result = this.db.prepare(`
             INSERT INTO projects (id, owner_id, name, description, due_date, status)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -60,9 +56,7 @@ class ProjectsRepo {
             FROM projects
             WHERE id = ?
         `).get(id);
-        if (!project) {
-            throw createError.NotFound("Project not found");
-        }
+
         return project;
     }
 
@@ -81,7 +75,7 @@ class ProjectsRepo {
         id = (id ?? "").trim();
         
         if (!id) {
-            throw createError.BadRequest("Project ID is required");
+            throw httpError(400, "Project ID is required");
         }
         
         const project = this.db.prepare(`
@@ -89,9 +83,9 @@ class ProjectsRepo {
             FROM projects
             WHERE id = ?
         `).get(id);
-        
+
         if (!project) {
-            throw createError.NotFound("Project not found");
+            throw httpError(404, "Project not found");
         }
 
         const updatedProject = {};
@@ -99,7 +93,7 @@ class ProjectsRepo {
         if (updates.name !== undefined) {
             const name = (updates.name ?? "").trim();
             if (!name || name.length < 3) {
-                throw createError.BadRequest("Project name must be at least 3 characters long");
+                throw httpError(400, "Project name must be at least 3 characters long");
             }
             updatedProject.name = name;
         }
@@ -111,7 +105,7 @@ class ProjectsRepo {
         if (updates.status !== undefined) {
             const status = (updates.status ?? "").trim();
             if (!["active", "completed", "archived"].includes(status)) {
-                throw createError.BadRequest("Invalid project status");
+                throw httpError(400, "Invalid project status");
             }   
             updatedProject.status = status;
         }
@@ -119,13 +113,13 @@ class ProjectsRepo {
         if (updates.due_date !== undefined) {
             const due_date = (updates.due_date ?? "").trim() || null;
             if (!isValidDate(due_date)) {
-                throw createError.BadRequest("Invalid due date format (YYYY-MM-DD)");
+                throw httpError(400, "Invalid due date format (YYYY-MM-DD)");
             }
             updatedProject.due_date = due_date;
         }
 
         if (Object.keys(updatedProject).length === 0) {
-            throw createError.BadRequest("No valid fields provided for update");
+            throw httpError(400, "No valid fields provided for update");
         }
 
         const nextName = "name" in updatedProject ? updatedProject.name : project.name;
@@ -152,7 +146,7 @@ class ProjectsRepo {
         id = (id ?? "").trim();
         
         if (!id) {
-            throw createError.BadRequest("Project ID is required");
+            throw httpError(400, "Project ID is required");
         }
 
         const project = this.db.prepare(`
@@ -160,9 +154,9 @@ class ProjectsRepo {
             FROM projects
             WHERE id = ?
         `).get(id);
-        
+
         if (!project) {
-            throw createError.NotFound("Project not found");
+            throw httpError(404, "Project not found");
         }
 
         this.db.prepare(`
