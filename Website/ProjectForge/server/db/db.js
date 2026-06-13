@@ -1,17 +1,17 @@
-// import db dependency
+// import
 const Database = require('better-sqlite3');
-
-// import path if needed
 const path = require('path');
-
-// import fs if needed
 const fs = require('fs');
+const { config } = require("../config");
 
 // database file path
-const dbFilePath = path.join(__dirname, "..", 'data', 'app.db');
+const dbFilePath = path.resolve(__dirname, "..", config.dbPath);
+
+// ensure data directory exists
+fs.mkdirSync(path.dirname(dbFilePath), { recursive: true });
 
 // migrations folder path if needed
-const migrationsPath = path.join(__dirname, 'migrations');
+const migrationsPath = path.resolve(__dirname, 'migrations');
 
 // create database connection
 const dbConnection = new Database(dbFilePath);
@@ -59,6 +59,10 @@ function runSingleMigration(file, sql) {
 
 // helper to run pending migrations in order
 function runMigrations() {
+    if (!fs.existsSync(migrationsPath)) {
+        throw new Error(`Migrations directory not found at ${migrationsPath}`);
+    }
+    
     const appliedMigrations = getAppliedMigrations();
     
     const migrationFiles = fs
@@ -81,6 +85,7 @@ function initDb() {
         createMigrationsTable();
         runMigrations();
         console.log("Database initialized successfully.");
+        return dbConnection;
     } catch (err) {
         console.error("Error initializing database:", err);
         throw err;
