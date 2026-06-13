@@ -1,0 +1,23 @@
+.site-footer,
+body > footer {
+    max-width: var(--page-width);
+    margin: 46px auto 0;
+    padding: 16px 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(233, 238, 245, 0.08);
+}
+
+.backToTop,
+body > footer a[href="#top"] {
+    font-weight: 800;
+}
+
+.copyright {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--color-muted);
+}
