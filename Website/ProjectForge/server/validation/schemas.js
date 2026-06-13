@@ -54,16 +54,16 @@ const authLoginSchema = z.object({
 // Project schemas
 const projectCreateSchema = z.object({
     name: nameSchema,
-    description: descriptionSchema.optional(),
+    description: descriptionSchema.nullish(),
     status: statusProjectSchema.optional(),
-    due_date: dueDateSchema.optional()
+    due_date: dueDateSchema.nullish()
 }).strict();
 
 const projectUpdateSchema = z.object({
     name: nameSchema.optional(),
-    description: descriptionSchema.optional(),
+    description: descriptionSchema.nullish(),
     status: statusProjectSchema.optional(),
-    due_date: dueDateSchema.optional()
+    due_date: dueDateSchema.nullish()
 }).refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update."
 }).strict();
@@ -90,23 +90,28 @@ const projectMemberParamsSchema = z.object({
 // Task schemas
 const taskCreateSchema = z.object({
     title: titleSchema,
-    description: descriptionSchema.optional(),
+    description: descriptionSchema.nullish(),
     status: statusTaskSchema.optional(),
     priority: priorityTaskSchema.optional(),
-    due_date: dueDateSchema.optional()
+    due_date: dueDateSchema.nullish()
 }).strict();
 
 const taskUpdateSchema = z.object({
     title: titleSchema.optional(),
-    description: descriptionSchema.optional(),
+    description: descriptionSchema.nullish(),
     status: statusTaskSchema.optional(),
     priority: priorityTaskSchema.optional(),
-    due_date: dueDateSchema.optional()
+    due_date: dueDateSchema.nullish()
 }).refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update."
 }).strict();
 
 const taskIdParamSchema = z.object({
+    task_id: uuidSchema
+}).strict();
+
+const projectTaskParamsSchema = z.object({
+    project_id: uuidSchema,
     task_id: uuidSchema
 }).strict();
 
@@ -136,6 +141,7 @@ module.exports = {
     taskCreateSchema,
     taskUpdateSchema,
     taskIdParamSchema,
+    projectTaskParamsSchema,
     commentCreateSchema,
     commentUpdateSchema,
     commentIdParamSchema
