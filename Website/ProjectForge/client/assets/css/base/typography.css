@@ -1,0 +1,33 @@
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(1200px 800px at 20% 20%, rgba(109, 211, 251, 0.10), transparent 55%),
+        radial-gradient(900px 700px at 80% 10%, rgba(126, 134, 255, 0.08), transparent 55%),
+        var(--color-bg);
+    color: var(--color-text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.5;
+}
+
+a {
+    color: var(--color-link);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p {
+    margin: 0 0 12px;
+}
+
+ul {
+    margin: 12px 0 0;
+    padding-left: 18px;
+}
+
+label {
+    font-weight: 700;
+    font-size: 0.92rem;
+}
