@@ -4,6 +4,5 @@ function httpError(status, message) {
     return createError(status, message);
 }
 module.exports = {
-    createError,
     httpError
 }
