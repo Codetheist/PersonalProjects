@@ -1,0 +1,105 @@
+.taskComments,
+.comments-panel {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+}
+
+.comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.comments-header h2 {
+    margin: 0;
+}
+
+#commentsList,
+.comments-list {
+    flex: 1;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+#commentsList:empty::before {
+    content: "No comments yet.";
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+.comment-item,
+#commentsList > * {
+    padding: 14px;
+    background: var(--color-panel-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.comment-author {
+    color: var(--color-text);
+    font-weight: 800;
+}
+
+.comment-time {
+    color: var(--color-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.comment-body {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.commentForm,
+.comment-form {
+    display: grid;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border-soft);
+}
+
+.commentForm label,
+.comment-form label {
+    font-weight: 800;
+}
+
+.commentForm textarea,
+.comment-form textarea {
+    width: 100%;
+    min-height: 125px;
+    resize: vertical;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-md);
+    background: var(--color-panel-dark);
+    color: var(--color-text);
+}
+
+.commentForm textarea:focus,
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--color-link, #6aa2ff);
+    box-shadow: 0 0 0 3px rgba(106, 162, 255, 0.22);
+}
+
