@@ -1,0 +1,47 @@
+.projectHeader,
+.projectMembers,
+.projectTasks,
+.taskComments {
+    background: rgba(17, 23, 34, 0.78);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-top: 22px;
+}
+
+.projectHeader h2 {
+    margin-top: 0;
+    font-size: 2rem;
+}
+
+.projectMembers h2,
+.projectTasks h2 {
+    margin-top: 0;
+}
+
+.projectHeader p,
+.projectMembers p,
+.projectTasks p {
+    color: var(--color-muted);
+}
+
+.projectActions[role="group"],
+.taskActions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+#taskDetailPanel {
+    margin-top: 18px;
+    padding: 18px;
+    background: var(--color-panel-dark);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+}
+
+#taskDetailTitle {
+    margin-top: 0;
+}
