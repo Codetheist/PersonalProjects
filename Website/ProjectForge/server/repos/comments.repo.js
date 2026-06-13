@@ -1,6 +1,6 @@
 // imports
 const { uid } = require("../utils/ids");
-const { createError } = require("../utils/httpError");
+const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
 
 class CommentsRepo {
@@ -17,19 +17,19 @@ class CommentsRepo {
         body = (body ?? "").trim();
         
         if (!task_id) {
-            throw createError.BadRequest("Task ID is required");
+            throw httpError(400, "Task ID is required");
         }
         
         if (!created_by_user_id) {
-            throw createError.BadRequest("Created by user ID is required");
+            throw httpError(400, "Created by user ID is required");
         }
         
         if (!created_by_username) {
-            throw createError.BadRequest("Created by username is required");
+            throw httpError(400, "Created by username is required");
         }
         
         if (body.length < 1 || body.length > 5000) {
-            throw createError.BadRequest("Comment body must be between 1 and 5000 characters long");
+            throw httpError(400, "Comment body must be between 1 and 5000 characters long");
         }
 
         this.db.prepare(`
@@ -51,10 +51,6 @@ class CommentsRepo {
             WHERE id = ?
         `).get(id);
         
-        if (!comment) {
-            throw createError.NotFound("Comment not found");
-        }
-        
         return comment;
     }
     
@@ -63,6 +59,7 @@ class CommentsRepo {
             SELECT *
             FROM comments
             WHERE task_id = ?
+            ORDER BY created_at ASC
         `).all(task_id);
         
         return comments;
@@ -76,16 +73,16 @@ class CommentsRepo {
             FROM comments
             WHERE id = ?
         `).get(id);
-        
+
         if (!comment) {
-            throw createError.NotFound("Comment not found");
+            throw httpError(404, "Comment not found");
         }
         
         const { body } = updates;
         
         if (body !== undefined) {
             if (typeof body !== "string" || body.trim().length < 1 || body.trim().length > 5000) {
-                throw createError.BadRequest("Comment body must be between 1 and 5000 characters long");
+                throw httpError(400, "Comment body must be between 1 and 5000 characters long");
             }
             this.db.prepare(`
                 UPDATE comments
@@ -107,9 +104,9 @@ class CommentsRepo {
             FROM comments
             WHERE id = ?
         `).get(id);
-        
+
         if (!comment) {
-            throw createError.NotFound("Comment not found");
+            throw httpError(404, "Comment not found");
         }
         
         this.db.prepare(`
