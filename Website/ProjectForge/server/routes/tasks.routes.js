@@ -1,62 +1,90 @@
-const {taskCreateSchema, taskUpdateSchema, taskIdParamSchema, projectIdParamSchema} = require('../validation/schemas');
+// Imports
+const { taskCreateSchema, taskUpdateSchema } = require('../validation/schemas');
 const { asyncHandler } = require('../utils/asyncHandler');
-const { validate } = require('../validation/validate');
-/*
-    TODO: Add authentication and authorization middleware to protect the routes as needed. 
-    For example, you might want to ensure that only authenticated users can create, update, or delete tasks,
-    and that users can only access tasks related to projects they are a part of.
-*/
-/*
-    TODO: Implement the following routes:
-    - Get all tasks
-    - Get tasks by project
-    - Get single task
-    - Create task
-    - Update task
-    - Delete task
-*/
+const { validate, validateProjectId, validateProjectTaskParams } = require('../validation/validate');
+const express = require('express');
+const { TasksRepo } = require('../repos/tasks.repo');
+const { requireAuth, requireProjectMembership, requireTaskAccess } = require('../middleware/auth');
+const { loadProject, loadTask, loadProjectFromTask } = require('../middleware/loader');
 
-function tasksRoutes(db) {
-    const router = express.Router();
-    // repo instance
+// Create router and repo instances
+const router = express.Router();
+const tasksRepo = new TasksRepo();
 
-    // Get all tasks
-    // get all tasks
-    // return tasks
+// Create task
+router.post('/:project_id/tasks', 
+    requireAuth, 
+    validateProjectId,
+    loadProject,
+    requireProjectMembership,
+    asyncHandler(async (req, res) => {
+        const taskData = validate(taskCreateSchema, req.body);
 
-    // Get tasks by project
-    // validate params
-    // get tasks by project
-    // return tasks
+        const { task, message } = await tasksRepo.createTask({
+            project_id: req.project.id,
+            ...taskData
+        });
 
-    // Get single task
-    // validate params
-    // get single task
-    // handle not found if needed
-    // return task
+        res.status(201).json({ task, message });
+    })
+);
 
-    // Create task
-    // validate params if needed
-    // validate body
-    // create task
-    // return created task
+// Read all tasks for a project
+router.get('/:project_id/tasks',
+    requireAuth,
+    validateProjectId,
+    loadProject,
+    requireProjectMembership,
+    asyncHandler(async (req, res) => {
+        const tasks = tasksRepo.getTasksByProjectId(req.project.id);
+        res.json({ tasks });
+    })
+);
 
-    // Update task
-    // validate params
-    // validate body
-    // update task
-    // handle not found if needed
-    // return updated task
+// Read task
+router.get('/:project_id/tasks/:task_id',
+    requireAuth,
+    validateProjectTaskParams,
+    loadTask,
+    loadProjectFromTask,
+    requireProjectMembership,
+    requireTaskAccess,
+    asyncHandler(async (req, res) => {
+        res.json({ task: req.task });
+    })
+);
 
-    // Delete task
-    // validate params
-    // delete task
-    // handle not found if needed
-    // return success response
+// Update task
+router.patch('/:project_id/tasks/:task_id',
+    requireAuth,
+    validateProjectTaskParams,
+    loadTask,
+    loadProjectFromTask,
+    requireProjectMembership,
+    requireTaskAccess,
+    asyncHandler(async (req, res) => {
+        const taskData = validate(taskUpdateSchema, req.body);
 
-    return router;
-}
+        const { task, message } = await tasksRepo.updateTask(req.task.id, taskData);
 
-module.exports = {
-    tasksRoutes
-};
+        res.json({ task, message });
+    })
+);
+
+// Delete task
+router.delete('/:project_id/tasks/:task_id',
+    requireAuth,
+    validateProjectTaskParams,
+    loadTask,
+    loadProjectFromTask,
+    requireProjectMembership,
+    requireTaskAccess,
+    asyncHandler(async (req, res) => {
+        const { message } = await tasksRepo.deleteTask(req.task.id);
+
+        res.json({ message });
+    })
+);
+
+// Export
+module.exports = router;
