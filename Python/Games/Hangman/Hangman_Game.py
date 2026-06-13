@@ -26,7 +26,7 @@ print(f"Simple, right? Anyway, let's play the game {player_name}")
 time.sleep(1)
 
 secret_word = []
-wordBank = open("./Python/Games/Hangman/Hangman_Word_Bank.txt", "r")
+wordBank = open("Hangman_Word_Bank.txt", "r")
 for i in wordBank:
     game_words = str(i)
     game_words = game_words.rstrip("\n")
@@ -119,7 +119,7 @@ def game_play(player_guesses, game_words):
             time.sleep(1)
 
             secret_word = []
-            wordBank = open("./Python/Games/Hangman/Hangman_Word_Bank.txt", "r")
+            wordBank = open("Hangman_Word_Bank.txt", "r")
             for i in wordBank:
                 game_words = str(i)
                 game_words = game_words.rstrip("\n")
@@ -150,7 +150,7 @@ print(f"Simple, right? Anyway, let's play the game {player_name}")
 time.sleep(1)
 
 secret_word = []
-wordBank = open("./Python/Games/Hangman/Hangman_Word_Bank.txt", "r")
+wordBank = open("Hangman_Word_Bank.txt", "r")
 for i in wordBank:
     game_words = str(i)
     game_words = game_words.rstrip("\n")
