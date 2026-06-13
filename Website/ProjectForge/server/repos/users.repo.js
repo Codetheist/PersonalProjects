@@ -1,6 +1,6 @@
-// imports
+// Imports
 const { uid } = require("../utils/ids");
-const { createError } = require("../utils/httpError");
+const { httpError } = require('../utils/httpError');
 const argon2 = require("argon2");
 const { dbConnection } = require("../db/db");
 
@@ -14,7 +14,7 @@ class UsersRepo {
         email = (email ?? "").trim();
 
         if (typeof password !== "string" || password.length < 8 || password !== password.trim()) {
-            throw createError.BadRequest("Password must be at least 8 characters long and cannot have leading or trailing whitespace.");
+            throw httpError(400, "Password must be at least 8 characters long and cannot have leading or trailing whitespace.");
         }
 
         const id = uid();
@@ -27,12 +27,12 @@ class UsersRepo {
             `).run(id, username, email, password_hash);
         } catch (databaseError) {
             if (databaseError.message.includes("UNIQUE constraint failed: users.username")) {
-                throw createError.BadRequest("Username already exists.");
+                throw httpError(400, "Username already exists.");
             }
             if (databaseError.message.includes("UNIQUE constraint failed: users.email")) {
-                throw createError.BadRequest("Email already exists.");
+                throw httpError(400, "Email already exists.");
             }
-            throw createError.InternalServerError("Database error.");
+            throw httpError(500, "Database error.");
         }
 
         return this.db.prepare(`
@@ -71,6 +71,12 @@ class UsersRepo {
     }
 
     deactivateUser(userId) {
+        const user = this.findUserById(userId);
+        
+        if (!user) {
+            throw httpError(404, "User not found");
+        }
+
         this.db.prepare(`
             UPDATE users
             SET is_active = 0,
@@ -86,6 +92,12 @@ class UsersRepo {
     }
 
     restoreUser(userId) {
+        const user = this.findUserById(userId);
+        
+        if (!user) {
+            throw httpError(404, "User not found");
+        }
+
         this.db.prepare(`
             UPDATE users
             SET is_active = 1,
