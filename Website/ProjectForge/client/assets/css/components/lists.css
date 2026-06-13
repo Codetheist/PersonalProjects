@@ -1,0 +1,139 @@
+.taskStatusCounts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.taskStatusCounts span {
+    display: block;
+    background: var(--color-panel-mid);
+    border: 1px solid #263247;
+    border-radius: var(--radius-md);
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.taskList {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.taskList p {
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--color-panel-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.taskList strong {
+    font-weight: 700;
+}
+
+#membersList,
+#tasksList,
+.data-list {
+    display: grid;
+    gap: 10px;
+    margin: 12px 0 0;
+}
+
+#membersList > *,
+#tasksList > *,
+.data-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px;
+    background: var(--color-panel-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+#membersList:empty::before {
+    content: "No members yet.";
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+#tasksList:empty::before {
+    content: "No tasks yet.";
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+.item-content {
+    min-width: 0;
+}
+
+.item-title {
+    display: block;
+    font-weight: 800;
+}
+
+.item-meta {
+    display: block;
+    margin-top: 4px;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+.item-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.status-pill {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 8px;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.status-active {
+    color: var(--color-success, #8cffb3);
+    background: rgba(140, 255, 179, 0.1);
+}
+
+.status-pending {
+    color: var(--color-warning, #ffd166);
+    background: rgba(255, 209, 102, 0.12);
+}
+
+.status-complete {
+    color: #9fb3ff;
+    background: rgba(159, 179, 255, 0.12);
+}
+
+.empty-state {
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .taskStatusCounts {
+        grid-template-columns: 1fr;
+    }
+
+    #membersList > *,
+    #tasksList > *,
+    .data-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .item-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
