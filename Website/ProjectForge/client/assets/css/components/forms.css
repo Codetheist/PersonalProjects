@@ -1,0 +1,16 @@
+.registrationForm,
+.loginForm,
+.projectForm,
+.memberForm,
+.taskForm,
+.commentForm {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.registrationHelp,
+.loginHelp {
+    color: var(--color-muted);
+    margin-top: 12px;
+}
