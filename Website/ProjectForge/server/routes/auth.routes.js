@@ -1,131 +1,132 @@
+// Imports
 const { authRegisterSchema, authLoginSchema } = require('../validation/schemas');
 const { asyncHandler } = require('../utils/asyncHandler');
+const { httpError } = require('../utils/httpError');
 const { validate } = require('../validation/validate');
 const express = require('express');
 const { UsersRepo } = require('../repos/users.repo');
-/*
-    TODO: Add auth middleware to protect routes that require authentication.
-    This middleware should check for a valid session and user ID, and attach the user object to the request if authenticated.
-    It should also handle unauthorized access by returning a 401 response.
+const { requireAuth, guestOnly } = require('../middleware/auth');
+const { authRateLimiter } = require('../middleware/rateLimit');
+const { config } = require('../config');
+
+
+// Create router and repo instances
+const router = express.Router();
+const usersRepo = new UsersRepo();
+
+// Registration
+router.post('/register', authRateLimiter, guestOnly, asyncHandler(async (req, res) => {
+    //Validate body
+    const { username, email, password } = validate(authRegisterSchema, req.body);
     
-    TODO: Add rate limiting middleware to authentication routes to prevent brute-force attacks.
-*/
+    // Create user
+    const user = await usersRepo.createUser({ username, email, password });
 
-/*
-    TODO: Implement the following auth features:
-    Session-based authentication
-    Password hashing and verification
-    Email verification for new registrations
-    Password reset functionality (request reset, reset password)
-    Session management (login, logout, session expiration)
-    Middleware to protect routes that require authentication
-*/
+    // Set session
+    req.session.userId = user.id;
 
-function authRoutes(db) {
-    const router = express.Router();
-    const usersRepo = new UsersRepo(db);
+    // Return user
+    res.status(201).json({ user });    
+}));
 
-    // Registration
-    router.post('/register', asyncHandler(async (req, res) => {
-        //Validate body
-        const { username, email, password } = validate(authRegisterSchema, req.body);
-        
-        // Create user
-        const user = await usersRepo.createUser({ username, email, password });
+// Login
+router.post('/login', authRateLimiter, guestOnly, asyncHandler(async (req, res) => {
+    // Validate body
+    const { identifier, password } = validate(authLoginSchema, req.body);
 
-        // Set session
-        req.session.userId = user.id;
+    // Authenticate user
+    const user = await usersRepo.authenticate(identifier, password);
 
-        // Return user
-        res.status(201).json({ user });
-    }));
+    // Invalid credentials
+    if (!user) {
+        throw httpError(401, 'Invalid credentials');
+    }
 
-    // Login
-    router.post('/login', asyncHandler(async (req, res) => {
-        // Validate body
-        const { identifier, password } = validate(authLoginSchema, req.body);
+    // Set session
+    req.session.userId = user.id;
+    
+    // Return user
+    res.json({ user });
+}));
 
-        // Authenticate user
-        const user = await usersRepo.authenticate(identifier, password);
-
-        // Invalid credentials
-        if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+// Logout
+router.post('/logout', requireAuth, (req, res, next) => {
+    // Destroy session
+    req.session.destroy(err => {
+        if (err) {
+            return next(err);
         }
 
-        // Set session
-        req.session.userId = user.id;
+        res.clearCookie(config.cookieName);
 
-        // Return user
-        res.json({ user });
-    }));
+        res.status(200).json({
+            message: 'Logout successful'
+        });
+    });
+});
 
-    // Logout
-    router.post('/logout', asyncHandler(async (req, res) => {
-        // destroy or clear session
-        // return success response
-    }));
+// Me
+router.get('/me', (req, res) => {
+    if (!req.session?.userId) {
+        return res.json({ user: null });
+    }
+    
+    const user = usersRepo.findUserById(req.session.userId);
+    
+    if (!user) {
+        return res.json({ user: null });
+    }
 
-    // Me
-    router.get('/me', asyncHandler(async (req, res) => {
-        // check session
-        // get current user
-        // handle unauthorized if needed
-        // return user
-    }));
+    res.json({ user });
+});
 
-    // Forgot Password
-    router.post('/forgot-password', asyncHandler(async (req, res) => {
-        // validate body
-        // find user by email
-        // generate reset token
-        // save hashed token / expiry if your design uses DB storage
-        // send reset email or return placeholder response
-        // return success response
-    }));
+/* Future tasks
+// Change password
+router.patch('/change-password', requireAuth, asyncHandler(async (req, res) => {
+    // validate body
+    // verify current password
+    // update to new password
+    // optionally invalidate other sessions
+    // return success response
+}));
 
-    // Reset Password
-    router.post('/reset-password', asyncHandler(async (req, res) => {
-        // validate body
-        // verify reset token
-        // check token expiration
-        // update password
-        // clear used reset token data
-        // optionally create fresh session
-        // return success response
-    }));
+// Forgot Password
+router.post('/forgot-password', asyncHandler(async (req, res) => {
+    // validate body
+    // find user by email
+    // generate reset token
+    // save hashed token / expiry if your design uses DB storage
+    // send reset email or return placeholder response
+    // return success response
+}));
 
-    // Change Password
-    router.post('/change-password', asyncHandler(async (req, res) => {
-        // require authenticated session
-        // validate body
-        // get current user
-        // verify current password
-        // update to new password
-        // return success response
-    }));
+// Reset Password
+router.post('/reset-password', asyncHandler(async (req, res) => {
+    // validate body
+    // verify reset token
+    // check token expiration
+    // update password
+    // clear used reset token data
+    // optionally create fresh session
+    // return success response
+}));
 
-    // Verify Email
-    router.post('/verify-email', asyncHandler(async (req, res) => {
-        // validate token or code
-        // verify token
-        // mark user as verified
-        // clear used verification token data
-        // return success response
-    }));
+// Verify Email
+router.post('/verify-email', asyncHandler(async (req, res) => {
+    // validate token or code
+    // verify token
+    // mark user as verified
+    // clear used verification token data
+    // return success response
+}));
 
-    // Resend Verification Email
-    router.post('/resend-verification-email', asyncHandler(async (req, res) => {
-        // Resend verification email
-        // validate body or use current session user
-        // generate new verification token
-        // send verification email
-        // return success response
-    }));
+// Resend Verification Email
+router.post('/resend-verification-email', asyncHandler(async (req, res) => {
+    // Resend verification email
+    // validate body or use current session user
+    // generate new verification token
+    // send verification email
+    // return success response
+}));*/
 
-    return router;
-}
-
-module.exports = {
-    authRoutes
-};
+module.exports = router;
