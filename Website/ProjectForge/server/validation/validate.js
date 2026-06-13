@@ -1,4 +1,10 @@
+// Imports
 const { httpError } = require("../utils/httpError");
+const { projectIdParamSchema,
+    taskIdParamSchema,
+    commentIdParamSchema,
+    projectMemberParamsSchema,
+    projectTaskParamsSchema } = require("../validation/schemas");
 
 // Custom error message configuration for validation errors
 const CUSTOM_ERROR_MESSAGE = {
@@ -87,9 +93,69 @@ const validateParams = makeValidationMiddleware(
     }
 );
 
+// Validate id's
+function validateProjectId(req, res, next) {
+    try {
+        const { project_id } = validate(projectIdParamSchema, req.params);
+        req.projectId = project_id;
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+function validateTaskId(req, res, next) {
+    try {
+        const { task_id } = validate(taskIdParamSchema, req.params);
+        req.taskId = task_id;
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+function validateCommentId(req, res, next) {
+    try {
+        const { comment_id } = validate(commentIdParamSchema, req.params);
+        req.commentId = comment_id;
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+// Validate project member params
+function validateProjectMemberParams(req, res, next) {
+    try {
+        const { project_id, user_id } = validate(projectMemberParamsSchema, req.params);
+        req.projectId = project_id;
+        req.userId = user_id;
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+function validateProjectTaskParams(req, res, next) {
+    try {
+        const { project_id, task_id } = validate(projectTaskParamsSchema, req.params);
+        req.projectId = project_id;
+        req.taskId = task_id;
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+// Export
 module.exports = {
     validate,
     validateBody,
     validateQuery,
-    validateParams
+    validateParams,
+    validateProjectId,
+    validateTaskId,
+    validateCommentId,
+    validateProjectMemberParams,
+    validateProjectTaskParams
 };
