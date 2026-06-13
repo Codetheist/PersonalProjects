@@ -1,0 +1,46 @@
+import { checkSession } from '../features/auth.js';
+import { addProject, loadProjects } from '../features/projects.js';
+import { elements } from '../shared/dom.js';
+import { PAGE_ROUTES } from '../core/routes.js';
+
+export async function initDashboardPage() {
+    if (!elements.projectsList) {
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const createMode = params.get('create') === 'true';
+
+    if (createMode) {
+        elements.createProjectForm.hidden = false;
+        elements.projectsList.hidden = true;
+        elements.createProjectButton.hidden = true;
+    }
+    
+    const user = await checkSession();
+    
+    if (!user) {
+        window.location.replace(PAGE_ROUTES.home + "#login");
+        return;
+    }
+
+    if (elements.dashboardUsername) {
+        elements.dashboardUsername.textContent = user.username;
+    }
+
+    if (elements.logoutButton) {
+        elements.logoutButton.hidden = false;
+    }
+    
+    elements.createProjectForm?.addEventListener('submit', addProject);
+
+    elements.createProjectButton?.addEventListener('click', () => {
+        elements.createProjectForm.hidden = false;
+        elements.projectsList.hidden = true;
+        elements.createProjectButton.hidden = true;
+    });
+
+    if (!createMode) {
+        await loadProjects();
+    }
+}
