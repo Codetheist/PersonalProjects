@@ -1,0 +1,98 @@
+@media (max-width: 900px) {
+    .hero,
+    .project-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .featureList,
+    .taskStatusCounts {
+        grid-template-columns: 1fr;
+    }
+
+    .project-sidebar {
+        display: block;
+    }
+
+    .taskComments,
+    .comments-panel {
+        min-height: auto;
+    }
+
+    #commentsList,
+    .comments-list {
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navBar {
+        flex-wrap: wrap;
+    }
+
+    .navLinks {
+        gap: 0.75rem;
+    }
+
+    .authButtons {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .card,
+    .projectHeader,
+    .projectMembers,
+    .projectTasks,
+    .taskComments {
+        padding: 16px;
+    }
+
+    .card-header,
+    .comments-header,
+    .comment-header,
+    #membersList > *,
+    #tasksList > *,
+    .data-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-actions-inline,
+    .item-actions,
+    .projectActions[role="group"],
+    .taskActions,
+    .formActions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .buttonLook,
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    #main-content {
+        padding: 18px;
+    }
+
+    .navBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .navLinks {
+        justify-content: center;
+    }
+
+    .authButtons {
+        justify-content: center;
+    }
+
+    .projectActions[role="group"],
+    .taskActions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
