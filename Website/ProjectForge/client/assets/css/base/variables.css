@@ -1,0 +1,25 @@
+:root {
+    --color-bg: #0b0c10;
+    --color-text: #e9eef5;
+    --color-muted: #b8c2d1;
+    --color-soft-text: #d7e1ee;
+
+    --color-panel: #111722;
+    --color-panel-dark: #101722;
+    --color-panel-mid: #141c29;
+
+    --color-border: #253047;
+    --color-border-soft: #2a3344;
+    --color-border-light: #3a465c;
+
+    --color-accent: #6dd3fb;
+    --color-accent-text: #072433;
+    --color-link: #5aa9ff;
+    --color-error: #ff8d8d;
+
+    --radius-sm: 10px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    --page-width: 1100px;
+}
