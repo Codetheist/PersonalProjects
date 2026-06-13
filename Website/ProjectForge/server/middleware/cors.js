@@ -1,13 +1,12 @@
 // imports
 const cors = require('cors');
+const { config } = require('../config');
 
-//
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
-    ? process.env.CORS_ALLOWED_ORIGINS.split(',')
-        .map(origin => origin.trim())
-        .filter(Boolean)
-    : [];
-
+// Parse allowed origins from config
+const allowedOrigins = config.corsOrigin
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
 
 // CORS options
 const corsOptions = {
@@ -17,7 +16,7 @@ const corsOptions = {
             return callback(null, true);
         }
 
-        if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
         
