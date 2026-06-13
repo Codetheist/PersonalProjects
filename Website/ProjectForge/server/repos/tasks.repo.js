@@ -1,6 +1,6 @@
-// imports
+// Imports
 const { uid } = require("../utils/ids");
-const { createError } = require("../utils/httpError");
+const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
 const { isValidDate } = require("../utils/date");
 
@@ -20,23 +20,23 @@ class TasksRepo {
         due_date = (due_date ?? "").trim() || null;
 
         if (!project_id) {
-            throw createError.BadRequest("Project ID is required");
+            throw httpError(400, "Project ID is required");
         }
 
         if (title.length < 3) {
-            throw createError.BadRequest("Title must be at least 3 characters long");
+            throw httpError(400, "Title must be at least 3 characters long");
         }
 
         if (!["todo", "doing", "done"].includes(status)) {
-            throw createError.BadRequest("Invalid status value");
+            throw httpError(400, "Invalid status value");
         }
 
         if (!["low", "medium", "high"].includes(priority)) {
-            throw createError.BadRequest("Invalid priority value");
+            throw httpError(400, "Invalid priority value");
         }
 
         if (!isValidDate(due_date)) {
-            throw createError.BadRequest("Invalid due date format (YYYY-MM-DD)");
+            throw httpError(400, "Invalid due date format (YYYY-MM-DD)");
         }
 
         const project = this.db.prepare(`
@@ -44,9 +44,9 @@ class TasksRepo {
             FROM projects
             WHERE id = ?
         `).get(project_id);
-        
+
         if (!project) {
-            throw createError.NotFound("Project not found");
+            throw httpError(404, "Project not found");
         }
         
         this.db.prepare(`
@@ -64,9 +64,7 @@ class TasksRepo {
             FROM tasks
             WHERE id = ?
         `).get(id);
-        if (!task) {
-            throw createError.NotFound("Task not found");
-        }
+        
         return task;
     }
 
@@ -75,6 +73,10 @@ class TasksRepo {
             SELECT *
             FROM tasks
             WHERE project_id = ?
+            ORDER BY 
+                due_date IS NULL,
+                due_date ASC,
+                created_at DESC
         `).all(project_id);
         
         return tasks;
@@ -93,7 +95,7 @@ class TasksRepo {
     updateTask(id, updates = {}) {
         id = (id ?? "").trim();
         if (!id) {
-            throw createError.BadRequest("Task ID is required");
+            throw httpError(400, "Task ID is required");
         }
 
         const task = this.db.prepare(`
@@ -101,9 +103,9 @@ class TasksRepo {
             FROM tasks
             WHERE id = ?
         `).get(id);
-        
+
         if (!task) {
-            throw createError.NotFound("Task not found");
+            throw httpError(404, "Task not found");
         }
 
         const updatedTask = {};
@@ -112,7 +114,7 @@ class TasksRepo {
             const title = (updates.title ?? "").trim();
             
             if (title.length < 3) {
-                throw createError.BadRequest("Title must be at least 3 characters long");
+                throw httpError(400, "Title must be at least 3 characters long");
             }
             
             updatedTask.title = title;
@@ -126,7 +128,7 @@ class TasksRepo {
             const status = (updates.status ?? "").trim().toLowerCase();
             
             if (!["todo", "doing", "done"].includes(status)) {
-                throw createError.BadRequest("Invalid status value");
+                throw httpError(400, "Invalid status value");
             }
             
             updatedTask.status = status;
@@ -136,7 +138,7 @@ class TasksRepo {
             const priority = (updates.priority ?? "").trim().toLowerCase();
 
             if (!["low", "medium", "high"].includes(priority)) {
-                throw createError.BadRequest("Invalid priority value");
+                throw httpError(400, "Invalid priority value");
             }
             
             updatedTask.priority = priority;
@@ -146,14 +148,14 @@ class TasksRepo {
             const due_date = (updates.due_date ?? "").trim() || null;
 
             if (!isValidDate(due_date)) {
-                throw createError.BadRequest("Invalid due date format (YYYY-MM-DD)");
+                throw httpError(400, "Invalid due date format (YYYY-MM-DD)");
             }
             
             updatedTask.due_date = due_date;
         }
 
         if (Object.keys(updatedTask).length === 0) {
-            throw createError.BadRequest("No valid fields to update");
+            throw httpError(400, "No valid fields to update");
         }
 
         const nextTitle = "title" in updatedTask ? updatedTask.title : task.title;
@@ -183,7 +185,7 @@ class TasksRepo {
     deleteTask(id) {
         id = (id ?? "").trim();
         if (!id) {
-            throw createError.BadRequest("Task ID is required");
+            throw httpError(400, "Task ID is required");
         }
 
         const task = this.db.prepare(`
@@ -191,9 +193,9 @@ class TasksRepo {
             FROM tasks
             WHERE id = ?
         `).get(id);
-        
+
         if (!task) {
-            throw createError.NotFound("Task not found");
+            throw httpError(404, "Task not found");
         }
 
         this.db.prepare(`
