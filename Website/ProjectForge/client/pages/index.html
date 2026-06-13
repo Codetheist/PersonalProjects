@@ -3,7 +3,8 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="../assets/css/styles.css">
+		<link rel="stylesheet" href="/assets/css/style.css">
+        
 		<title>Project Forge</title>
 	</head>
 	<body id="top">
@@ -11,139 +12,118 @@
 
 		<header class="site-header">
 			<nav class="navBar" aria-label="Primary">
-			<div class="navLinks">
-				<a href="index.html">Home</a>
-				<a href="members.html">Members</a>
-				<a href="project.html">Project</a>
-				<a href="projects.html">Create a Project</a>
-				<a href="task.html">Create a Task</a>
-			</div>
-			<div class="authButtons">
-				<a class="buttonLook primaryButton" href="register.html">Sign Up</a>
-				<a class="buttonLook" href="login.html">Login</a>
-			</div>
+                <div class="navLinks">
+                    <a href="/">Home</a>
+                </div>
+                <div class="authButtons">
+                    <a class="buttonLook primaryButton" href="#registration">Sign Up</a>
+                    <a class="buttonLook secondaryButton" href="#login">Login</a>
+                </div>
 			</nav>
 		</header>
 		
 		<main id="main-content">
-			<section class="hero" aria-labelledby="hero-title">
-				<div class="heroText">
-					<h1 id="hero-title">Project Forge</h1>
-				
-					<p class="heroSubtitle">A simple hub for projects, tasks, deadlines, and team progress.</p>
-					<p class="heroSupport">Create a project, assign tasks, and track progress without digging through threads.</p>
-				
-					<div class="ctaRow" role="group" aria-label="Primary actions">
-						<a class="buttonLook createButton" href="projects.html">Create a Project</a>
-						<a class="buttonLook demoButton" href="project.html?demo=1">Try Demo</a>
-					</div>
-					
-					<p class="ctaHelp">No account required for demo</p>
-					<p class="ctaProof">Includes sample projects and tasks</p>
-				</div>
-				<div class="heroPreview" aria-label="App preview">
-					<div class="previewCard">
-						<div class="previewHeader">
-							<div class="previewTitle">Demo: Signal Lantern</div>
-							<div class="previewMeta">Glassgarden Workspace • Owner: Avery • Members: 3</div>
-							<div class="previewGoal">Turn scattered ideas into shippable tasks.</div>
-						</div>
-						
-						<div class="previewStats">
-							<div class="stat">
-								<div class="statLabel">To do</div>
-								<div class="statValue">4</div>
-							</div>
-							<div class="stat">
-								<div class="statLabel">In Progress</div>
-								<div class="statValue">3</div>
-							</div>
-							<div class="stat">
-								<div class="statLabel">Done</div>
-								<div class="statValue">5</div>
-							</div>
-						</div>
-						
-						<div class="previewProgress" aria-label="Progress">
-							<div class="progressBar" role="progressbar" aria-valuenow="X" aria-valuemin="0" aria-valuemax="100">
-								<div class="progressFill" style="width: 42%;"></div>
-							</div>
-							<div class="progressText">42% complete (5/12 done)</div>
-						</div>
-						
-						<div class="milestoneStrip" aria-label="Milestones">
-							<span class="muted">Milestones:</span>
-							<span class="milestone">Setup Foundations</span>
-							<span class="milestoneSep">→</span>
-							<span class="milestone current">Build Core Flow</span>
-							<span class="milestoneSep">→</span>
-							<span class="milestone">Polish and Launch</span>
-						</div>
-						
-						<ul class="previewList" aria-label="Sample tasks">
-							<li class="taskRow">
-								<span class="badge badge-todo">To do</span>
-								<span class="taskText">Draft the workflow (statuses + rules)</span>
-								<span class="taskDue">Due Fri</span>
-							</li>
-							<li class="taskRow">
-								<span class="badge badge-inprogress">In Progress</span>
-								<span class="taskText">Design the UI mockups</span>
-								<span class="taskDue">Due Wed</span>
-							</li>
-							<li class="taskRow">
-								<span class="badge badge-done">Done</span>
-								<span class="taskText">Set up the database schema</span>
-								<span class="taskDue">Due Mon</span>
-							</li>
-							<li class="taskRow">
-								<span class="badge badge-done">Done</span>
-								<span class="taskText">Add progress summary (counts + %)</span>
-								<span class="taskDue">Done</span>
-							</li>
-						</ul>
-						
-						<div class="previewFooter">
-							<span class="muted">Views:</span> List • Board • Timeline
-							<span class="previewUpdate muted">• Last update: 2m ago</span>
-						</div>
-					</div>
-				</div>
-			</section>
-			
-			<section class="howItWorks" aria-labelledby="how-title">
-				<h2 id="how-title">Quick Highlights</h2>
-				<div class="steps">
-					<article class="step">
-						<h3>Create a Project</h3>
-						<p>Project timelines and milestones</p>
-					</article>
-					<article class="step">
-						<h3>Task Assignments</h3>
-						<p>Task assignments and statuses</p>
-					</article>
-					<article class="step">
-						<h3>Real-time Updates</h3>
-						<p>Real-time updates and comments</p>
-					</article>
-					<article class="step">
-						<h3>Filters and Views</h3>
-						<p>Filters, search, and saved views</p>
-					</article>
-				</div>
-			</section>
-			
-			<section class="coreFeatures" aria-labelledby="features-title">
-				<h2 id="features-title">Core Features</h2>
-				<ul class="featureGrid">
-					<li class="featureItem">Tasks with statuses, priorities, due dates</li>
-					<li class="featureItem">Milestones and deadlines</li>
-					<li class="featureItem">Comments and file attachments</li>
-					<li class="featureItem">Role-based access</li>
-					<li class="featureItem">Views: list, kanban, calendar</li>
-					<li class="featureItem">Search, tags, and filters</li>
-				</ul>
-			</section>
+
+            <div id="landingView">
+                <!--Hero Section-->
+                <section class="hero" aria-labelledby="hero-title">
+                    <div class="heroText">
+                        <h1 id="hero-title">Project Forge</h1>
+                    
+                        <p class="heroSubtitle">A simple hub for projects, tasks, deadlines, and team progress.</p>
+                        <p class="heroSupport">Create a project, assign tasks, and track progress without digging through threads.</p>
+                    
+                        <div class="ctaRow" role="group" aria-label="Primary actions">
+                            <button id="createProjectButton" class="buttonLook createButton">Create a Project</button>
+                            <button id="demoButton" class="buttonLook demoButton">Try Demo</button>
+                        </div>
+                    </div>
+                    
+                    <!--Preview-->
+                    <div id="heroPreview" class="heroPreview" aria-hidden="true">
+                        <div class="projectCard">
+                            <h3>Project Alpha</h3>
+                            <p>Owner: Alice | Members: 5</p>
+                            
+                            <div class="progressBar">
+                                <div class="progress" style="width: 16%;"></div>
+                            </div>
+                            <p>16% complete</p>
+                            <div class="taskStatusCounts">
+                                <span>To Do: 2</span>
+                                <span>In Progress: 3</span>
+                                <span>Done: 1</span>
+                            </div>
+
+                            <div class="taskList">
+                                <p><strong>Set up database - Done</strong></p>
+                                <p><strong>Implement authentication - In Progress</strong></p>
+                                <p><strong>Create API endpoints - In Progress</strong></p>
+                                <p><strong>Design homepage - In Progress</strong></p>
+                                <p><strong>Write unit tests - To Do</strong></p>
+                                <p><strong>Deploy to server - To Do</strong></p>
+                            </div><br>
+                            <p>Last update: 2 hours ago</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!--Features Section-->
+                <section class="features" aria-labelledby="features-title">
+                    <h2 id="features-title">Quick Features</h2>
+                    <div class="featureList">
+                        <div class="featureItem">
+                            <h3>Project Management</h3>
+                            <p>Create projects, set deadlines, and track progress with ease.</p>
+                        </div>
+                        <div class="featureItem">
+                            <h3>Task Assignment</h3>
+                            <p>Assign tasks to team members and monitor their status in real-time.</p>
+                        </div>
+                        <div class="featureItem">
+                            <h3>Team Collaboration</h3>
+                            <p>Communicate with your team, share updates, and keep everyone on the same page.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="authView" hidden>
+                <!--Registration Section-->
+                <section class="registration" aria-labelledby="registration" hidden>
+                    <h2 id="registration">Join Project Forge</h2>
+                    <form class="registrationForm" action="/api/auth/register" method="POST">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required>
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                        <label for="register-password">Password:</label>
+                        <input type="password" id="register-password" name="password" required>
+                        <button type="submit" class="buttonLook primaryButton">Sign Up</button>
+                        <p id="registerError" class="errorMessage" aria-live="polite"></p>
+                    </form>
+                    <p class="registrationHelp">Already have an account? <a href="#login">Log in here</a>.</p>
+                </section>
+
+                <!--Login Section-->
+                <section class="login" aria-labelledby="login" hidden>
+                    <h2 id="login">Welcome Back</h2>
+                    <form class="loginForm" action="/api/auth/login" method="POST">
+                        <label for="identifier">Username/Email:</label>
+                        <input type="text" id="identifier" name="identifier" required>
+                        <label for="login-password">Password:</label>
+                        <input type="password" id="login-password" name="password" required>
+                        <button type="submit" class="buttonLook primaryButton">Login</button>
+                        <p id="loginError" class="errorMessage" aria-live="polite"></p>
+                    </form>
+                    <p class="loginHelp">Don't have an account? <a href="#registration">Sign up here</a>.</p>
+                </section>
+            </div>
+            
+            <!--Logout-->
+            <section class="logoutConfirmation" id="logout" aria-live="assertive" hidden>
+                <p>You have been logged out.</p>
+            </section>
 		</main>
 		
 		<footer class="site-footer">
@@ -151,6 +131,7 @@
 			<p class="copyright">&copy; <span id="year"></span> Project Forge</p>
 		</footer>
 		
-		<script src="../assets/js/app.js"></script>
+		<!-- When using the server to test-->
+        <script type="module" src="/assets/js/core/app.js"></script>
 	</body>
 </html>
