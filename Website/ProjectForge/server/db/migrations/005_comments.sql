@@ -3,7 +3,8 @@ PRAGMA recursive_triggers = OFF;
 
 CREATE TABLE IF NOT EXISTS comments (
     id TEXT PRIMARY KEY,
-    task_id TEXT NOT NULL,
+    task_id TEXT,
+    project_id TEXT,
     created_by_user_id TEXT NOT NULL,
     created_by_username TEXT NOT NULL,
     body TEXT NOT NULL,
@@ -14,9 +15,14 @@ CREATE TABLE IF NOT EXISTS comments (
     CHECK (length(trim(body)) > 0),
     CHECK (length(body) <= 5000),
     CHECK (updated_at >= created_at),
+    CHECK (
+        (task_id IS NOT NULL AND project_id IS NULL) OR
+        (task_id IS NULL AND project_id IS NOT NULL)
+    ),
 
     -- Foreign key constraints
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
