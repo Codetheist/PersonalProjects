@@ -2,12 +2,14 @@
 import { addMember, listMembers, updateMember, deleteMember } from '../api/membersApi.js';
 import { showError, clearError, setSubmitState } from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
+import { state } from '../core/state.js';
+import { PAGE_ROUTES } from '../core/routes.js';
 
 export async function addProjectMember(event, projectId) {
     event.preventDefault();
     const form = event.target;
     const memberData = {
-        user_id: form.user_id.value,
+        username: form.username.value,
         role: form.role.value
     };
     try {
@@ -24,7 +26,12 @@ export async function addProjectMember(event, projectId) {
         elements.addMemberForm.reset();
         elements.addMemberForm.hidden = true;
         
-        await loadProjectMembers(projectId);
+        if (!Array.isArray(state.members)) {
+            state.members = [];
+        }
+
+        state.members.push(result.data.member);
+        renderMembers();
     } catch (error) {
         console.error('Error adding member:', error);
         showError(elements.addMemberError, 'An error occurred while adding the member. Please try again.');
@@ -41,12 +48,11 @@ export async function loadProjectMembers(projectId) {
             showError(elements.addMemberError, 'An error occurred while loading members. Please try again.');
             return;
         }
-        const members = result.data.members || [];
+        state.members = result.data.members || [];
 
-        renderMembers(members);
-        console.log('Members loaded:', members);
+        renderMembers();
         
-        return members;
+        return state.members;
     } catch (error) {
         console.error('Error loading members:', error);
         showError(elements.addMemberError, 'An error occurred while loading members. Please try again.');
@@ -69,7 +75,15 @@ export async function editProjectMember(event, projectId, userId) {
             return;
         }
         // Handle successful member update (e.g., update UI, redirect, etc.)
-        await loadProjectMembers(projectId);
+        const updatedMember = result.data.member;
+
+        const memberIndex = state.members.findIndex(member => member.user_id === userId);
+        
+        if (memberIndex !== -1) {
+            state.members[memberIndex] = updatedMember;
+        }
+        
+        renderMembers();
     } catch (error) {
         console.error('Error updating member:', error);
         showError(elements.addMemberError, 'An error occurred while updating the member. Please try again.');
@@ -89,8 +103,17 @@ export async function removeProjectMember(projectId, userId) {
             showError(elements.addMemberError, 'An error occurred while removing the member. Please try again.');
             return;
         }
+
+        const removeSlf = userId === state.user?.id;
         // Handle successful member removal (e.g., update UI, redirect, etc.)
-        await loadProjectMembers(projectId);
+        state.members = state.members.filter(member => member.user_id !== userId);
+
+        if (removeSlf) {
+            window.location.replace(PAGE_ROUTES.dashboard);
+            return;
+        }
+        
+        renderMembers();
     } catch (error) {
         console.error('Error removing member:', error);
         showError(elements.addMemberError, 'An error occurred while removing the member. Please try again.');
@@ -117,7 +140,9 @@ export async function handleMemberClick(event, projectId) {
     }
 }
 
-function renderMembers(members = []) {
+function renderMembers() {
+    const members = Array.isArray(state.members) ? state.members : [];
+    
     if (!elements.membersList) return;
 
     elements.membersList.innerHTML = '';
@@ -129,6 +154,9 @@ function renderMembers(members = []) {
         return;
     }
 
+    const currentUser = state.user;
+    const currentUserRole = members.find(m_user => m_user.username === currentUser?.username)?.role;
+    
     const fragment = document.createDocumentFragment();
     
     members.forEach(member => {
@@ -141,7 +169,12 @@ function renderMembers(members = []) {
             ? 'Owner'
             : 'Member';
         
-        const canRemove = member.role !== 'admin';
+        const isOwner = currentUserRole === 'admin';
+        const isSelf = member.username === currentUser?.username;
+        
+        const canRemove = isOwner || isSelf;
+        const canEdit = isOwner;
+        const showActions = isOwner || isSelf;
         
         memberItem.innerHTML = `
             <div class="item-content">
@@ -150,18 +183,23 @@ function renderMembers(members = []) {
             </div>
 
             <div class="item-actions" aria-label="Member actions">
-                <button type="button" class="buttonLook btn btn-small" data-member-action="edit">
-                    Edit
-                </button>
-                <button
-                    type="button"
-                    class="buttonLook btn btn-small secondaryButton btn-danger"
-                    data-member-action="remove"
-                    ${canRemove ? '' : 'disabled'}
-                >   Remove
-                </button>
+                ${showActions ? `
+                    ${canEdit ? `
+                        <button type="button" class="buttonLook btn btn-small" data-member-action="edit">
+                            Edit
+                        </button>
+                    ` : ''}
+                    ${canRemove ? `
+                        <button
+                        type="button"
+                        class="buttonLook btn btn-small secondaryButton btn-danger"
+                        data-member-action="remove">
+                            Remove
+                        </button>
+                    ` : ''}
+                ` : ''}
             </div>
-        `;
+        `
         fragment.appendChild(memberItem);
     });
     elements.membersList.appendChild(fragment);
