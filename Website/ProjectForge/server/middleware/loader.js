@@ -42,10 +42,13 @@ async function loadTask(req, res, next) {
 
 async function loadProjectFromTask(req, res, next) {
     try {
-        const project = await projectsRepo.getProjectById(req.task.project_id);
+        const projectId = req.task ? req.task.project_id : req.comment.project_id;
+        const project = await projectsRepo.getProjectById(projectId);
+        
         if (!project) {
             return next(httpError(404, "Project not found"));
         }
+        
         req.project = project;
         next();
     } catch (err) {
@@ -70,7 +73,12 @@ async function loadComment(req, res, next) {
 
 async function loadTaskFromComment(req, res, next) {
     try {
+        if (!req.comment.task_id) {
+            return next();
+        }
+
         const task = await tasksRepo.getTaskById(req.comment.task_id);
+        
         if (!task) {
             return next(httpError(404, "Task not found"));
         }
