@@ -3,6 +3,7 @@ import { createProject, listProjects, getProjectDetail, updateProject, deletePro
 import { showError, clearError, setSubmitState } from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
 import { PAGE_ROUTES } from '../core/routes.js';
+import { state } from '../core/state.js';
 
 export async function addProject(event) {
     event.preventDefault();
@@ -35,7 +36,13 @@ export async function addProject(event) {
 
         window.history.replaceState({}, '', PAGE_ROUTES.dashboard);
         
-        await loadProjects();
+        if (!Array.isArray(state.projects)) {
+            state.projects = [];
+        }
+
+        state.projects.push(result.data.project);
+
+        renderProjects();
     } catch (error) {
         console.error('Error creating project:', error);
         showError(elements.createProjectError, 'An error occurred while creating the project. Please try again.');
@@ -53,14 +60,9 @@ export async function loadProjects() {
             return;
         }
 
-        const projects = result.data.projects || [];
+        state.projects = result.data.projects || [];
         
-        if (projects.length === 0) {
-            elements.projectsList.innerHTML = '<p>No projects found. Create your first project!</p>';
-            return;
-        }
-        
-        renderProjects(projects);
+        renderProjects();
     } catch (error) {
         console.error('Error loading projects:', error);
         showError(elements.createProjectError, 'An error occurred while loading projects. Please try again.');
@@ -75,8 +77,9 @@ export async function loadProjectDetail(projectId) {
             showError(elements.projectDetailError, 'An error occurred while loading project details. Please try again.');
             return;
         }
+        state.selectedProject = result.data.project;
 
-        renderProjectDetail(result.data.project);
+        renderProjectDetail();
     } catch (error) {
         console.error('Error loading project detail:', error);
         showError(elements.projectDetailError, 'An error occurred while loading project details. Please try again.');
@@ -86,14 +89,26 @@ export async function loadProjectDetail(projectId) {
 export async function editProject(projectId, updatedData) {
     try {
         const result = await updateProject(projectId, updatedData);
+        
         if (!result.ok) {
             console.error('Failed to update project:', result.data?.message || 'Unknown error');
             showError(elements.editProjectError, 'An error occurred while updating the project. Please try again.');
             return;
         }
         
+        const updatedProject = result.data.project;
+        state.selectedProject = updatedProject;
+
+        const index = state.projects.findIndex(project => project.id === projectId);
+        
+        if (index !== -1) {
+            state.projects[index] = updatedProject;
+        }
+        
         elements.editProjectForm.hidden = true;
-        renderProjectDetail(result.data.project);
+        
+        renderProjectDetail();
+        renderProjects();
     } catch (error) {
         console.error('Error updating project:', error);
         showError(elements.editProjectError, 'An error occurred while updating the project. Please try again.');
@@ -108,6 +123,7 @@ export async function removeProject(projectId) {
             showError(elements.editProjectError, 'An error occurred while deleting the project. Please try again.');
             return;
         }
+        
         window.location.href = PAGE_ROUTES.dashboard;
     } catch (error) {
         console.error('Error deleting project:', error);
@@ -115,9 +131,14 @@ export async function removeProject(projectId) {
     }
 }
 
-function renderProjects(projects) {
+function renderProjects() {
     elements.projectsList.innerHTML = '';
-    for (const project of projects) {
+
+    if (state.projects.length === 0) {
+        elements.projectsList.innerHTML = '<p>No projects found. Create your first project!</p>';
+        return;
+    }
+    for (const project of state.projects) {
         const projectItem = document.createElement('a');
         projectItem.textContent = project.name;
         projectItem.href = `${PAGE_ROUTES.projects}/${project.id}`;
@@ -125,7 +146,11 @@ function renderProjects(projects) {
     }
 }
 
-function renderProjectDetail(project) {
+function renderProjectDetail() {
+    const project = state.selectedProject;
+
+    if (!project) return;
+
     elements.projectDetailName.textContent = project.name;
     elements.projectDetailDescription.textContent = project.description || '';
     elements.projectDetailStatus.textContent = project.status;
