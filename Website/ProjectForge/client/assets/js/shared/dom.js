@@ -69,7 +69,7 @@ export const elements = {
     membersList: document.getElementById('membersList'),
     showAddMemberFormButton: document.getElementById('showAddMemberFormButton'),
     addMemberForm: document.getElementById('addMemberForm'),
-    memberUserId: document.getElementById('memberUserId'),
+    memberUsername: document.getElementById('memberUsername'),
     memberRole: document.getElementById('memberRole'),
     addMemberError: document.getElementById('addMemberError'),
 
@@ -93,6 +93,7 @@ export const elements = {
     createTaskPriority: document.getElementById('taskPriority'),
     createTaskDueDate: document.getElementById('taskDueDate'),
     createTaskError: document.getElementById('createTaskError'),
+    cancelCreateTaskButton: document.getElementById('cancelCreateTaskButton'),
 
     // Edit Task
     editTaskForm: document.getElementById('editTaskForm'),
@@ -109,4 +110,5 @@ export const elements = {
     addCommentForm: document.getElementById('addCommentForm'),
     commentContent: document.getElementById('commentContent'),
     addCommentError: document.getElementById('addCommentError'),
+    commentHeader: document.getElementById('commentsTitle'),
 };
