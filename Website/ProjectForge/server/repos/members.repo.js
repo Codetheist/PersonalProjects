@@ -8,16 +8,26 @@ class MembersRepo {
     }
     
     // Create
-    addMember(project_id, user_id, role = 'member') {
+    addMember(project_id, username, role = 'member') {
         if (role !== 'admin' && role !== 'member') {
             throw httpError(400, "Invalid role");
+        }
+
+        const user = this.db.prepare(`
+            SELECT *
+            FROM users
+            WHERE username = ?
+            `).get(username);
+
+        if (!user) {
+            throw httpError(404, "User not found");
         }
 
         try {
             this.db.prepare(`
                 INSERT INTO project_members (project_id, user_id, role)
                 VALUES (?, ?, ?)
-            `).run(project_id, user_id, role);
+            `).run(project_id, user.id, role);
         } catch (err) {
             if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' ||
                 err.message.includes('UNIQUE constraint failed')) {
@@ -26,15 +36,16 @@ class MembersRepo {
             throw err;
         }
 
-        return this.getMembership(project_id, user_id);
+        return this.getMembership(project_id, user.id);
     }
     
     // Read
     getMembership(project_id, user_id) {
         const membership = this.db.prepare(`
-            SELECT *
-            FROM project_members
-            WHERE project_id = ? AND user_id = ?
+            SELECT pm.*, u.username
+            FROM project_members pm
+            JOIN users u ON pm.user_id = u.id
+            WHERE pm.project_id = ? AND pm.user_id = ?
         `).get(project_id, user_id);
         
         return membership;
