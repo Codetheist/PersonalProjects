@@ -2,9 +2,9 @@
 const { commentCreateSchema, commentUpdateSchema, commentIdParamSchema, taskIdParamSchema } = require('../validation/schemas');
 const { asyncHandler } = require('../utils/asyncHandler');
 const { httpError } = require('../utils/httpError');
-const { validate, validateTaskId, validateCommentId, validateBody } = require('../validation/validate');
+const { validate, validateProjectId, validateTaskId, validateCommentId, validateBody } = require('../validation/validate');
 const { requireAuth, requireProjectMembership, requireTaskAccess, requireCommentAccess } = require('../middleware/auth');
-const { loadProjectFromTask, loadTask, loadComment, loadTaskFromComment } = require('../middleware/loader');
+const { loadProject, loadProjectFromTask, loadTask, loadComment, loadTaskFromComment } = require('../middleware/loader');
 const express = require('express');
 const { CommentsRepo } = require('../repos/comments.repo');
 
@@ -32,6 +32,24 @@ router.post("/tasks/:task_id/comments",
     })
 );
 
+// Create project comment
+router.post("/projects/:project_id/comments",
+    requireAuth,
+    validateProjectId,
+    loadProject,
+    requireProjectMembership,
+    validateBody(commentCreateSchema),
+    asyncHandler(async (req, res) => {
+        const { comment, message } = await commentsRepo.createProjectComment({
+            project_id: req.params.project_id,
+            created_by_user_id: req.user.id,
+            created_by_username: req.user.username,
+            body: req.body.body
+        });
+        res.status(201).json({ comment, message });
+    })
+);
+
 // Get comments by task
 router.get("/tasks/:task_id/comments",
     requireAuth,
@@ -46,6 +64,17 @@ router.get("/tasks/:task_id/comments",
     })
 );
 
+router.get("/projects/:project_id/comments",
+    requireAuth,
+    validateProjectId,
+    loadProject,
+    requireProjectMembership,
+    asyncHandler(async (req, res) => {
+        const comments = await commentsRepo.getCommentsByProjectId(req.params.project_id);
+        res.json({ comments });
+    })
+);
+
 // Update comment
 router.patch("/comments/:comment_id",
     requireAuth,
@@ -54,7 +83,6 @@ router.patch("/comments/:comment_id",
     loadTaskFromComment,
     loadProjectFromTask,
     requireProjectMembership,
-    requireTaskAccess,
     requireCommentAccess,
     asyncHandler(async (req, res) => {
         const commentData = validate(commentUpdateSchema, req.body);
@@ -71,7 +99,6 @@ router.delete("/comments/:comment_id",
     loadTaskFromComment,
     loadProjectFromTask,
     requireProjectMembership,
-    requireTaskAccess,
     requireCommentAccess,
     asyncHandler(async (req, res) => {
         const { comment, message } = await commentsRepo.deleteComment(req.comment.id);
