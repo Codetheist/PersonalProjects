@@ -3,6 +3,7 @@ import { registerUser, loginUser, logoutUser, currentUser } from '../api/authApi
 import { showError, clearError, setSubmitState } from '../shared/ui.js';
 import { PAGE_ROUTES } from '../core/routes.js';
 import { elements } from '../shared/dom.js';
+import { state } from '../core/state.js';
 
 // Register, Login, Logout, Check Session, Require Auth functions
 export async function register(event) {
@@ -65,6 +66,8 @@ export async function login(event) {
             showError(elements.loginError, result.data?.message || 'Login failed');
             return;
         }
+
+        state.user = result.data.user;
         
         window.location.replace(PAGE_ROUTES.dashboard);
     } catch (error) {
@@ -93,6 +96,9 @@ export async function logout(event) {
         }
 
         loggedOut = true;
+
+        state.user = null;
+
         window.location.replace(PAGE_ROUTES.home);
     } catch (error) {
         console.error('Error logging out user:', error);
@@ -111,7 +117,9 @@ export async function checkSession() {
             return null;
         }
 
-        return result.data.user || null;
+        state.user = result.data.user || null;
+        
+        return state.user;
     } catch (error) {
         console.error('Error checking session:', error);
         return null;
@@ -187,6 +195,7 @@ if (!elements.isHomePage) return;
 export function initAuth() {
     elements.registrationForm?.addEventListener('submit', register);
     elements.loginForm?.addEventListener('submit', login);
+    elements.logoutButton?.addEventListener('click', logout);
     
     syncAuthState();
 }
