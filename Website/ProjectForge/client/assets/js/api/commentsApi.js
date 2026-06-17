@@ -28,8 +28,33 @@ export async function createComment(taskId, commentData) {
     };
 }
 
-export async function listComments(taskId) {
-    const response = await fetch(COMMENT_ROUTES.list(taskId), {
+
+export async function createProjectComment(projectId, commentData) {
+    const response = await fetch(`/api/projects/${projectId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(commentData)
+    });
+    
+    const data = await readJson(response);
+    
+    return {
+        ok: response.ok,
+        status: response.status,
+        data
+    };
+}
+
+
+export async function listComments(id, type) {
+    const url = type === 'project'
+        ? `/api/projects/${id}/comments`
+        : `/api/tasks/${id}/comments`;
+    
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'Accept': 'application/json'
