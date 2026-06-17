@@ -2,6 +2,7 @@
 import { createTask, listTasks, getTaskDetail, updateTask, deleteTask } from '../api/tasksApi.js';
 import { showError, clearError, setSubmitState } from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
+import { state } from '../core/state.js';
 
 export async function addTask(event, projectId) {
     event.preventDefault();
@@ -27,12 +28,17 @@ export async function addTask(event, projectId) {
             return null;
         }
 
+
         form.reset();
         form.hidden = true;
-        await loadProjectTasks(projectId);
-        renderTaskDetail(result.data.task);
-        elements.taskDetailPanel.hidden = false;
-        return result.data.task;
+
+        if (!Array.isArray(state.tasks)) {
+            state.tasks = [];
+        }
+
+        state.tasks.push(result.data.task);
+
+        renderTaskList();
     } catch (error) {
         console.error('Error creating task:', error);
         showError(elements.createTaskError, 'An error occurred while creating the task. Please try again.');
@@ -51,10 +57,10 @@ export async function loadProjectTasks(projectId) {
             return;
         }
 
-        const tasks = result.data?.tasks || [];
-        renderTaskList(tasks);
+        state.tasks = result.data?.tasks || [];
+        renderTaskList();
 
-        return tasks;
+        return state.tasks;
     } catch (error) {
         console.error('Error loading tasks:', error);
         showError(elements.projectDetailError, 'An error occurred while loading tasks. Please try again.');
@@ -70,9 +76,14 @@ export async function loadTask(projectId, taskId) {
             showError(elements.editTaskError, 'An error occurred while loading the task. Please try again.');
             return null;
         }
-        renderTaskDetail(result.data.task);
+        
+        state.selectedTask = result.data.task;
+        
         elements.taskDetailPanel.hidden = false;
-        return result.data.task;
+        
+        renderTaskDetail(state.selectedTask);
+        
+        return state.selectedTask;
     } catch (error) {
         console.error('Error loading task:', error);
         showError(elements.editTaskError, 'An error occurred while loading the task. Please try again.');
@@ -104,8 +115,17 @@ export async function editTask(event, projectId, taskId) {
         }
         
         elements.editTaskForm.hidden = true;
-        renderTaskDetail(result.data.task);
-        await loadProjectTasks(projectId);
+        
+        const updatedTask = result.data.task;
+
+        const taskIndex = state.tasks.findIndex(task => task.id === taskId);
+        
+        if (taskIndex !== -1) {
+            state.tasks[taskIndex] = updatedTask;
+        }
+
+        renderTaskDetail(updatedTask);
+        renderTaskList();
     } catch (error) {
         console.error('Error updating task:', error);
         showError(elements.editTaskError, 'An error occurred while updating the task. Please try again.');
@@ -128,8 +148,11 @@ export async function removeTask(projectId, taskId) {
             return;
         }
 
+        state.tasks = state.tasks.filter(task => task.id !== taskId);
+
         elements.taskDetailPanel.hidden = true;
-        await loadProjectTasks(projectId);
+        
+        renderTaskList();
     } catch (error) {
         console.error('Error deleting task:', error);
         showError(elements.createTaskError, 'An error occurred while deleting the task. Please try again.');
@@ -155,13 +178,10 @@ export async function handleTaskClick(event, projectId) {
     
     const task = await loadTask(projectId, taskId);
     
-    if (action === 'edit' && task) {
-        fillEditTaskForm(task);
-        elements.editTaskForm.hidden = false;
-    }
+    renderTaskList();
 }
 
-function fillEditTaskForm(task) {
+export function fillEditTaskForm(task) {
     elements.editTaskTitle.value = task.title || '';
     elements.editTaskDescription.value = task.description || '';
     elements.editTaskStatus.value = task.status || 'todo';
@@ -170,6 +190,8 @@ function fillEditTaskForm(task) {
 }
 
 function renderTaskDetail(task) {
+    state.selectedTask = task;
+
     elements.taskDetailTitle.textContent = task.title;
     elements.taskDetailDescription.textContent = task.description;
     elements.taskDetailStatus.textContent = task.status;
@@ -179,8 +201,12 @@ function renderTaskDetail(task) {
         : 'No due date';
 }
 
-function renderTaskList(tasks) {
+function renderTaskList() {
     if (!elements.tasksList) return;
+
+    if (!elements.createTaskForm.hidden) return;
+
+    const tasks = Array.isArray(state.tasks) ? state.tasks : [];
 
     elements.tasksList.innerHTML = '';
 
@@ -193,28 +219,30 @@ function renderTaskList(tasks) {
 
     const fragment = document.createDocumentFragment();
 
-    tasks.forEach(task => {
+    const visibleTasks = tasks;
+
+    visibleTasks.forEach(task => {
         const taskRow = document.createElement('div');
+        const isActive = state.selectedTask?.id === task.id;
+
         taskRow.className = 'data-list-item task-item';
         taskRow.dataset.taskId = task.id;
         taskRow.innerHTML = `
             <div class="item-content">
                 <span class="item-title">${task.title}</span>
 
-                <span class="item-meta">
-                    Due: ${formatTaskDate(task.due_date)} · Priority: ${task.priority}
-                </span>
+                ${isActive ? `
+                    <span class="item-meta">
+                        Due: ${formatTaskDate(task.due_date)} · Priority: ${task.priority}
+                    </span>
 
-                <span class="status-pill status-${getTaskStatusClass(task.status)}">
-                    ${formatTaskStatus(task.status)}
-                </span>
+                    <span class="status-pill status-${getTaskStatusClass(task.status)}">
+                        ${formatTaskStatus(task.status)}
+                    </span>
+                ` : ''}
             </div>
 
             <div class="item-actions" aria-label="Task actions">
-                <button type="button" class="buttonLook btn btn-small" data-task-action="view">
-                    View
-                </button>
-
                 <button type="button" class="buttonLook btn btn-small" data-task-action="edit">
                     Edit
                 </button>
