@@ -74,7 +74,7 @@ const projectIdParamSchema = z.object({
 
 // Project members schemas
 const projectMemberAddSchema = z.object({
-    user_id: uuidSchema,
+    username: usernameSchema,
     role: roleSchema.optional()
 }).strict();
 
