@@ -42,7 +42,36 @@ class CommentsRepo {
             message: "Comment created",
         };
     }
-    
+
+    createProjectComment({ project_id, created_by_user_id, created_by_username, body }) {
+        const id = uid();
+        project_id = (project_id ?? "").trim();
+        created_by_user_id = (created_by_user_id ?? "").trim();
+        created_by_username = (created_by_username ?? "").trim();
+        body = (body ?? "").trim();
+        if (!project_id) {
+            throw httpError(400, "Project ID is required");
+        }
+        if (!created_by_user_id) {
+            throw httpError(400, "Created by user ID is required");
+        }
+        if (!created_by_username) {
+            throw httpError(400, "Created by username is required");
+        }
+        if (body.length < 1 || body.length > 5000) {
+            throw httpError(400, "Comment body must be between 1 and 5000 characters long");
+        }
+        this.db.prepare(`
+            INSERT INTO comments (id, project_id, created_by_user_id, created_by_username, body)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(id, project_id, created_by_user_id, created_by_username, body);
+        
+        return { 
+            comment: this.getCommentById(id),
+            message: "Comment created",
+        };
+    }
+
     // Read
     getCommentById(id) {
         const comment = this.db.prepare(`
@@ -64,6 +93,17 @@ class CommentsRepo {
         
         return comments;
 
+    }
+
+    getCommentsByProjectId(project_id) {
+        const comments = this.db.prepare(`
+            SELECT *
+            FROM comments
+            WHERE project_id = ?
+            ORDER BY created_at ASC
+        `).all(project_id);
+        
+        return comments;
     }
     
     // Update
