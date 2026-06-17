@@ -36,8 +36,14 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    flex-wrap: wrap;
     gap: 10px;
+    width: auto;
+    flex: 0 0 auto;
+}
+
+.card-actions-inline > * {
+    width: auto !important;
+    height: auto !important;
 }
 
 .projectCard {
