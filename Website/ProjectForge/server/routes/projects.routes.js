@@ -25,7 +25,7 @@ router.post("/", requireAuth, asyncHandler(async (req, res) => {
 
 // Read projects
 router.get("/", requireAuth, asyncHandler(async (req, res) => {
-    const projects = await projectsRepo.getProjectsByOwnerId(req.user.id);
+    const projects = await projectsRepo.getProjectsByMembership(req.user.id);
     
     res.json({ projects });
 }));
