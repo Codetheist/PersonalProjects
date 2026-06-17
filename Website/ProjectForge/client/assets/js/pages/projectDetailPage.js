@@ -1,11 +1,12 @@
 import { checkSession } from '../features/auth.js';
 import { loadProjectDetail, editProject, removeProject } from '../features/projects.js';
 import { addProjectMember, loadProjectMembers, handleMemberClick } from '../features/members.js';
-import { addTask, loadProjectTasks, editTask, removeTask, handleTaskClick } from '../features/tasks.js';
+import { addTask, loadProjectTasks, editTask, removeTask, handleTaskClick, fillEditTaskForm } from '../features/tasks.js';
 import { addComment, loadComments, resetCommentsPanel } from '../features/comments.js';
 import { showError } from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
 import { PAGE_ROUTES } from '../core/routes.js';
+import { state } from '../core/state.js';
 
 export async function initProjectDetailPage() {
     if (!elements.projectDetail) {
@@ -28,6 +29,10 @@ export async function initProjectDetailPage() {
         return;
     }
 
+    if (elements.logoutButton) {
+        elements.logoutButton.hidden = false;
+    }
+
     let selectedTaskId = null;
     
     await loadProjectDetail(projectId);
@@ -38,13 +43,13 @@ export async function initProjectDetailPage() {
         return member.username === user.username;
     });
 
-    const canManageMembers = currentMember?.role === 'admin';
+    const canManageMembers = !!currentMember;
 
     if (elements.showAddMemberFormButton) {
         elements.showAddMemberFormButton.hidden = !canManageMembers;
     }
     await loadProjectTasks(projectId);
-    resetCommentsPanel();
+    await loadComments(projectId, 'project');
     
     elements.editProjectButton?.addEventListener('click', () => {
         elements.editProjectForm.hidden = false;
@@ -74,8 +79,28 @@ export async function initProjectDetailPage() {
         handleMemberClick(event, projectId);
     });
 
+    elements.cancelAddMemberButton?.addEventListener('click', () => {
+        elements.addMemberForm.hidden = true;
+    });
+
     elements.showCreateTaskFormButton?.addEventListener('click', () => {
         elements.createTaskForm.hidden = false;
+
+        selectedTaskId = null;
+        state.selectedTask = null;
+
+        loadProjectTasks(projectId);
+
+        elements.taskDetailPanel.hidden = true;
+    });
+
+    elements.cancelCreateTaskButton?.addEventListener('click', () => {
+        elements.createTaskForm.hidden = true;
+
+        state.selectedTask = null;
+        selectedTaskId = null;
+
+        loadProjectTasks(projectId);
     });
 
     elements.createTaskForm?.addEventListener('submit', (event) => {
@@ -87,15 +112,43 @@ export async function initProjectDetailPage() {
 
         if (!taskRow) return;
 
-        selectedTaskId = taskRow.dataset.taskId;
-        await handleTaskClick(event, projectId);
+        const clickedTaskId = taskRow.dataset.taskId;
+        const action = event.target.dataset.taskAction;
 
-        if (event.target.dataset.taskAction === 'delete') {
+        if (action === 'delete') {
+            await removeTask(projectId, clickedTaskId);
             selectedTaskId = null;
-            resetCommentsPanel();
+            await loadComments(projectId, 'project');
             return;
         }
-        await loadComments(selectedTaskId);
+
+        if (action === 'edit') {
+            const task = state.tasks.find(t => t.id === clickedTaskId);
+            if (task) {
+                fillEditTaskForm(task);
+                elements.editTaskForm.hidden = false;
+            }
+            return;
+        }
+
+        if (selectedTaskId === clickedTaskId) {
+            selectedTaskId = null;
+
+            state.selectedTask = null;
+
+            elements.taskDetailPanel.hidden = true;
+
+            await loadProjectTasks(projectId);
+
+            await loadComments(projectId, 'project');
+            
+            return;
+        }
+        
+        selectedTaskId = clickedTaskId;
+
+        await handleTaskClick(event, projectId);
+        await loadComments(selectedTaskId, 'task');
     });
 
     elements.editTaskForm?.addEventListener('submit', (event) => {
@@ -111,7 +164,7 @@ export async function initProjectDetailPage() {
         elements.editTaskForm.hidden = true;
     });
 
-    elements.deleteTaskButton?.addEventListener('click', async () => {
+    /*elements.deleteTaskButton?.addEventListener('click', async () => {
         if (!selectedTaskId) {
             showError(elements.editTaskError, 'Select a task before deleting.');
             return;
@@ -119,10 +172,11 @@ export async function initProjectDetailPage() {
 
         await removeTask(projectId, selectedTaskId);
         selectedTaskId = null;
-        resetCommentsPanel();
-    });
+        await loadComments(projectId, 'project');
+    });*/
 
     elements.addCommentForm?.addEventListener('submit', (event) => {
-        addComment(event, selectedTaskId);
+        const id = selectedTaskId ? selectedTaskId : projectId;
+        addComment(event, id);
     });
 }
