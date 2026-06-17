@@ -1,11 +1,10 @@
 .taskComments,
 .comments-panel {
     width: 100%;
-    min-height: 100%;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin: 0;
+    align-self: flex-start;
 }
 
 .comments-header {
@@ -24,7 +23,8 @@
 #commentsList,
 .comments-list {
     flex: 1;
-    min-height: 520px;
+    min-height: 80px;
+    max-height: 400px;
     display: flex;
     flex-direction: column;
     gap: 10px;
