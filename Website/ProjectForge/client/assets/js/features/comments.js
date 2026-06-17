@@ -1,35 +1,30 @@
 // Comments
-import { createComment, listComments, updateComment, deleteComment } from '../api/commentsApi.js';
+import { createComment, createProjectComment, listComments, updateComment, deleteComment } from '../api/commentsApi.js';
 import { showError, clearError, setSubmitState } from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
+import { state } from '../core/state.js';
 
 let activeCommentTaskId = null;
 
-export async function addComment(event, taskId = activeCommentTaskId) {
+export async function addComment(event, id = activeCommentTaskId) {
     event?.preventDefault?.();
     clearError(elements.addCommentError);
 
-    if (!taskId) {
-        showError(elements.addCommentError, 'No task selected for adding comment');
+    if (!id) {
+        showError(elements.addCommentError, 'No target selected for comment');
         return null;
     }
-
-    if (!elements.commentContent || !elements.addCommentForm) {
-        showError(elements.addCommentError, 'Comment form is missing required fields');
-        return null;
-    }
-
-    const body = elements.commentContent.value.trim();
     
-    if (!body) {
-        showError(elements.addCommentError, 'Comment cannot be empty');
-        return null;
-    }
+    const body = elements.commentContent.value.trim();
     
     setSubmitState(elements.addCommentForm, true);
     
     try {
-        const result = await createComment(taskId, { body });
+        const isTask = activeCommentTaskId !== null;
+
+        const result = isTask
+            ? await createComment(id, { body })
+            : await createProjectComment(id, { body });
         
         if (!result.ok) {
             showError(elements.addCommentError, result.data?.message || 'Failed to add comment');
@@ -38,7 +33,12 @@ export async function addComment(event, taskId = activeCommentTaskId) {
         
         elements.commentContent.value = '';
         
-        await loadComments(taskId);
+        if (!Array.isArray(state.comments)) {
+            state.comments = [];
+        }
+
+        state.comments.push(result.data.comment);
+        renderComments();
 
         return result.data.comment;
     } catch (error) {
@@ -63,9 +63,14 @@ export async function editComment(commentId, commentData, taskId = activeComment
             return null;
         }
         
-        await loadComments(taskId);
+        const updatedComment = result.data.comment;
 
-        return result.data.comment;
+        const commentIndex = state.comments.findIndex(comment => comment.id === commentId);
+        if (commentIndex !== -1) {
+            state.comments[commentIndex] = updatedComment;
+        }
+
+        renderComments();
     } catch (error) {
         console.error('Error updating comment:', error);
         showError(elements.addCommentError, 'An error occurred while updating the comment. Please try again.');
@@ -90,7 +95,8 @@ export async function removeComment(commentId, taskId = activeCommentTaskId) {
             return;
         }
         
-        await loadComments(taskId);
+        state.comments = state.comments.filter(comment => comment.id !== commentId);
+        renderComments();
     } catch (error) {
         console.error('Error deleting comment:', error);
         showError(elements.addCommentError, 'An error occurred while deleting the comment. Please try again.');
@@ -116,24 +122,38 @@ export function resetCommentsPanel() {
     clearError(elements.addCommentError);
 }
 
-export async function loadComments(taskId) {
-    if (!taskId) {
+export async function loadComments(id, type = 'task') {
+    clearError(elements.addCommentError);
+    
+    if (!id) {
         resetCommentsPanel();
         return [];
     }
 
-    activeCommentTaskId = taskId;
-    clearError(elements.addCommentError);
+    activeCommentTaskId = type === 'task' ? id : null;
+    
 
     if (elements.addCommentForm) {
         elements.addCommentForm.hidden = false;
     }
 
-    try {
-        const result = await listComments(taskId);
+    if (!state.tasks) {
+        console.warn('No tasks loaded in state while loading comments for task ID:', id);
+    }
 
+    if (type === 'task') {
+        const task = state.tasks.find(t => t.id === id);
+        elements.commentHeader.innerHTML = `Task Comments: ${task?.title || 'Task'}`;
+    } else {
+        const project = state.selectedProject;
+        elements.commentHeader.innerHTML = `Project Comments: ${project?.name || 'Project'}`;
+    }
+
+    try {
+        const result = await listComments(id, type);
+        
         if (!result.ok) {
-            showError(elements.addCommentError, result.data?.message || 'Failed to load comments');
+            showError(elements.addCommentError, result.data?.message || 'Failed to load comments.');
             
             if (elements.commentsList) {
                 elements.commentsList.innerHTML = '';
@@ -143,9 +163,11 @@ export async function loadComments(taskId) {
             return [];
         }
 
-        const comments = result.data?.comments || [];
-        renderComments(comments);
-        return comments;
+        state.comments = result.data?.comments || [];
+
+        renderComments();
+        
+        return state.comments;
     } catch (error) {
         console.error('Error loading comments:', error);
         showError(elements.addCommentError, 'An error occurred while loading comments. Please try again.');
@@ -153,8 +175,10 @@ export async function loadComments(taskId) {
     }
 }
 
-function renderComments(comments = []) {
+function renderComments() {
     if (!elements.commentsList) return;
+
+    const comments = Array.isArray(state.comments) ? state.comments : [];
 
     elements.commentsList.innerHTML = '';
     if (!comments.length) {
@@ -190,7 +214,7 @@ function renderComments(comments = []) {
         header.append(author, time);
         commentElement.append(header, body);
         fragment.appendChild(commentElement);
-    });
+    });    
     
     elements.commentsList.appendChild(fragment);
     elements.commentsList.scrollTop = elements.commentsList.scrollHeight;
@@ -226,4 +250,8 @@ function formatCommentTime(createdAt) {
         text: date.toLocaleString(),
         dateTime: date.toISOString()
     };
+}
+
+function modifyComment(commentId, newContent) {
+    // when renderCommet
 }
