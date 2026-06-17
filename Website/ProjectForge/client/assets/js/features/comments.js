@@ -252,6 +252,24 @@ function formatCommentTime(createdAt) {
     };
 }
 
-function modifyComment(commentId, newContent) {
-    // when renderCommet
+function modifyComment(comment, newContent) {
+    /*
+    Edit and delete your own comments
+    renderComments, inside forEach:
+        build comment element
+        if comment.created_by_user_id === state.user?.id:
+            add Edit button (data-comment-action="edit")
+            add Delete button (data-comment-action="delete")
+
+    handleCommentClick(event):
+        find closest [data-comment-id]; if none, return
+        commentId = element.dataset.commentId
+        action = event.target.dataset.commentAction
+
+        if delete: confirm, call removeComment(commentId)
+        if edit: swap body for textarea, swap buttons for Save/Cancel
+        if save: read textarea, call editComment(commentId, newBody)
+        if cancel: renderComments() to discard
+    */
+
 }
