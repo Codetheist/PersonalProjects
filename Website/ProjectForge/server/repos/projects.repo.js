@@ -60,12 +60,14 @@ class ProjectsRepo {
         return project;
     }
 
-    getProjectsByOwnerId(owner_id) {
+    getProjectsByMembership(user_id) {
         const projects = this.db.prepare(`
-            SELECT *
-            FROM projects
-            WHERE owner_id = ?
-        `).all(owner_id);
+            SELECT p.*
+            FROM projects p
+            LEFT JOIN project_members pm ON p.id = pm.project_id
+            WHERE p.owner_id = ? OR pm.user_id = ?
+            GROUP BY p.id
+        `).all(user_id, user_id);
         
         return projects;
     }
