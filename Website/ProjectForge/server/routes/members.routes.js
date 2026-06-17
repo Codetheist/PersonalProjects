@@ -21,7 +21,7 @@ router.post("/:project_id/members",
     requireProjectOwner,
     asyncHandler(async (req, res, next) => {
         const memberData = validate(projectMemberAddSchema, req.body);
-        const member = await membersRepo.addMember(req.projectId, memberData.user_id, memberData.role);
+        const member = await membersRepo.addMember(req.projectId, memberData.username, memberData.role);
         res.status(201).json({ member });
     })
 );
@@ -59,8 +59,14 @@ router.delete("/:project_id/members/:user_id",
     requireAuth,
     validateProjectMemberParams,
     loadProject,
-    requireProjectOwner,
-    asyncHandler(async (req, res) => {
+    asyncHandler(async (req, res, next) => {
+        const isSelf = req.userId === req.user.id;
+        const isOwner = req.project.owner_id === req.user.id;
+
+        if (!isSelf && !isOwner) {
+            return next(httpError(403, "Forbidden"));
+        }
+
         await membersRepo.removeMember(req.projectId, req.userId);
         res.status(204).end();
     })
