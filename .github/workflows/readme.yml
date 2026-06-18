@@ -1,25 +1,25 @@
 name: Update README
 
-# Runs on any push to master (except pushes that only touch the README itself),
-# regenerates the Projects section to mirror the whole repo, and commits it back.
 on:
   push:
     branches: [master]
     paths-ignore:
       - "README.md"
-  workflow_dispatch: # lets you trigger it by hand from the Actions tab
+  workflow_dispatch:
 
 permissions:
-  contents: write # required so the workflow can push the updated README
+  contents: write
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # full history so git ls-files sees everything
+          fetch-depth: 0
+          token: ${{ secrets.README_PUSH_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -32,8 +32,9 @@ jobs:
       - name: Commit changes if the README changed
         run: |
           if [ -n "$(git status --porcelain README.md)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git config user.name "YourGitHubUsername"
+            git config user.email "your-github-email@example.com"
+
             git add README.md
             git commit -m "docs: auto-update project list in README"
             git push
