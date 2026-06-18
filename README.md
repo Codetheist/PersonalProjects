@@ -30,7 +30,8 @@ Browser games and apps built with HTML, CSS, and JavaScript.
 | [QR Generator](Website/qrcodegenerator) | Generate QR codes from your input. |
 | [Rock Paper Scissors](Website/rockpaperscissors) | Play Rock Paper Scissors against the computer. |
 | [Sports](Website/sportapp) | A sports information app. |
-| [Tic Tac Toe](Website/tictactoe) | Two-player Tic Tac Toe with audio. |
+
+_…and 1 more in [Web projects](Website/)._
 
 ### C
 
