@@ -1,15 +1,12 @@
 {
   "devDependencies": {
-    "tailwindcss": "^3.2.6"
+    "tailwindcss": "^4.3.1"
   },
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
-    "@tailwindcss/forms": "^0.5.3",
-<<<<<<< HEAD
+    "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/line-clamp": "^0.4.2",
-=======
     "@tailwindcss/line-clamp": "^0.4.4",
->>>>>>> 530cc1bbe15b14874ca4898bcf536c3c0105a555
-    "@tailwindcss/typography": "^0.5.9"
+    "@tailwindcss/typography": "^0.5.20"
   }
 }
