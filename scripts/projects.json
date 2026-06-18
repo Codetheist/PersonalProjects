@@ -1,0 +1,125 @@
+{
+    "order": [
+        "Website",
+        "C",
+        "Python",
+        "Template",
+        "DevProjects"
+    ],
+    "limit": 8,
+    "exclude": [
+        "Website/ProjectForge"
+    ],
+    "categories": {
+        "Website": {
+        "title": "Web projects",
+        "description": "Browser games and apps built with HTML, CSS, and JavaScript."
+        },
+        "C": {
+        "title": "C",
+        "description": "Data structures and algorithms implemented in C."
+        },
+        "Python": {
+        "title": "Python",
+        "description": "Python practice work and coding challenges."
+        },
+        "Template": {
+        "title": "Templates",
+        "description": "Reusable starting points for new projects."
+        },
+        "DevProjects": {
+        "title": "Dev experiments",
+        "description": "Miscellaneous development experiments."
+        }
+    },
+    "items": {
+        "Website/battleship": {
+        "name": "Battleship",
+        "description": "Classic Battleship game played against the board."
+        },
+        "Website/countdowntimer": {
+        "name": "Countdown Timer",
+        "description": "A configurable countdown timer."
+        },
+        "Website/hangman": {
+        "name": "Hangman",
+        "description": "Word-guessing Hangman game."
+        },
+        "Website/magicball": {
+        "name": "Magic 8-Ball",
+        "description": "Ask a question and get a Magic 8-Ball answer."
+        },
+        "Website/movie": {
+        "name": "Let's Watch",
+        "description": "Movie browsing and search app."
+        },
+        "Website/qrcodegenerator": {
+        "name": "QR Generator",
+        "description": "Generate QR codes from your input."
+        },
+        "Website/rockpaperscissors": {
+        "name": "Rock Paper Scissors",
+        "description": "Play Rock Paper Scissors against the computer."
+        },
+        "Website/sportapp": {
+        "name": "Sports",
+        "description": "A sports information app."
+        },
+        "Website/tictactoe": {
+        "name": "Tic Tac Toe",
+        "description": "Two-player Tic Tac Toe with audio."
+        },
+        "C/Core Linear Structures": {
+        "name": "Core Linear Structures",
+        "description": "Linked lists, queues, and stacks."
+        },
+        "C/Hierarchical Structures": {
+        "name": "Hierarchical Structures",
+        "description": "Tree data structures."
+        },
+        "C/Advanced - Specialized Structures": {
+        "name": "Advanced & Specialized Structures",
+        "description": "More advanced and specialized data structures."
+        },
+        "C/Algorithm Foundations": {
+        "name": "Algorithm Foundations",
+        "description": "Sorting algorithms and algorithm analysis."
+        },
+        "C/DMA_Recursion": {
+        "name": "DMA & Recursion",
+        "description": "Dynamic memory allocation and recursion, graded beginner to expert."
+        },
+        "Python/100 Project Challenge": {
+        "name": "100 Project Challenge",
+        "description": "A run through the 100-project Python challenge."
+        },
+        "Python/Calculation": {
+        "name": "Calculation",
+        "description": "Calculation and math practice scripts."
+        },
+        "Python/Games": {
+        "name": "Games",
+        "description": "Small Python games, including Hangman."
+        },
+        "Python/Numbers": {
+        "name": "Numbers",
+        "description": "Number-focused practice scripts."
+        },
+        "Python/Text": {
+        "name": "Text",
+        "description": "Text manipulation practice scripts."
+        },
+        "Template/Cheat Sheet": {
+        "name": "Cheat Sheet",
+        "description": "Reference notes."
+        },
+        "Template/Web Dev": {
+        "name": "Web Dev",
+        "description": "A Tailwind CSS web starter template."
+        },
+        "DevProjects/Random number generator": {
+        "name": "Random Number Generator",
+        "description": "A random number generator experiment."
+        }
+    }
+}
