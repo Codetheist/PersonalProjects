@@ -19,17 +19,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check for Snyk token
+        id: tok
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          if [ -n "$SNYK_TOKEN" ]; then
+            echo "has=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has=false" >> "$GITHUB_OUTPUT"
+            echo "No SNYK_TOKEN secret is set. Skipping Snyk scan."
+          fi
+
       - name: Set up Snyk CLI
+        if: steps.tok.outputs.has == 'true'
         uses: snyk/actions/setup@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Run Snyk Code test
+        if: steps.tok.outputs.has == 'true'
         run: snyk code test --sarif-file-output=snyk-code.sarif || true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Upload result to GitHub Code Scanning
+        if: steps.tok.outputs.has == 'true' && hashFiles('snyk-code.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-code.sarif
