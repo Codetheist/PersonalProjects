@@ -2,10 +2,6 @@
 
 A collection of projects built while learning and sharpening my skills across different languages and technologies. It spans full-stack web development, browser games, C data structures and algorithms, and Python practice work.
 
-## Tech at a glance
-
-JavaScript, HTML, and CSS for the web projects, Node.js, Express, and SQLite on the full-stack side, C for the data structures and algorithms work, and Python for scripting and practice challenges.
-
 ## Featured project
 
 ### ProjectForge
@@ -16,11 +12,14 @@ A full-stack project and task management application, and the most complete piec
 
 See [`Website/ProjectForge`](Website/ProjectForge) for the full write-up.
 
-## Web projects
+## Projects
 
-Browser-based games and apps built with HTML, CSS, and JavaScript.
+<!-- PROJECTS:START -->
 
-<!-- WEBSITE-PROJECTS:START -->
+### Web projects
+
+Browser games and apps built with HTML, CSS, and JavaScript.
+
 | Project | Description |
 | --- | --- |
 | [Battleship](Website/battleship) | Classic Battleship game played against the board. |
@@ -32,39 +31,49 @@ Browser-based games and apps built with HTML, CSS, and JavaScript.
 | [Rock Paper Scissors](Website/rockpaperscissors) | Play Rock Paper Scissors against the computer. |
 | [Sports](Website/sportapp) | A sports information app. |
 | [Tic Tac Toe](Website/tictactoe) | Two-player Tic Tac Toe with audio. |
-<!-- WEBSITE-PROJECTS:END -->
 
-## C
+### C
 
-Data structures and algorithms implemented in C, organized by topic:
+Data structures and algorithms implemented in C.
 
-- **Core Linear Structures** — linked lists, queues, and stacks
-- **Hierarchical Structures** — tree data structures
-- **Advanced Specialized Structures** — more advanced data structures
-- **Algorithm Foundations** — sorting algorithms and algorithm analysis
-- **DMA & Recursion** — dynamic memory allocation and recursion, graded from beginner through expert
+| Project | Description |
+| --- | --- |
+| [Advanced & Specialized Structures](C/Advanced%20-%20Specialized%20Structures) | More advanced and specialized data structures. |
+| [Algorithm Foundations](C/Algorithm%20Foundations) | Sorting algorithms and algorithm analysis. |
+| [Core Linear Structures](C/Core%20Linear%20Structures) | Linked lists, queues, and stacks. |
+| [DMA & Recursion](C/DMA_Recursion) | Dynamic memory allocation and recursion, graded beginner to expert. |
+| [Hierarchical Structures](C/Hierarchical%20Structures) | Tree data structures. |
 
-## Python
+### Python
 
-Practice work and small projects, including a run through the **100 Project Challenge** (band name generator, tip calculator, Treasure Island, rock paper scissors, password generator, maze escape, anime hangman, and onward), plus standalone scripts grouped under calculation, games, numbers, and text.
+Python practice work and coding challenges.
 
-## Templates
+| Project | Description |
+| --- | --- |
+| [100 Project Challenge](Python/100%20Project%20Challenge) | A run through the 100-project Python challenge. |
+| [Calculation](Python/Calculation) | Calculation and math practice scripts. |
+| [Games](Python/Games) | Small Python games, including Hangman. |
+| [Numbers](Python/Numbers) | Number-focused practice scripts. |
+| [Text](Python/Text) | Text manipulation practice scripts. |
 
-Reusable starting points kept on hand for quick project setup:
+### Templates
 
-- **Web Dev** — a Tailwind CSS web starter
-- **Cheat Sheet** — reference notes
+Reusable starting points for new projects.
 
-## Repository structure
+| Project | Description |
+| --- | --- |
+| [Cheat Sheet](Template/Cheat%20Sheet) | Reference notes. |
+| [Web Dev](Template/Web%20Dev) | A Tailwind CSS web starter template. |
 
-```
-.
-├── C/             Data structures and algorithms in C
-├── DevProjects/   Misc dev experiments
-├── Python/        Python practice and challenges
-├── Template/      Reusable project starters
-└── Website/       Web games, apps, and ProjectForge
-```
+### Dev experiments
+
+Miscellaneous development experiments.
+
+| Project | Description |
+| --- | --- |
+| [Random Number Generator](DevProjects/Random%20number%20generator) | A random number generator experiment. |
+
+<!-- PROJECTS:END -->
 
 ## License
 
