@@ -1,0 +1,70 @@
+# triage-bot-prs.yml
+name: Triage bot PRs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Triage Dependabot and Snyk PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch all open bot PRs, newest first
+          gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --limit 3000 \
+            --json number,title,author,createdAt \
+            --jq '[.[] | select(
+              (.author.login == "dependabot[bot]") or
+              (.title | startswith("[Snyk]"))
+            )] | sort_by(.createdAt) | reverse' \
+          > /tmp/bot_prs.json
+
+          total=$(jq length /tmp/bot_prs.json)
+          echo "Found $total bot PRs"
+
+          declare -A seen
+
+          while IFS= read -r pr_json; do
+            number=$(echo "$pr_json" | jq -r '.number')
+            title=$(echo "$pr_json"  | jq -r '.title')
+
+            # Strip version numbers to group PRs for the same package/fix
+            key=$(echo "$title" \
+              | sed -E 's/from [0-9][^ ]* to [0-9][^ ]*//g' \
+              | sed -E 's/(version |v)[0-9][^ ]*//gi' \
+              | sed -E 's/[0-9]+\.[0-9]+(\.[0-9]+)?//g' \
+              | tr '[:upper:]' '[:lower:]' \
+              | tr -s ' ' \
+              | xargs)
+
+            if [ -z "${seen[$key]+x}" ]; then
+              seen["$key"]="$number"
+              echo "KEEP #$number: $title"
+              # Enable auto-merge so it merges once required checks pass
+              gh pr merge "$number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --squash \
+                --auto \
+                2>&1 || echo "  Note: auto-merge unavailable for #$number (branch protection may not be configured)"
+            else
+              echo "CLOSE #$number: $title  (superseded by #${seen[$key]})"
+              gh pr close "$number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --comment "Closing — superseded by a newer version bump in #${seen[$key]}." \
+                --delete-branch \
+                2>&1 || true
+            fi
+          done < <(jq -c '.[]' /tmp/bot_prs.json)
+
+          echo "Done."
