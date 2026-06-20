@@ -32,8 +32,8 @@ jobs:
       - name: Commit changes if the README changed
         run: |
           if [ -n "$(git status --porcelain README.md)" ]; then
-            git config user.name "YourGitHubUsername"
-            git config user.email "your-github-email@example.com"
+            git config user.name "Codetheist"
+            git config user.email "56620151+Codetheist@users.noreply.github.com"
 
             git add README.md
             git commit -m "docs: auto-update project list in README"
