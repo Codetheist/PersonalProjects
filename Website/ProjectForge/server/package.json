@@ -13,7 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@dotenvx/dotenvx": "^1.75.0",
+    "@dotenvx/dotenvx": "^1.75.1",
     "argon2": "^0.44.0",
     "better-sqlite3": "^12.11.1",
     "compression": "^1.8.1",
