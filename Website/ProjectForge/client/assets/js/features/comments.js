@@ -1,8 +1,19 @@
 // Comments
-import { createComment, createProjectComment, listComments, updateComment, deleteComment } from '../api/commentsApi.js';
-import { showError, clearError, setSubmitState } from '../shared/ui.js';
+import {
+    createComment,
+    createProjectComment,
+    listComments,
+    updateComment,
+    deleteComment
+} from '../api/commentsApi.js';
+import {
+    showError,
+    clearError,
+    setSubmitState
+} from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
 import { state } from '../core/state.js';
+import { encodeHTML } from '../shared/util.js';
 
 let activeCommentTaskId = null;
 
@@ -42,7 +53,6 @@ export async function addComment(event, id = activeCommentTaskId) {
 
         return result.data.comment;
     } catch (error) {
-        console.error('Error adding comment:', error);
         showError(elements.addCommentError, 'An error occurred while adding the comment. Please try again.');
         return null;
     } finally {
@@ -51,7 +61,7 @@ export async function addComment(event, id = activeCommentTaskId) {
 }
 
 export async function editComment(commentId, commentData, taskId = activeCommentTaskId) {
-    if (!commentId || !taskId) return null;
+    if (!commentId) return null;
 
     clearError(elements.addCommentError);
 
@@ -72,14 +82,13 @@ export async function editComment(commentId, commentData, taskId = activeComment
 
         renderComments();
     } catch (error) {
-        console.error('Error updating comment:', error);
         showError(elements.addCommentError, 'An error occurred while updating the comment. Please try again.');
         return null;
     }
 }
 
 export async function removeComment(commentId, taskId = activeCommentTaskId) {
-    if (!commentId || !taskId) return null;
+    if (!commentId) return null;
 
     if (!confirm('Are you sure you want to delete this comment?')) {
         return null;
@@ -98,7 +107,6 @@ export async function removeComment(commentId, taskId = activeCommentTaskId) {
         state.comments = state.comments.filter(comment => comment.id !== commentId);
         renderComments();
     } catch (error) {
-        console.error('Error deleting comment:', error);
         showError(elements.addCommentError, 'An error occurred while deleting the comment. Please try again.');
     }
 }
@@ -137,16 +145,12 @@ export async function loadComments(id, type = 'task') {
         elements.addCommentForm.hidden = false;
     }
 
-    if (!state.tasks) {
-        console.warn('No tasks loaded in state while loading comments for task ID:', id);
-    }
-
     if (type === 'task') {
         const task = state.tasks.find(t => t.id === id);
-        elements.commentHeader.innerHTML = `Task Comments: ${task?.title || 'Task'}`;
+        elements.commentHeader.innerHTML = `Task Comments: ${encodeHTML(task?.title || 'Task')}`;
     } else {
         const project = state.selectedProject;
-        elements.commentHeader.innerHTML = `Project Comments: ${project?.name || 'Project'}`;
+        elements.commentHeader.innerHTML = `Project Comments: ${encodeHTML(project?.name || 'Project')}`;
     }
 
     try {
@@ -169,7 +173,6 @@ export async function loadComments(id, type = 'task') {
         
         return state.comments;
     } catch (error) {
-        console.error('Error loading comments:', error);
         showError(elements.addCommentError, 'An error occurred while loading comments. Please try again.');
         return [];
     }
@@ -189,6 +192,9 @@ function renderComments() {
     const fragment = document.createDocumentFragment();
 
     comments.forEach((comment) => {
+        const isEditing = state.editingCommentId === comment.id;
+        const isAuthor = state.user?.id === comment.created_by_user_id;
+
         const commentElement = document.createElement('article');
         commentElement.className = 'comment-item';
         commentElement.dataset.commentId = comment.id;
@@ -203,18 +209,75 @@ function renderComments() {
         const time = document.createElement('time');
         time.className = 'comment-time';
 
-        const formattedTime = formatCommentTime(comment.created_at);
-        time.textContent = formattedTime.text;
-        time.dateTime = formattedTime.dateTime;
+        const isEdited = comment.updated_at && comment.updated_at !== comment.created_at;
+        const stamp = formatCommentTime(isEdited ? comment.updated_at : comment.created_at, true);
+        time.textContent = isEdited ? `Edited: ${stamp.text}` : stamp.text;
+        time.dateTime = stamp.dateTime;
 
-        const body = document.createElement('p');
-        body.className = 'comment-body';
-        body.textContent = comment.body || '';
+        let body;
         
-        header.append(author, time);
+        const commentEditContainer = document.createElement('span');
+        commentEditContainer.className = 'comment-actions';
+
+        if (isEditing) {
+            const save = document.createElement('button');
+            save.textContent = 'Save';
+            save.dataset.commentAction = 'save';
+            save.className = 'action-link';
+
+            const bulletChar = document.createElement('span');
+            bulletChar.textContent = '•';
+            bulletChar.className = 'dot';
+
+            const cancel = document.createElement('button');
+            cancel.textContent = 'Cancel';
+            cancel.dataset.commentAction = 'cancel';
+            cancel.className = 'action-link';
+
+            commentEditContainer.append(save, bulletChar, cancel);
+            header.append(author, commentEditContainer, time);
+        } else {
+            if (isAuthor) {
+                const edit = document.createElement('button');
+                edit.textContent = 'Edit';
+                edit.dataset.commentAction = 'edit';
+                edit.className = 'action-link';
+
+                const bulletChar = document.createElement('span');
+                bulletChar.textContent = '•';
+                bulletChar.className = 'dot';
+
+                const del = document.createElement('button');
+                del.textContent = 'Delete';
+                del.dataset.commentAction = 'delete';
+                del.className = 'action-link';
+
+                commentEditContainer.append(edit, bulletChar, del);
+                header.append(author, commentEditContainer, time);
+            } else {
+                header.append(author, time);
+            }
+        }
+
+        if (isEditing) {
+            const textarea = document.createElement('textarea');
+            textarea.value = comment.body || '';
+            textarea.className = 'comment-edit-textarea';
+            body = textarea;
+        } else {
+            const paragraph = document.createElement('p');
+            paragraph.className = 'comment-body';
+            paragraph.textContent = comment.body || '';
+            body = paragraph;
+        }
+        
+        if (isEdited) {
+            time.classList.add('comment-time-edited');
+        }
+        
         commentElement.append(header, body);
         fragment.appendChild(commentElement);
-    });    
+    });
     
     elements.commentsList.appendChild(fragment);
     elements.commentsList.scrollTop = elements.commentsList.scrollHeight;
@@ -230,7 +293,7 @@ function renderEmptyCommentMessage(message) {
     elements.commentsList.appendChild(emptyMessage);
 }
 
-function formatCommentTime(createdAt) {
+function formatCommentTime(createdAt, short = false) {
     if (!createdAt) {
         const now = new Date();
         
@@ -246,30 +309,43 @@ function formatCommentTime(createdAt) {
         ? new Date(timeStamp * 1000)
         : new Date(createdAt);
     
+    const text = short
+        ? date.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
+        : date.toLocaleString();
+    
     return {
-        text: date.toLocaleString(),
+        text: text,
         dateTime: date.toISOString()
     };
 }
 
-function modifyComment(comment, newContent) {
-    /*
-    Edit and delete your own comments
-    renderComments, inside forEach:
-        build comment element
-        if comment.created_by_user_id === state.user?.id:
-            add Edit button (data-comment-action="edit")
-            add Delete button (data-comment-action="delete")
+export function handleCommentActions(event) {
+    const actionButton = event.target.closest('button[data-comment-action]');
+    if (!actionButton) return;
+    const commentElement = actionButton.closest('.comment-item');
+    if (!commentElement) return;
+    const commentId = commentElement.dataset.commentId;
+    if (!commentId) return;
+    const action = actionButton.dataset.commentAction;
 
-    handleCommentClick(event):
-        find closest [data-comment-id]; if none, return
-        commentId = element.dataset.commentId
-        action = event.target.dataset.commentAction
-
-        if delete: confirm, call removeComment(commentId)
-        if edit: swap body for textarea, swap buttons for Save/Cancel
-        if save: read textarea, call editComment(commentId, newBody)
-        if cancel: renderComments() to discard
-    */
-
+    if (action === 'edit') {
+        state.editingCommentId = commentId;
+        renderComments();
+    } else if (action === 'delete') {
+        removeComment(commentId);
+    } else if (action === 'save') {
+        const textarea = commentElement.querySelector('.comment-edit-textarea');
+        if (textarea) {
+            const updatedContent = textarea.value.trim();
+            if (updatedContent) {
+                editComment(commentId, { body: updatedContent });
+                state.editingCommentId = null;
+            } else {
+                showError(elements.addCommentError, 'Comment content cannot be empty.');
+            }
+        }
+    } else if (action === 'cancel') {
+        state.editingCommentId = null;
+        renderComments();
+    }   
 }
