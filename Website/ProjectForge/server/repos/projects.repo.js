@@ -3,10 +3,12 @@ const { uid } = require("../utils/ids");
 const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
 const { isValidDate } = require("../utils/date");
+const { ActivityRepo } = require("./activity.repo");
 
 class ProjectsRepo {
     constructor() {
         this.db = dbConnection;
+        this.activityRepo = new ActivityRepo();
     }
     
     // Create
@@ -45,6 +47,13 @@ class ProjectsRepo {
             VALUES (?, ?, ?, ?, ?, ?)
             RETURNING *
         `).get(id, owner_id, name, description, due_date, status);
+
+        this.activityRepo.logActivity({
+            project_id: id,
+            actor_user_id: owner_id,
+            action: "created project",
+            target_label: name
+        });
         
         return { project: result, message: "Project created successfully" };
     }
@@ -62,7 +71,7 @@ class ProjectsRepo {
 
     getProjectsByMembership(user_id) {
         const projects = this.db.prepare(`
-            SELECT p.*
+            SELECT p.*, (SELECT COUNT(*) FROM project_members WHERE project_id = p.id) AS members_count
             FROM projects p
             LEFT JOIN project_members pm ON p.id = pm.project_id
             WHERE p.owner_id = ? OR pm.user_id = ?
@@ -73,7 +82,7 @@ class ProjectsRepo {
     }
     
     // Update
-    updateProject(id, updates = {}) {
+    updateProject(id, updates = {}, user_id) {
         id = (id ?? "").trim();
         
         if (!id) {
@@ -140,6 +149,42 @@ class ProjectsRepo {
             nextDueDate,
             id
         );
+
+        const changes = [];
+        if ("name" in updatedProject && updatedProject.name !== project.name) 
+            changes.push(`name from "${project.name}" to "${nextName}"`);
+        if ("description" in updatedProject && updatedProject.description !== project.description) 
+            changes.push(`description to "${updatedProject.description?.slice(0, 50) ?? ''}"`)
+        if ("status" in updatedProject && nextStatus !== 'archived' && nextStatus !== project.status) 
+            changes.push(`status to "${nextStatus}"`);
+        if ("due_date" in updatedProject && nextDueDate !== project.due_date) 
+            changes.push(`due date to "${nextDueDate ?? 'none'}"`);
+        const changeLabel = changes.length ? `updated ${changes.join(', ')} on` : "updated";
+
+
+        if (nextStatus === 'archived' && project.status !== 'archived') {
+            this.activityRepo.logActivity({
+                project_id: id,
+                actor_user_id: user_id,
+                action: "archived project",
+                target_label: nextName
+            });
+        } else if (nextStatus !== 'archived' && project.status === 'archived') {
+            this.activityRepo.logActivity({
+            project_id: id,
+                actor_user_id: user_id,
+                action: "restored project",
+                target_label: nextName
+            });
+        } else if (changes.length > 0) {
+            this.activityRepo.logActivity({
+                project_id: id,
+                actor_user_id: user_id,
+                action: "updated project",
+                target_label: nextName
+            });
+        }
+
         return { project: result, message: "Project updated successfully" };
     }
     
