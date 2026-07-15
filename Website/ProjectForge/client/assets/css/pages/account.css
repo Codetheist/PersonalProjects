@@ -1,0 +1,338 @@
+/* Account layout */
+.account-layout {
+    display: flex;
+    max-width: var(--page-width);
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.account-layout #main-content {
+    max-width: none;
+    margin: 0;
+    flex: 1;
+    padding: 32px 40px;
+    min-width: 0;
+}
+
+/* Settings page header */
+.settings-page-header {
+    margin-bottom: 32px;
+}
+
+.settings-breadcrumb {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 4px;
+}
+
+.settings-page-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+/* Sidebar */
+.account-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--color-panel);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+}
+
+/* Brand */
+.account-sidebar .brand-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+    font-size: 0.85rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.brand-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.account-sidebar .navLinks {
+    padding: 0 20px;
+    margin-bottom: 12px;
+    font-size: 0.875rem;
+}
+
+/* Sidebar nav */
+.account-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+}
+
+.account-nav-item {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    min-height: unset;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.account-nav-item:hover {
+    background: var(--color-panel-mid);
+    color: var(--color-text);
+    filter: none;
+    transform: none;
+}
+
+.account-nav-item.active {
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    border-left: 3px solid var(--color-accent);
+    padding-left: 9px;
+}
+
+.account-nav-item[data-target="danger"] {
+    color: var(--color-error);
+}
+
+.account-nav-item[data-target="danger"]:hover {
+    background: rgba(255, 141, 141, 0.1);
+    color: var(--color-error);
+}
+
+/* Sidebar user */
+.sidebar-user {
+    padding: 16px 20px;
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-panel-mid);
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.user-details strong {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-details span {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Settings sections */
+.settings-section {
+    display: flex;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    flex: 0 0 220px;
+}
+
+.section-header h2 {
+    font-size: 1rem;
+    margin: 0 0 6px;
+}
+
+.section-header p {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0;
+}
+
+/* Settings form */
+.settings-form {
+    flex: 1;
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.field-hint {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    margin: 0;
+}
+
+/* Sessions */
+.sessions-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.session-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Preferences */
+.preferences-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-border-soft);
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+.preference-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.preference-label strong {
+    font-size: 0.9rem;
+}
+
+.preference-label span {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+}
+
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--color-panel-mid);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background 200ms ease, border-color 200ms ease;
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-muted);
+    transition: transform 200ms ease, background 200ms ease;
+}
+
+.toggle-switch[aria-checked="true"] {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+}
+
+.toggle-switch[aria-checked="true"]::after {
+    transform: translateX(20px);
+    background: var(--color-accent);
+}
+
+/* Danger section */
+#dangerSection .section-header h2 {
+    color: var(--color-error);
+}
+
+#dangerSection .settings-form {
+    border-color: rgba(255, 141, 141, 0.35);
+}
+
+/* Warning button */
+#logoutAllButton {
+    border-color: #c47f00;
+    color: #f5a623;
+}
+
+#logoutAllButton:hover {
+    background: rgba(245, 166, 35, 0.1);
+    border-color: #f5a623;
+}
