@@ -118,3 +118,24 @@
     margin: 0;
 }
 
+.progressMeta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-bottom: 6px;
+}
+
+.progressTrack {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-panel-mid);
+    overflow: hidden;
+}
+
+.progressTrack > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-accent);
+}
