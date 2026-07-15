@@ -8,7 +8,7 @@ const usersRepo = new UsersRepo();
 const membersRepo = new MembersRepo();
 
 // Require auth
-async function requireAuth(req, res, next) {
+function requireAuth(req, res, next) {
     try {
         const userId = req.session?.userId;
         
@@ -17,7 +17,7 @@ async function requireAuth(req, res, next) {
         }
         
         // Find user by id
-        const user = await usersRepo.findUserById(userId);
+        const user = usersRepo.findUserById(userId);
         
         if (!user || user.is_active !== 1) {
             return next(httpError(401, "Unauthorized"));
