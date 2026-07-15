@@ -120,20 +120,77 @@
     font-style: italic;
 }
 
-@media (max-width: 600px) {
-    .taskStatusCounts {
-        grid-template-columns: 1fr;
-    }
+.activityPanel {
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    position: sticky;
+    top: 16px;
+    margin-top: 22px;
+    max-height: 700px;
+    overflow: hidden;
+}
 
-    #membersList > *,
-    #tasksList > *,
-    .data-list-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+.activityPanel h2 {
+    font-size: 14px;
+    margin: 0;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+}
 
-    .item-actions {
-        width: 100%;
-        justify-content: flex-start;
-    }
+.activityFeed {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    max-height: 640px;
+    overflow-y: auto;
+}
+
+.activityItem {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+}
+
+.activityItem:hover {
+    background: var(--color-panel-mid);
+}
+
+.activityDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    margin-top: 6px;
+    flex: none;
+}
+
+.activityText {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--color-muted);
+    line-height: 1.4;
+}
+
+.activityText b {
+    color: var(--color-text);
+}
+
+.activityCtx {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
+.activityWhen {
+    font-size: 10.5px;
+    color: var(--color-muted);
+    opacity: .8;
+}
+
+.activityEmpty {
+    padding: 16px;
+    font-size: 12.5px;
+    color: var(--color-muted);
 }
