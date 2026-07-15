@@ -1,8 +1,19 @@
 // Tasks
-import { createTask, listTasks, getTaskDetail, updateTask, deleteTask } from '../api/tasksApi.js';
-import { showError, clearError, setSubmitState } from '../shared/ui.js';
+import {
+    createTask,
+    listTasks,
+    getTaskDetail,
+    updateTask,
+    deleteTask
+} from '../api/tasksApi.js';
+import {
+    showError,
+    clearError,
+    setSubmitState
+} from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
 import { state } from '../core/state.js';
+import { encodeHTML } from '../shared/util.js';
 
 export async function addTask(event, projectId) {
     event.preventDefault();
@@ -13,7 +24,8 @@ export async function addTask(event, projectId) {
         description: form.description.value,
         status: form.status.value,
         priority: form.priority.value,
-        due_date: form.due_date.value || null
+        due_date: form.due_date.value || null,
+        assigned_to: form.assigned_to.value || null
     };
 
     setSubmitState(form, true);
@@ -23,7 +35,6 @@ export async function addTask(event, projectId) {
         const result = await createTask(projectId, taskData);
 
         if (!result.ok) {
-            console.error('Task creation failed:', result.data?.message || 'Unknown error');
             showError(elements.createTaskError, 'An error occurred while creating the task. Please try again.');
             return null;
         }
@@ -40,7 +51,6 @@ export async function addTask(event, projectId) {
 
         renderTaskList();
     } catch (error) {
-        console.error('Error creating task:', error);
         showError(elements.createTaskError, 'An error occurred while creating the task. Please try again.');
         return null;
     } finally {
@@ -52,7 +62,6 @@ export async function loadProjectTasks(projectId) {
     try {
         const result = await listTasks(projectId);
         if (!result.ok) {
-            console.error('Failed to load tasks:', result.data?.message || 'Unknown error');
             showError(elements.projectDetailError, 'An error occurred while loading tasks. Please try again.');
             return;
         }
@@ -62,7 +71,6 @@ export async function loadProjectTasks(projectId) {
 
         return state.tasks;
     } catch (error) {
-        console.error('Error loading tasks:', error);
         showError(elements.projectDetailError, 'An error occurred while loading tasks. Please try again.');
         return [];
     }
@@ -72,7 +80,6 @@ export async function loadTask(projectId, taskId) {
     try {
         const result = await getTaskDetail(projectId, taskId);
         if (!result.ok) {
-            console.error('Failed to load task:', result.data?.message || 'Unknown error');
             showError(elements.editTaskError, 'An error occurred while loading the task. Please try again.');
             return null;
         }
@@ -80,12 +87,13 @@ export async function loadTask(projectId, taskId) {
         state.selectedTask = result.data.task;
         
         elements.taskDetailPanel.hidden = false;
+        elements.taskDetailInfo.hidden = false;
+        elements.editTaskForm.hidden = true;
         
         renderTaskDetail(state.selectedTask);
         
         return state.selectedTask;
     } catch (error) {
-        console.error('Error loading task:', error);
         showError(elements.editTaskError, 'An error occurred while loading the task. Please try again.');
         return null;
     }
@@ -99,7 +107,8 @@ export async function editTask(event, projectId, taskId) {
         description: form.description.value,
         status: form.status.value,
         priority: form.priority.value,
-        due_date: form.due_date.value || null
+        due_date: form.due_date.value || null,
+        assigned_to: form.assigned_to.value || null
     };
 
     setSubmitState(form, true);
@@ -109,7 +118,6 @@ export async function editTask(event, projectId, taskId) {
         const result = await updateTask(projectId, taskId, updates);
 
         if (!result.ok) {
-            console.error('Task update failed:', result.data?.message || 'Unknown error');
             showError(elements.editTaskError, 'An error occurred while updating the task. Please try again.');
             return;
         }
@@ -127,7 +135,6 @@ export async function editTask(event, projectId, taskId) {
         renderTaskDetail(updatedTask);
         renderTaskList();
     } catch (error) {
-        console.error('Error updating task:', error);
         showError(elements.editTaskError, 'An error occurred while updating the task. Please try again.');
     } finally {
         setSubmitState(form, false);
@@ -143,7 +150,6 @@ export async function removeTask(projectId, taskId) {
         const result = await deleteTask(projectId, taskId);
 
         if (!result.ok) {
-            console.error('Task deletion failed:', result.data?.message || 'Unknown error');
             showError(elements.createTaskError, 'An error occurred while deleting the task. Please try again.');
             return;
         }
@@ -154,7 +160,6 @@ export async function removeTask(projectId, taskId) {
         
         renderTaskList();
     } catch (error) {
-        console.error('Error deleting task:', error);
         showError(elements.createTaskError, 'An error occurred while deleting the task. Please try again.');
     }
 }
@@ -168,7 +173,6 @@ export async function handleTaskClick(event, projectId) {
     const action = event.target.dataset.taskAction || 'view';
 
     if (!taskId) {
-        console.error('Task ID not found on clicked element');
         return;
     }
     if (action === 'delete') {
@@ -187,6 +191,7 @@ export function fillEditTaskForm(task) {
     elements.editTaskStatus.value = task.status || 'todo';
     elements.editTaskPriority.value = task.priority || 'medium';
     elements.editTaskDueDate.value = task.due_date || '';
+    populateAssigneeOptions(elements.editTaskAssignedTo, task.assigned_to || '');
 }
 
 function renderTaskDetail(task) {
@@ -199,6 +204,7 @@ function renderTaskDetail(task) {
     elements.taskDetailDueDate.textContent = task.due_date
         ? new Date(task.due_date).toLocaleDateString()
         : 'No due date';
+    elements.taskDetailAssignedTo.textContent = getAssigneeName(task.assigned_to);
 }
 
 function renderTaskList() {
@@ -229,11 +235,12 @@ function renderTaskList() {
         taskRow.dataset.taskId = task.id;
         taskRow.innerHTML = `
             <div class="item-content">
-                <span class="item-title">${task.title}</span>
+                <span class="item-title">${encodeHTML(task.title)}</span>
 
                 ${isActive ? `
                     <span class="item-meta">
-                        Due: ${formatTaskDate(task.due_date)} · Priority: ${task.priority}
+                        Due: ${formatTaskDate(task.due_date)} · Priority: ${task.priority}${task.assigned_to ? `
+                            · Assigned to: ${encodeHTML(getAssigneeName(task.assigned_to))}` : ''}
                     </span>
 
                     <span class="status-pill status-${getTaskStatusClass(task.status)}">
@@ -243,10 +250,9 @@ function renderTaskList() {
             </div>
 
             <div class="item-actions" aria-label="Task actions">
-                <button type="button" class="buttonLook btn btn-small" data-task-action="edit">
+                <button type="button" class="buttonLook btn btn-small secondaryButton" data-task-action="edit">
                     Edit
                 </button>
-
                 <button type="button" class="buttonLook btn btn-small secondaryButton btn-danger" data-task-action="delete">
                     Delete
                 </button>
@@ -280,4 +286,23 @@ function getTaskStatusClass(status) {
         done: 'complete'
     };
     return classes[status] || 'pending';
+}
+
+function getAssigneeName(userId) {
+    if (!userId) return 'Unassigned';
+    const members = Array.isArray(state.members) ? state.members : [];
+    const member = members.find(m => m.user_id === userId);
+    return member ? member.username : 'Unknown user';
+}
+
+export function populateAssigneeOptions(select, selectedId = '') {
+    if (!select) return;
+    
+    const members = Array.isArray(state.members) ? state.members : [];
+    const options = members.map(member => `
+        <option value="${encodeHTML(member.user_id)}">${encodeHTML(member.username)}</option>
+    `).join('');
+
+    select.innerHTML = `<option value="">Unassigned</option>${options}`;
+    select.value = selectedId || '';
 }
