@@ -21,6 +21,7 @@
 @import "./layout/responsive.css";
 
 /* Pages */
+@import "./pages/account.css";
 @import "./pages/dashboard.css";
 @import "./pages/landing.css";
 @import "./pages/project.css";
