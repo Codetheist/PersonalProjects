@@ -1,8 +1,30 @@
 import { checkSession } from '../features/auth.js';
-import { loadProjectDetail, editProject, removeProject } from '../features/projects.js';
-import { addProjectMember, loadProjectMembers, handleMemberClick } from '../features/members.js';
-import { addTask, loadProjectTasks, editTask, removeTask, handleTaskClick, fillEditTaskForm } from '../features/tasks.js';
-import { addComment, loadComments, resetCommentsPanel } from '../features/comments.js';
+import {
+    loadProjectDetail,
+    editProject,
+    removeProject
+} from '../features/projects.js';
+import {
+    addProjectMember,
+    loadProjectMembers,
+    handleMemberClick
+} from '../features/members.js';
+import {
+    addTask,
+    loadProjectTasks,
+    loadTask,
+    editTask,
+    removeTask,
+    handleTaskClick,
+    fillEditTaskForm,
+    populateAssigneeOptions
+} from '../features/tasks.js';
+import {
+    addComment,
+    loadComments,
+    resetCommentsPanel,
+    handleCommentActions
+} from '../features/comments.js';
 import { showError } from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
 import { PAGE_ROUTES } from '../core/routes.js';
@@ -17,7 +39,6 @@ export async function initProjectDetailPage() {
     const projectId = pathParts[pathParts.length - 1];
     
     if (!projectId) {
-        console.error('Project ID not found in URL');
         showError(elements.projectDetailError, 'Project ID is missing. Please try again.');
         return;
     }
@@ -34,6 +55,7 @@ export async function initProjectDetailPage() {
     }
 
     let selectedTaskId = null;
+    let editingTaskId = null;
     
     await loadProjectDetail(projectId);
     
@@ -50,23 +72,48 @@ export async function initProjectDetailPage() {
     }
     await loadProjectTasks(projectId);
     await loadComments(projectId, 'project');
-    
+
+    // PROJECT EDIT / DELETE
     elements.editProjectButton?.addEventListener('click', () => {
+        if (!elements.editProjectForm.hidden) {
+            elements.editProjectForm.hidden = true;
+            return;
+        }
+        elements.editProjectName.value = state.selectedProject.name ?? '';
+        elements.editProjectDescription.value = state.selectedProject.description ?? '';
+        elements.editProjectStatus.value = state.selectedProject.status ?? 'active';
+        elements.editProjectDueDate.value = state.selectedProject.due_date ?? '';
         elements.editProjectForm.hidden = false;
     });
 
     elements.editProjectForm?.addEventListener('submit', (event) => {
-        editProject(event, projectId);
+        event.preventDefault();
+        const updatedData = {
+            name: elements.editProjectForm.name.value,
+            description: elements.editProjectForm.description.value,
+            status: elements.editProjectForm.status.value,
+        };
+        
+        const dueDate = elements.editProjectForm.due_date.value;
+        
+        if (dueDate) {
+            updatedData.due_date = dueDate;
+        }
+
+        editProject(projectId, updatedData);
+        window.location.href = `${PAGE_ROUTES.projects}/${projectId}`;
     });
 
     elements.cancelEditButton?.addEventListener('click', () => {
         elements.editProjectForm.hidden = true;
     });
 
-    elements.deleteProjectButton?.addEventListener('click', (event) => {
-        removeProject(event, projectId);
+    elements.deleteProjectButton?.addEventListener('click', () => {
+        removeProject(projectId);
     });
 
+
+    // MEMBERS
     elements.showAddMemberFormButton?.addEventListener('click', () => {
         elements.addMemberForm.hidden = false;
     });
@@ -75,19 +122,27 @@ export async function initProjectDetailPage() {
         addProjectMember(event, projectId);
     });
 
-    elements.membersList?.addEventListener('click', (event) => {
-        handleMemberClick(event, projectId);
-    });
-
     elements.cancelAddMemberButton?.addEventListener('click', () => {
         elements.addMemberForm.hidden = true;
     });
 
+    elements.cancelMemberButton?.addEventListener('click', () => {
+        elements.addMemberForm.hidden = true;
+    });
+
+    elements.membersList?.addEventListener('click', (event) => {
+        handleMemberClick(event, projectId);
+    });
+
+
+    // TASK CREATION
     elements.showCreateTaskFormButton?.addEventListener('click', () => {
         elements.createTaskForm.hidden = false;
 
         selectedTaskId = null;
         state.selectedTask = null;
+
+        populateAssigneeOptions(elements.createTaskAssignedTo);
 
         loadProjectTasks(projectId);
 
@@ -107,13 +162,20 @@ export async function initProjectDetailPage() {
         addTask(event, projectId);
     });
 
+
+    // TASK LIST / ACTIONS
     elements.tasksList?.addEventListener('click', async (event) => {
         const taskRow = event.target.closest('[data-task-id]');
-
         if (!taskRow) return;
 
         const clickedTaskId = taskRow.dataset.taskId;
-        const action = event.target.dataset.taskAction;
+        const actionButton = event.target.closest('[data-task-action]');
+        
+        if (actionButton) {
+            event.stopPropagation();
+        }
+
+        const action = actionButton?.dataset.taskAction;
 
         if (action === 'delete') {
             await removeTask(projectId, clickedTaskId);
@@ -123,60 +185,81 @@ export async function initProjectDetailPage() {
         }
 
         if (action === 'edit') {
-            const task = state.tasks.find(t => t.id === clickedTaskId);
-            if (task) {
-                fillEditTaskForm(task);
-                elements.editTaskForm.hidden = false;
+            const task = state.tasks.find(t => String(t.id) === clickedTaskId);
+
+            if (!task) return;
+
+            if (!elements.editTaskForm.hidden) {
+                elements.editTaskForm.hidden = true;
+                elements.taskDetailPanel.hidden = true;
+                elements.taskDetailInfo.hidden = false;
+                editingTaskId = null;
+                selectedTaskId = null;
+                return;
             }
+
+            selectedTaskId = clickedTaskId;
+            elements.taskDetailPanel.hidden = false;
+            elements.taskDetailInfo.hidden = true;
+            fillEditTaskForm(task);
+            elements.editTaskForm.hidden = false;
+            editingTaskId = clickedTaskId;
+
             return;
         }
 
         if (selectedTaskId === clickedTaskId) {
             selectedTaskId = null;
-
             state.selectedTask = null;
 
+            editingTaskId = null;
+
             elements.taskDetailPanel.hidden = true;
+            elements.editTaskForm.hidden = true;
 
             await loadProjectTasks(projectId);
-
             await loadComments(projectId, 'project');
-            
             return;
         }
-        
+
         selectedTaskId = clickedTaskId;
 
         await handleTaskClick(event, projectId);
+
+        elements.editTaskForm.hidden = true;
+
         await loadComments(selectedTaskId, 'task');
     });
 
+
+    // TASK EDIT
     elements.editTaskForm?.addEventListener('submit', (event) => {
-        if (!selectedTaskId) {
+        if (!editingTaskId) {
             showError(elements.editTaskError, 'Select a task before editing.');
             return;
         }
 
-        editTask(event, projectId, selectedTaskId);
+        editTask(event, projectId, editingTaskId);
     });
 
     elements.cancelEditTaskButton?.addEventListener('click', () => {
+        editingTaskId = null;
+        selectedTaskId = null;
         elements.editTaskForm.hidden = true;
+        elements.taskDetailPanel.hidden = true;
+        elements.taskDetailInfo.hidden = false;
     });
 
-    /*elements.deleteTaskButton?.addEventListener('click', async () => {
-        if (!selectedTaskId) {
-            showError(elements.editTaskError, 'Select a task before deleting.');
-            return;
-        }
 
-        await removeTask(projectId, selectedTaskId);
-        selectedTaskId = null;
-        await loadComments(projectId, 'project');
-    });*/
-
+    // COMMENTS
     elements.addCommentForm?.addEventListener('submit', (event) => {
         const id = selectedTaskId ? selectedTaskId : projectId;
         addComment(event, id);
     });
+
+    elements.commentsList?.addEventListener('click', (event) => {
+        handleCommentActions(event);
+    });
+
+    document.title = `Project | ${state.selectedProject.name}`;
 }
