@@ -3,14 +3,16 @@ const { uid } = require("../utils/ids");
 const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
 const { isValidDate } = require("../utils/date");
+const { ActivityRepo } = require("./activity.repo");
 
 class TasksRepo {
     constructor() {
         this.db = dbConnection;
+        this.activityRepo = new ActivityRepo();
     }
     
     // Create
-    createTask({project_id, title, description, status, priority, due_date }) {
+    createTask({ project_id, title, description, status, priority, due_date, assigned_to, user_id }) {
         const id = uid();
         project_id = (project_id ?? "").trim();
         title = (title ?? "").trim();
@@ -18,6 +20,7 @@ class TasksRepo {
         status = (status ?? "todo").trim().toLowerCase();
         priority = (priority ?? "medium").trim().toLowerCase();
         due_date = (due_date ?? "").trim() || null;
+        assigned_to = (assigned_to ?? "").trim() || null;
 
         if (!project_id) {
             throw httpError(400, "Project ID is required");
@@ -48,16 +51,27 @@ class TasksRepo {
         if (!project) {
             throw httpError(404, "Project not found");
         }
+
+        if (assigned_to) {
+            this.assertProjectMember(project_id, assigned_to);
+        }
         
         this.db.prepare(`
-            INSERT INTO tasks (id, project_id, title, description, status, priority, due_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).run(id, project_id, title, description, status, priority, due_date);
+            INSERT INTO tasks (id, project_id, title, description, status, priority, due_date, assigned_to)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(id, project_id, title, description, status, priority, due_date, assigned_to);
+
+        this.activityRepo.logActivity({
+            project_id: project_id,
+            actor_user_id: user_id,
+            action: "created task",
+            target_label: title
+        });
 
         return { task: this.getTaskById(id), message: "Task created successfully" };
     }
 	
-	// Read	
+    // Read	
     getTaskById(id) {
         const task = this.db.prepare(`
             SELECT *
@@ -92,7 +106,7 @@ class TasksRepo {
     }
     
     // Update
-    updateTask(id, updates = {}) {
+    updateTask(id, updates = {}, user_id) {
         id = (id ?? "").trim();
         if (!id) {
             throw httpError(400, "Task ID is required");
@@ -154,6 +168,14 @@ class TasksRepo {
             updatedTask.due_date = due_date;
         }
 
+        if (updates.assigned_to !== undefined) {
+            const assigned_to = (updates.assigned_to ?? "").trim() || null;
+
+            if (assigned_to) {
+                this.assertProjectMember(task.project_id, assigned_to);
+            }
+        }
+
         if (Object.keys(updatedTask).length === 0) {
             throw httpError(400, "No valid fields to update");
         }
@@ -163,10 +185,11 @@ class TasksRepo {
         const nextStatus = "status" in updatedTask ? updatedTask.status : task.status;
         const nextPriority = "priority" in updatedTask ? updatedTask.priority : task.priority;
         const nextDueDate = "due_date" in updatedTask ? updatedTask.due_date : task.due_date;
+        const nextAssignedTo = "assigned_to" in updatedTask ? updatedTask.assigned_to : task.assigned_to;
 
         this.db.prepare(`
             UPDATE tasks
-            SET title = ?, description = ?, status = ?, priority = ?, due_date = ?
+            SET title = ?, description = ?, status = ?, priority = ?, due_date = ?, assigned_to = ?
             WHERE id = ?
         `).run(
             nextTitle,
@@ -174,9 +197,19 @@ class TasksRepo {
             nextStatus,
             nextPriority,
             nextDueDate,
+            nextAssignedTo,
             id
         );
         
+        if (nextStatus === 'done' && task.status !== 'done') {
+            this.activityRepo.logActivity({
+                project_id: task.project_id,
+                actor_user_id: user_id,
+                action: "completed task",
+                target_label: nextTitle
+            });
+        }
+
         return { task: this.getTaskById(id), message: "Task updated successfully" };
 
     }
@@ -204,6 +237,17 @@ class TasksRepo {
         `).run(id);
         
         return { task, message: "Task deleted successfully" };
+    }
+
+    assertProjectMember(project_id, user_id) {
+        const member = this.db.prepare(`
+            SELECT user_id
+            FROM project_members
+            WHERE project_id = ? AND user_id = ?
+        `).get(project_id, user_id);
+        if (!member) {
+            throw httpError(403, "User is not a member of the project");
+        }
     }
 }
 
