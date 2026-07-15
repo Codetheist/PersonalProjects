@@ -1,9 +1,19 @@
 // Members
-import { addMember, listMembers, updateMember, deleteMember } from '../api/membersApi.js';
-import { showError, clearError, setSubmitState } from '../shared/ui.js';
+import {
+    addMember,
+    listMembers,
+    updateMember,
+    deleteMember
+} from '../api/membersApi.js';
+import {
+    showError,
+    clearError,
+    setSubmitState
+} from '../shared/ui.js';
 import { elements } from '../shared/dom.js';
 import { state } from '../core/state.js';
 import { PAGE_ROUTES } from '../core/routes.js';
+import { encodeHTML } from '../shared/util.js';
 
 export async function addProjectMember(event, projectId) {
     event.preventDefault();
@@ -18,7 +28,6 @@ export async function addProjectMember(event, projectId) {
         const result = await addMember(projectId, memberData);
 
         if (!result.ok) {
-            console.error('Member addition failed:', result.data?.message || 'Unknown error');
             showError(elements.addMemberError, result.data?.message || 'An error occurred while adding the member. Please try again.');
             return;
         }
@@ -26,14 +35,8 @@ export async function addProjectMember(event, projectId) {
         elements.addMemberForm.reset();
         elements.addMemberForm.hidden = true;
         
-        if (!Array.isArray(state.members)) {
-            state.members = [];
-        }
-
-        state.members.push(result.data.member);
-        renderMembers();
+        await loadProjectMembers(projectId);
     } catch (error) {
-        console.error('Error adding member:', error);
         showError(elements.addMemberError, 'An error occurred while adding the member. Please try again.');
     } finally {
         setSubmitState(form, false);
@@ -44,7 +47,6 @@ export async function loadProjectMembers(projectId) {
     try {
         const result = await listMembers(projectId);
         if (!result.ok) {
-            console.error('Failed to load members:', result.data?.message || 'Unknown error');
             showError(elements.addMemberError, 'An error occurred while loading members. Please try again.');
             return;
         }
@@ -54,7 +56,6 @@ export async function loadProjectMembers(projectId) {
         
         return state.members;
     } catch (error) {
-        console.error('Error loading members:', error);
         showError(elements.addMemberError, 'An error occurred while loading members. Please try again.');
     }
 }
@@ -70,7 +71,6 @@ export async function editProjectMember(event, projectId, userId) {
         clearError(elements.addMemberError);
         const result = await updateMember(projectId, userId, updates);
         if (!result.ok) {
-            console.error('Member update failed:', result.data?.message || 'Unknown error');
             showError(elements.addMemberError, 'An error occurred while updating the member. Please try again.');
             return;
         }
@@ -85,7 +85,6 @@ export async function editProjectMember(event, projectId, userId) {
         
         renderMembers();
     } catch (error) {
-        console.error('Error updating member:', error);
         showError(elements.addMemberError, 'An error occurred while updating the member. Please try again.');
     } finally {
         setSubmitState(form, false);
@@ -99,23 +98,19 @@ export async function removeProjectMember(projectId, userId) {
     try {
         const result = await deleteMember(projectId, userId);
         if (!result.ok) {
-            console.error('Member removal failed:', result.data?.message || 'Unknown error');
             showError(elements.addMemberError, 'An error occurred while removing the member. Please try again.');
             return;
         }
 
         const removeSlf = userId === state.user?.id;
         // Handle successful member removal (e.g., update UI, redirect, etc.)
-        state.members = state.members.filter(member => member.user_id !== userId);
+        await loadProjectMembers(projectId);
 
         if (removeSlf) {
             window.location.replace(PAGE_ROUTES.dashboard);
             return;
         }
-        
-        renderMembers();
     } catch (error) {
-        console.error('Error removing member:', error);
         showError(elements.addMemberError, 'An error occurred while removing the member. Please try again.');
     }
 }
@@ -134,9 +129,39 @@ export async function handleMemberClick(event, projectId) {
         await removeProjectMember(projectId, memberId);
         return;
     }
-    
+
     if (action === 'edit') {
-        showError(elements.addMemberError, 'Member editing is not set up yet.');
+        const inlineEdit = memberRow.querySelector('.member-inline-edit');
+        const content = memberRow.querySelector('[data-member-content]');
+        const actions = memberRow.querySelector('[data-member-actions]');
+        if (!inlineEdit) return;
+        content.hidden = true;
+        actions.hidden = true;
+        inlineEdit.hidden = false;
+        return;
+    }
+
+    if (action === 'save-edit') {
+        const inlineEdit = memberRow.querySelector('.member-inline-edit');
+        const roleSelect = inlineEdit?.querySelector('[data-member-role]');
+        const result = await updateMember(projectId, memberId, { role: roleSelect.value });
+        if (!result.ok) {
+            showError(elements.addMemberError, 'Failed to update member role.');
+            return;
+        }
+        await loadProjectMembers(projectId);
+        return;
+    }
+
+    if (action === 'cancel-edit') {
+        const inlineEdit = memberRow.querySelector('.member-inline-edit');
+        const content = memberRow.querySelector('[data-member-content]');
+        const actions = memberRow.querySelector('[data-member-actions]');
+        if (!inlineEdit) return;
+        inlineEdit.hidden = true;
+        content.hidden = false;
+        actions.hidden = false;
+        return;
     }
 }
 
@@ -177,12 +202,12 @@ function renderMembers() {
         const showActions = isOwner || isSelf;
         
         memberItem.innerHTML = `
-            <div class="item-content">
-                <span class='item-title'>${member.username}</span>
+            <div class="item-content" data-member-content>
+                <span class='item-title'>${encodeHTML(member.username)}</span>
                 <span class="item-meta">${roleLabel}</span>
             </div>
 
-            <div class="item-actions" aria-label="Member actions">
+            <div class="item-actions" data-member-actions aria-label="Member actions">
                 ${showActions ? `
                     ${canEdit ? `
                         <button type="button" class="buttonLook btn btn-small" data-member-action="edit">
@@ -190,15 +215,23 @@ function renderMembers() {
                         </button>
                     ` : ''}
                     ${canRemove ? `
-                        <button
-                        type="button"
-                        class="buttonLook btn btn-small secondaryButton btn-danger"
-                        data-member-action="remove">
+                        <button type="button" class="buttonLook btn btn-small secondaryButton btn-danger" data-member-action="remove">
                             Remove
                         </button>
                     ` : ''}
                 ` : ''}
             </div>
+
+            ${canEdit ? `
+            <div class="member-inline-edit" hidden>
+                <select data-member-role>
+                    <option value="admin" ${member.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    <option value="member" ${member.role === 'member' ? 'selected' : ''}>Member</option>
+                </select>
+                <button type="button" class="buttonLook btn btn-small primaryButton" data-member-action="save-edit">Save</button>
+                <button type="button" class="buttonLook btn btn-small secondaryButton" data-member-action="cancel-edit">Cancel</button>
+            </div>
+            ` : ''}
         `
         fragment.appendChild(memberItem);
     });
