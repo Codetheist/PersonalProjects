@@ -5,7 +5,10 @@ const AUTH_ROUTES = {
     register: '/api/auth/register',
     login: '/api/auth/login',
     logout: '/api/auth/logout',
-    me: '/api/auth/me'
+    me: '/api/auth/me',
+    changePassword: '/api/auth/change-password',
+    forgotPassword: '/api/auth/forgot-password',
+    resetPassword: '/api/auth/reset-password'
 }
 
 // Authentication API functions
@@ -69,6 +72,63 @@ export async function currentUser() {
             'Accept': 'application/json'
         },
         credentials: 'same-origin'
+    });
+
+    const data = await readJson(response);
+    
+    return {
+        ok: response.ok,
+        status: response.status,
+        data
+    };
+}
+
+export async function changePassword(passwordData) {
+    const response = await fetch(AUTH_ROUTES.changePassword, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(passwordData)
+    });
+
+    const data = await readJson(response);
+    
+    return {
+        ok: response.ok,
+        status: response.status,
+        data
+    };
+}
+
+export async function forgotPassword(emailData) {
+    const response = await fetch(AUTH_ROUTES.forgotPassword, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(emailData)
+    });
+
+    const data = await readJson(response);
+    
+    return {
+        ok: response.ok,
+        status: response.status,
+        data
+    };
+}
+
+export async function resetPassword(resetData) {
+    const response = await fetch(AUTH_ROUTES.resetPassword, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(resetData)
     });
 
     const data = await readJson(response);
