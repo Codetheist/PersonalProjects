@@ -22,6 +22,7 @@ router.post('/:project_id/tasks',
 
         const { task, message } = await tasksRepo.createTask({
             project_id: req.project.id,
+            user_id: req.user.id,
             ...taskData
         });
 
@@ -65,7 +66,7 @@ router.patch('/:project_id/tasks/:task_id',
     asyncHandler(async (req, res) => {
         const taskData = validate(taskUpdateSchema, req.body);
 
-        const { task, message } = await tasksRepo.updateTask(req.task.id, taskData);
+        const { task, message } = await tasksRepo.updateTask(req.task.id, taskData, req.user.id);
 
         res.json({ task, message });
     })
