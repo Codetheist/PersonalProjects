@@ -67,7 +67,7 @@ router.delete("/:project_id/members/:user_id",
             return next(httpError(403, "Forbidden"));
         }
 
-        await membersRepo.removeMember(req.projectId, req.userId);
+        await membersRepo.removeMember(req.projectId, req.userId, req.user.id);
         res.status(204).end();
     })
 );
