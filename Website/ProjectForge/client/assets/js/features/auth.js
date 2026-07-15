@@ -1,26 +1,47 @@
 // Authentication
-import { registerUser, loginUser, logoutUser, currentUser } from '../api/authApi.js';
-import { showError, clearError, setSubmitState } from '../shared/ui.js';
+import {
+    registerUser,
+    loginUser,
+    logoutUser,
+    currentUser,
+    changePassword,
+    forgotPassword,
+    resetPassword
+} from '../api/authApi.js';
+import {
+    showError,
+    clearError,
+    setSubmitState
+} from '../shared/ui.js';
 import { PAGE_ROUTES } from '../core/routes.js';
 import { elements } from '../shared/dom.js';
 import { state } from '../core/state.js';
 
-// Register, Login, Logout, Check Session, Require Auth functions
-export async function register(event) {
+/*
+Authentication:
+Register, Login, Logout, Session Management
+
+Password Recovery:
+Forgot Password, Reset Password
+
+Account Security:
+Change Password
+ */
+async function register(event) {
     event?.preventDefault?.();
     
 
     clearError(elements.registerError);
 
-    if (!elements.registerUsernameInput || !elements.registerEmailInput || !elements.registerPasswordInput) {
+    if (!elements.registerUsername || !elements.registerEmail || !elements.registerPassword) {
         showError(elements.registerError, 'Registration form is missing required fields');
         return;
     }
 
     const userData = {
-        username: elements.registerUsernameInput.value.trim(),
-        email: elements.registerEmailInput.value.trim(),
-        password: elements.registerPasswordInput.value
+        username: elements.registerUsername.value.trim(),
+        email: elements.registerEmail.value.trim(),
+        password: elements.registerPassword.value
     };
 
     try {
@@ -35,26 +56,25 @@ export async function register(event) {
         
         window.location.replace(PAGE_ROUTES.dashboard);
     } catch (error) {
-        console.error('Error registering user:', error);
         showError(elements.registerError, 'An error occurred during registration. Please try again.');
     } finally {
         setSubmitState(elements.registrationForm, false);
     }
 }
 
-export async function login(event) {
+async function login(event) {
     event?.preventDefault?.();
     
     clearError(elements.loginError);
     
-    if (!elements.loginIdentifierInput || !elements.loginPasswordInput) {
+    if (!elements.loginIdentifier || !elements.loginPassword) {
         showError(elements.loginError, 'Login form is missing required fields');
         return;
     }
     
     const loginData = {
-        identifier: elements.loginIdentifierInput.value.trim(),
-        password: elements.loginPasswordInput.value
+        identifier: elements.loginIdentifier.value.trim(),
+        password: elements.loginPassword.value
     };
 
     try {
@@ -71,14 +91,13 @@ export async function login(event) {
         
         window.location.replace(PAGE_ROUTES.dashboard);
     } catch (error) {
-        console.error('Error logging in user:', error);
         showError(elements.loginError, 'An error occurred during login. Please try again.');
     } finally {
         setSubmitState(elements.loginForm, false);
     }
 }
 
-export async function logout(event) {
+async function logout(event) {
     event?.preventDefault?.();
     const logoutButton = event?.currentTarget || elements.logoutButton;
     let loggedOut = false;
@@ -91,7 +110,6 @@ export async function logout(event) {
         const result = await logoutUser();
 
         if (!result.ok) {
-            console.error('Logout failed:', result.data?.message || 'Unknown error');
             return;
         }
 
@@ -101,7 +119,7 @@ export async function logout(event) {
 
         window.location.replace(PAGE_ROUTES.home);
     } catch (error) {
-        console.error('Error logging out user:', error);
+        return null;
     } finally {
         if (logoutButton && !loggedOut) {
             logoutButton.disabled = false;
@@ -121,7 +139,6 @@ export async function checkSession() {
         
         return state.user;
     } catch (error) {
-        console.error('Error checking session:', error);
         return null;
     }
 }
@@ -158,20 +175,15 @@ if (!elements.isHomePage) return;
             elements.dashboardButton = dashboardLink;
         }
 
-        if (!elements.logoutButton) {
-            const logoutBtn = document.createElement('button');
-            logoutBtn.className = 'buttonLook secondaryButton';
-            logoutBtn.textContent = 'Logout';
-            logoutBtn.id = 'logoutButton';
-
-            logoutBtn.addEventListener('click', logout);
-
-            elements.authButtons.appendChild(logoutBtn);
-            elements.logoutButton = logoutBtn;
-        }
+        /*
+        Create the avatar link for the user account settings. This is a placeholder for the actual implementation.
+        <div class="nav-actions">
+            <a href="/account" class="user-avatar-link" id="userAvatarBtn" aria-label="Account settings"></a>
+        </div>
+        */
 
         elements.dashboardButton.hidden = false;
-        elements.logoutButton.hidden = false;
+        
 
         return;
     }
@@ -189,6 +201,28 @@ if (!elements.isHomePage) return;
         elements.logoutButton.hidden = true;
     }
 
+}
+
+export async function changeUserPassword(event) {
+    event?.preventDefault?.();
+    const formData = new FormData(event.target);
+    const currentPassword = formData.get('currentPassword');
+    const newPassword = formData.get('newPassword');
+    const confirmPassword = formData.get('confirmPassword');
+
+    if (newPassword !== confirmPassword) {
+        showError(elements.changePasswordError, 'Passwords do not match.');
+        return;
+    }
+    
+    const result = await changePassword({ currentPassword, newPassword, confirmPassword });
+    
+    if (!result.ok) {
+        showError(elements.changePasswordError, result.data.message || 'Failed to change password.');
+        return;
+    }
+
+    return result;
 }
 
 // Initialization function to set up event listeners and initial state
