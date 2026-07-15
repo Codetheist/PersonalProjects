@@ -49,10 +49,16 @@
 
 .comment-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
     gap: 10px;
     margin-bottom: 8px;
+}
+
+.comment-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .comment-author {
@@ -60,10 +66,40 @@
     font-weight: 800;
 }
 
+.action-link {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    font-size: 12px;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.action-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.dot {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+
 .comment-time {
     color: var(--color-muted);
     font-size: 0.8rem;
     white-space: nowrap;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.comment-time-edited {
+    font-style: italic;
+    color: var(--color-muted);
+    font-size: 0.7rem;
 }
 
 .comment-body {
