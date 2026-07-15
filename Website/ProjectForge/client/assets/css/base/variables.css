@@ -22,4 +22,8 @@
     --radius-lg: 18px;
 
     --page-width: 1100px;
+
+    --color-success: #5fd29a;
+    --color-success-bg: rgba(95, 210, 154, 0.14);
+    --color-accent-soft: rgba(109, 211, 251, 0.14);
 }
