@@ -51,6 +51,34 @@ const authLoginSchema = z.object({
     password: passwordSchema
 }).strict();
 
+const authForgotPasswordSchema = z.object({
+    email: emailSchema
+}).strict();
+
+const authResetPasswordSchema = z.object({
+    token: z.string().length(64),
+    password: passwordSchema,
+    confirmPassword: passwordSchema
+}).strict().refine(
+    data => data.password === data.confirmPassword,
+    {
+        message: "Passwords do not match",
+        path: ["confirmPassword"]
+    }
+);
+
+const authChangePasswordSchema = z.object({
+    currentPassword: passwordSchema,
+    newPassword: passwordSchema,
+    confirmPassword: passwordSchema
+}).strict().refine(
+    data => data.newPassword === data.confirmPassword,
+    {
+        message: "Passwords do not match",
+        path: ["confirmPassword"]
+    }
+);
+
 // Project schemas
 const projectCreateSchema = z.object({
     name: nameSchema,
@@ -93,7 +121,8 @@ const taskCreateSchema = z.object({
     description: descriptionSchema.nullish(),
     status: statusTaskSchema.optional(),
     priority: priorityTaskSchema.optional(),
-    due_date: dueDateSchema.nullish()
+    due_date: dueDateSchema.nullish(),
+    assigned_to: uuidSchema.optional()
 }).strict();
 
 const taskUpdateSchema = z.object({
@@ -101,7 +130,8 @@ const taskUpdateSchema = z.object({
     description: descriptionSchema.nullish(),
     status: statusTaskSchema.optional(),
     priority: priorityTaskSchema.optional(),
-    due_date: dueDateSchema.nullish()
+    due_date: dueDateSchema.nullish(),
+    assigned_to: uuidSchema.nullish()
 }).refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update."
 }).strict();
@@ -132,6 +162,9 @@ const commentIdParamSchema = z.object({
 module.exports = {
     authRegisterSchema,
     authLoginSchema,
+    authForgotPasswordSchema,
+    authResetPasswordSchema,
+    authChangePasswordSchema,
     projectCreateSchema,
     projectUpdateSchema,
     projectIdParamSchema,
