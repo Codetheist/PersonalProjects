@@ -19,6 +19,7 @@ const projectsRoutes = require('./routes/projects.routes');
 const tasksRoutes = require('./routes/tasks.routes');
 const commentsRoutes = require('./routes/comments.routes');
 const membersRoutes = require('./routes/members.routes');
+const activityRoutes = require('./routes/activity.routes');
 
 // Initialize Express app
 const app = express();
@@ -78,6 +79,14 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(staticDir, 'index.html'));
 });
 
+app.get("/forgot-password", (req, res) => {
+    res.sendFile(path.join(staticDir, 'forgot-password.html'));
+});
+
+app.get("/reset-password", (req, res) => {
+    res.sendFile(path.join(staticDir, 'reset-password.html'));
+});
+
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(staticDir, 'dashboard.html'));
 });
@@ -86,12 +95,17 @@ app.get("/project/:id", (req, res) => {
     res.sendFile(path.join(staticDir, 'project.html'));
 });
 
+app.get("/account", (req, res) => {
+    res.sendFile(path.join(staticDir, 'account.html'));
+});
+
 // API routes
 app.use('/api/auth', authRoutes)
 app.use('/api/projects', projectsRoutes)
 app.use('/api/projects', tasksRoutes)
 app.use('/api/projects', membersRoutes)
 app.use('/api', commentsRoutes)
+app.use('/api/activity', activityRoutes)
 
 // Error handling
 app.use(notFound);
