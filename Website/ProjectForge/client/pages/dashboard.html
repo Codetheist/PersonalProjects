@@ -8,54 +8,85 @@
 </head>
 <body id="top">
 	<a href="#main-content">Skip to main content</a>
-    <!--Nav-->
-    <nav class="navBar" aria-label="Primary">
-        <div class="navLinks">
-            <a href="/">Home</a>
-        </div>
-        <div class="authButtons">
-            <button class="buttonLook" id="logoutButton" hidden>Logout</button>
-        </div>
-    </nav>
-
-	<header>
-		<h1>
-            Welcome, <span id="dashboardUsername"></span>!
-        </h1>
+	
+	<header class="site-header">
+		<nav class="navBar dashboard-nav" aria-label="Primary">
+			<div class="nav-brand">
+				<span class="brand-mark">PF</span>
+				<span class="brand-name">ProjectForge</span>
+			</div>
+			
+			<div class="nav-search">
+				<input type="search" id="projectSearch" placeholder="Search everything" aria-label="Filter projects by name">
+			</div>
+			
+			<div class="nav-actions">
+				<button id="createProjectButton" class="buttonLook primaryButton btn btn-small">+ New project</button>
+				<a href="/account" class="user-avatar-link" id="userAvatarBtn" aria-label="Account settings"></a>
+			</div>
+		</nav>
 	</header>
+	
 	<main id="main-content">
-		<!--Create Project button-->
-        <section class="projectActions" role="region" aria-label="Project actions">
-            <button id="createProjectButton" class="buttonLook primaryButton">Create New Project</button>
-            <form id="createProjectForm" class="projectForm" hidden>
-                <label for="projectName">Project Name:</label>
-                <input type="text" id="createProjectName" name="name" required>
-                
-                <label for="projectDescription">Description:</label>
-                <textarea id="createProjectDescription" name="description"></textarea>
-                
-                <label for="projectStatus">Status:</label>
-                <select id="createProjectStatus" name="status">
-                    <option value="active" selected="selected">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="archived">Archived</option>
-                </select>
-                
-                <label for="projectDueDate">Due Date:</label>
-                <input type="date" id="createProjectDueDate" name="due_date">
-                
-                <button type="submit" class="buttonLook primaryButton">Create Project</button>
-                <p id="createProjectError" class="errorMessage"></p>
-            </form>
-        </section>
-
-        <!--Projects List-->
-        <section id="projectsList" class="projectsList" role="region" aria-label="Your projects"></section>
+		<div class="dashboard-header">
+			<h1>Dashboard</h1>
+			<p class="dashboard-subtitle">Welcome, <span id="dashboardUsername"></span></p>
+		</div>
+		
+		<!--Status Counts-->
+		<section id="statusCounts" class="statusCounts" role="region" aria-label="Filter projects by status"></section>
+		
+		<!--Project Toolbar-->
+		<section id="projectToolbar" class="projectToolbar" role="region" aria-label="Sort projects">
+			<select id="projectSort" aria-label="Sort projects">
+				<option value="due">Sort: Due Date</option>
+				<option value="name">Sort: Name</option>
+				<option value="progress">Sort: Progress</option>
+			</select>
+			<span id="projectCount" class="projectCount"></span>
+		</section>
+		
+		<!--Projects List + Activity-->
+		<div class="dashboardSplit">
+			<div class="projects-column">
+				<!--Create Project Form-->
+				<form id="createProjectForm" class="projectForm card-form" hidden>
+					<label for="projectName">Project Name:</label>
+					<input type="text" id="createProjectName" name="name" required>
+					
+					<label for="projectDescription">Description:</label>
+					<textarea id="createProjectDescription" name="description"></textarea>
+					
+					<label for="projectStatus">Status:</label>
+					<select id="createProjectStatus" name="status">
+						<option value="active" selected="selected">Active</option>
+						<option value="completed">Completed</option>
+						<option value="archived">Archived</option>
+					</select>
+					
+					<label for="projectDueDate">Due Date:</label>
+					<input type="date" id="createProjectDueDate" name="due_date">
+					
+					<button type="submit" class="buttonLook primaryButton btn">Create Project</button>
+					<button type="button" class="buttonLook secondaryButton btn" id="cancelCreateProject">Cancel</button>
+					<p id="createProjectError" class="errorMessage"></p>
+				</form>
+				
+				<section id="projectsList" class="projectsList" role="region" aria-label="Your projects"></section>
+			</div>
+			
+			<aside class="activityPanel" aria-labelledby="activityTitle">
+				<h2 id="activityTitle">Activity</h2>
+				<ul id="activityFeed" class="activityFeed"></ul>
+			</aside>
+		</div>
 	</main>
+	
 	<footer class="site-footer">
-        <a class="backToTop" href="#top">Back to Top</a>
-        <p class="copyright">&copy; <span id="year"></span> Project Forge</p>
-    </footer>
+		<a class="backToTop" href="#top">Back to Top</a>
+		<p class="copyright">&copy; <span id="year"></span> Project Forge</p>
+	</footer>
+	
 	<script type="module" src="/assets/js/core/app.js"></script>
 </body>
 </html>
