@@ -1,6 +1,5 @@
 const pino = require('pino');
 const { multistream } = pino;
-require('dotenv').config();
 
 // Load configuration from environment variables
 const appName = process.env.APP_NAME || '';
