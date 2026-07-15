@@ -1,11 +1,9 @@
 @media (max-width: 900px) {
     .hero,
-    .project-layout {
-        grid-template-columns: 1fr;
-    }
-
+    .project-layout,
     .featureList,
-    .taskStatusCounts {
+    .taskStatusCounts,
+    .dashboardSplit {
         grid-template-columns: 1fr;
     }
 
@@ -21,6 +19,10 @@
     #commentsList,
     .comments-list {
         min-height: 320px;
+    }
+
+    .activityPanel {
+        position: static;
     }
 }
 
@@ -57,9 +59,8 @@
         align-items: flex-start;
     }
 
-    .card-actions-inline,
     .item-actions,
-    .projectActions[role="group"],
+    .projectActions[role="group"]:not(.card-actions-inline),
     .taskActions,
     .formActions {
         width: 100%;
@@ -69,6 +70,16 @@
     .buttonLook,
     .btn {
         width: 100%;
+    }
+
+    .card-actions-inline .buttonLook,
+    .card-actions-inline .btn {
+        width: auto;
+    }
+
+    .statusCounts,
+    .taskStatusCounts {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -90,9 +101,14 @@
         justify-content: center;
     }
 
-    .projectActions[role="group"],
+    .projectActions[role="group"]:not(.card-actions-inline),
     .taskActions {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .card-actions-inline {
+        flex-direction: row;
+        flex-wrap: nowrap;
     }
 }
