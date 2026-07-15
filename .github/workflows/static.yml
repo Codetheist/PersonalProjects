@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check Website folder
         id: sitecheck
@@ -43,18 +43,18 @@ jobs:
         if: steps.sitecheck.outputs.found == 'true'
         id: pages
         continue-on-error: true
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload artifact
         if: steps.sitecheck.outputs.found == 'true' && steps.pages.outcome == 'success'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 'Website'
 
       - name: Deploy to GitHub Pages
         if: steps.sitecheck.outputs.found == 'true' && steps.pages.outcome == 'success'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Skip when Website folder does not exist
         if: steps.sitecheck.outputs.found != 'true'
