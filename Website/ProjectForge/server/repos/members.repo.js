@@ -1,10 +1,12 @@
 // Imports
 const { httpError } = require('../utils/httpError');
 const { dbConnection } = require("../db/db");
+const { ActivityRepo } = require("./activity.repo");
 
 class MembersRepo {
     constructor() {
         this.db = dbConnection;
+        this.activityRepo = new ActivityRepo();
     }
     
     // Create
@@ -35,6 +37,21 @@ class MembersRepo {
             }
             throw err;
         }
+
+        const project = this.db.prepare(`
+            SELECT name
+            FROM projects
+            WHERE id = ?
+        `).get(project_id);
+
+        const label = project?.name ?? '';
+
+        this.activityRepo.logActivity({
+            project_id: project_id,
+            actor_user_id: user.id,
+            action: "joined project",
+            target_label: label
+        });
 
         return this.getMembership(project_id, user.id);
     }
@@ -91,7 +108,7 @@ class MembersRepo {
     }
     
     // Delete
-    removeMember(project_id, user_id) {
+    removeMember(project_id, user_id, requester_id) {
         const membership = this.getMembership(project_id, user_id);
         if (!membership) {
             throw httpError(404, "Membership not found");
@@ -100,6 +117,20 @@ class MembersRepo {
             DELETE FROM project_members
             WHERE project_id = ? AND user_id = ?
         `).run(project_id, user_id);
+
+        const project = this.db.prepare(`
+            SELECT name
+            FROM projects
+            WHERE id = ?
+        `).get(project_id);
+
+        this.activityRepo.logActivity({
+            project_id: project_id,
+            actor_user_id: requester_id,
+            action: `removed member ${membership.username} from`,
+            target_label: project?.name ?? ''
+        });
+
         return { success: true, message: "Member removed", membership };
     }
 }
