@@ -84,10 +84,8 @@ function initDb() {
         enableSqliteSettings();
         createMigrationsTable();
         runMigrations();
-        console.log("Database initialized successfully.");
         return dbConnection;
     } catch (err) {
-        console.error("Error initializing database:", err);
         throw err;
     }
 }
