@@ -66,7 +66,7 @@ class UsersRepo {
             return null;
         }
         
-        const { password_hash, ...userWithoutPassword } = user;
+        const { ...userWithoutPassword } = user;
         return userWithoutPassword;
     }
 
@@ -146,6 +146,65 @@ class UsersRepo {
             FROM users
             WHERE username = ?
         `).get(username);
+    }
+
+    async verifyPassword(userId, password) {
+        const user = this.db.prepare(`
+            SELECT id, username, email, password_hash, created_at, updated_at, is_active, deleted_at
+            FROM users
+            WHERE id = ?
+        `).get(userId);
+
+        if (!user) {
+            throw httpError(404, "User not found");
+        }
+
+        return argon2.verify(user.password_hash, password);
+    }
+
+    async updatePassword(userId, newPassword) {
+        if (typeof newPassword !== "string" || newPassword.length < 8 || newPassword !== newPassword.trim()) {
+            throw httpError(400, "Password must be at least 8 characters long and cannot have leading or trailing whitespace.");
+        }
+
+        const user = this.findUserById(userId);
+        if (!user) {
+            throw httpError(404, "User not found");
+        }
+
+        const newPasswordHash = await argon2.hash(newPassword);
+
+        this.db.prepare(`
+            UPDATE users
+            SET password_hash = ?, updated_at = unixepoch()
+            WHERE id = ?
+        `).run(newPasswordHash, userId);
+        
+        return this.findUserById(userId);
+    }
+
+    async savePasswordResetToken(userId, token, expiresAt) {
+        this.db.prepare(`
+            UPDATE users
+            SET password_reset_token = ?, password_reset_expires_at = ?
+            WHERE id = ?
+        `).run(token, expiresAt, userId);
+    }
+
+    async findUserByResetToken(hashedToken) {
+        return this.db.prepare(`
+            SELECT id, username, email, created_at, updated_at, is_active, deleted_at, password_reset_expires_at AS passwordResetExpiresAt
+            FROM users
+            WHERE password_reset_token = ?
+        `).get(hashedToken);
+    }
+
+    async clearPasswordResetToken(userId) {
+        this.db.prepare(`
+            UPDATE users
+            SET password_reset_token = NULL, password_reset_expires_at = NULL
+            WHERE id = ?
+        `).run(userId);
     }
 }
 
