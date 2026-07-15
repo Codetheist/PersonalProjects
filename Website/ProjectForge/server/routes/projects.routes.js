@@ -38,7 +38,7 @@ router.get("/:project_id", requireAuth, validateProjectId, loadProject, requireP
 router.patch("/:project_id", requireAuth, validateProjectId, loadProject, requireProjectOwner, asyncHandler(async (req, res) => {
     const projectData = validate(projectUpdateSchema, req.body);
     
-    const { project, message } = await projectsRepo.updateProject(req.projectId, projectData);
+    const { project, message } = await projectsRepo.updateProject(req.projectId, projectData, req.user.id);
     
     res.json({ project, message });
 }));
