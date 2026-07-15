@@ -6,5 +6,6 @@ export const state = {
     members: [],
     tasks: [],
     selectedTask: null,
-    comments: []
+    comments: [],
+    editingCommentId: null
 };
