@@ -1,7 +1,11 @@
 import { checkSession } from '../features/auth.js';
-import { addProject, loadProjects } from '../features/projects.js';
+import { addProject } from '../features/projects.js';
 import { elements } from '../shared/dom.js';
 import { PAGE_ROUTES } from '../core/routes.js';
+import { dashboardFeature } from '../features/dashboard.js';
+import { getRecentActivity } from '../api/activityApi.js';
+import { listProjects } from '../api/projectsApi.js';
+import { state } from '../core/state.js';
 
 export async function initDashboardPage() {
     if (!elements.projectsList) {
@@ -41,6 +45,12 @@ export async function initDashboardPage() {
     });
 
     if (!createMode) {
-        await loadProjects();
+        const projectsResult = await listProjects();
+        const activityResult = await getRecentActivity();
+        const projects = projectsResult.data?.projects ?? [];
+        const activity = activityResult.data?.activities ?? [];
+        dashboardFeature({ projects, activity });
     }
+
+    document.title = `Dashboard | ${user.username}`;
 }
