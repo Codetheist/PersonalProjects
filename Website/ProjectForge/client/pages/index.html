@@ -9,8 +9,8 @@
 	</head>
 	<body id="top">
 		<a class="skip-link" href="#main-content">Skip to main content</a>
-
-		<header class="site-header">
+        
+        <header class="site-header">
 			<nav class="navBar" aria-label="Primary">
                 <div class="navLinks">
                     <a href="/">Home</a>
@@ -19,20 +19,23 @@
                     <a class="buttonLook primaryButton" href="#registration">Sign Up</a>
                     <a class="buttonLook secondaryButton" href="#login">Login</a>
                 </div>
+                
+                <!--<div class="nav-actions">
+                    <a href="/account" class="user-avatar-link" id="userAvatarBtn" aria-label="Account settings"></a>
+                </div>-->
 			</nav>
 		</header>
 		
 		<main id="main-content">
-
             <div id="landingView">
                 <!--Hero Section-->
                 <section class="hero" aria-labelledby="hero-title">
                     <div class="heroText">
                         <h1 id="hero-title">Project Forge</h1>
-                    
+                        
                         <p class="heroSubtitle">A simple hub for projects, tasks, deadlines, and team progress.</p>
                         <p class="heroSupport">Create a project, assign tasks, and track progress without digging through threads.</p>
-                    
+                        
                         <div class="ctaRow" role="group" aria-label="Primary actions">
                             <button id="createProjectButton" class="buttonLook createButton">Create a Project</button>
                             <button id="demoButton" class="buttonLook demoButton">Try Demo</button>
@@ -54,7 +57,7 @@
                                 <span>In Progress: 3</span>
                                 <span>Done: 1</span>
                             </div>
-
+                            
                             <div class="taskList">
                                 <p><strong>Set up database - Done</strong></p>
                                 <p><strong>Implement authentication - In Progress</strong></p>
@@ -67,7 +70,7 @@
                         </div>
                     </div>
                 </section>
-
+                
                 <!--Features Section-->
                 <section class="features" aria-labelledby="features-title">
                     <h2 id="features-title">Quick Features</h2>
@@ -87,7 +90,7 @@
                     </div>
                 </section>
             </div>
-
+            
             <div id="authView" hidden>
                 <!--Registration Section-->
                 <section class="registration" aria-labelledby="registration" hidden>
@@ -104,7 +107,7 @@
                     </form>
                     <p class="registrationHelp">Already have an account? <a href="#login">Log in here</a>.</p>
                 </section>
-
+                
                 <!--Login Section-->
                 <section class="login" aria-labelledby="login" hidden>
                     <h2 id="login">Welcome Back</h2>
@@ -117,13 +120,9 @@
                         <p id="loginError" class="errorMessage" aria-live="polite"></p>
                     </form>
                     <p class="loginHelp">Don't have an account? <a href="#registration">Sign up here</a>.</p>
+                    <p class="loginHelp"><a href="/forgot-password">Forgot password?</a></p>
                 </section>
             </div>
-            
-            <!--Logout-->
-            <section class="logoutConfirmation" id="logout" aria-live="assertive" hidden>
-                <p>You have been logged out.</p>
-            </section>
 		</main>
 		
 		<footer class="site-footer">
