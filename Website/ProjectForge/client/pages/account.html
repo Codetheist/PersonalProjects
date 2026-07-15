@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="/assets/css/style.css">
+        <title>Account Settings</title>
+	</head>
+	<body id="top">
+		<a class="skip-link" href="#main-content">Skip to main content</a>
+        <div class="account-layout">
+            <aside class="account-sidebar">
+                <div class="brand-area">
+                    <span class="brand-mark">PF</span>
+                    <span class="brand-name">Project Forge</span>
+                </div>
+                <div class="navLinks">
+                    <a href="/dashboard">Dashboard</a>
+                </div>
+                <!--Nav-->
+                <nav class="navBar account-nav" aria-label="Primary">
+                    <button class="buttonLook account-nav-item" data-target="profile">Profile</button>
+                    <button class="buttonLook account-nav-item" data-target="security">Security</button>
+                    <button class="buttonLook account-nav-item" data-target="sessions">Sessions</button>
+                    <button class="buttonLook account-nav-item" data-target="preferences">Preferences</button>
+                    <button class="buttonLook account-nav-item" data-target="danger">Delete account</button>
+                </nav>
+                <div class="sidebar-user">
+                    <div class="user-card">
+                        <div class="user-avatar" id="userAvatar"></div>
+                        <div class="user-details">
+                            <strong id="sidebarUsername"></strong>
+                            <span id="sidebarEmail"></span>
+                        </div>
+                    </div>
+                    <!--<div class="authButtons">
+                        <button class="buttonLook" id="logoutButton" hidden>Logout</button>
+                    </div>-->
+                </div>
+            </aside>
+            
+            <main id="main-content">
+                <header class="settings-page-header">
+                    <p class="settings-breadcrumb">Account</p>
+                    <h1>Settings</h1>
+                </header>
+                <!--Profile-->
+                <section class="settings-section" id="profileSection">
+                    <div class="section-header">
+                        <h2>Profile</h2>
+                        <p>How you appear on tasks, comments, and project member lists.</p>
+                    </div>
+                    <form class="settings-form" data-form="profile" novalidate>
+                        <div class="form-group">
+                            <label for="displayName">Display name</label>
+                            <input type="text" id="displayName" name="displayName" value="" autocomplete="name">
+                            <p class="errorMessage" data-error-for="displayName"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" autocomplete="email">
+                            <p class="field-hint">
+                                Changing this sends a confirmation link to the new email address.
+                                The old one stays active until you click it.
+                            </p>
+                            <p class="errorMessage" data-error-for="email"></p>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="buttonLook btn btn-small primaryButton">Save changes</button>
+                        </div>
+                    </form>
+                </section>
+                
+                <!--Security-->
+                <section class="settings-section" id="securitySection">
+                    <div class="section-header">
+                        <h2>Security</h2>
+                        <p>Change your password. You'll need your current password to confirm.</p>
+                    </div>
+                    <form class="settings-form" id="changePasswordForm" data-form="security" novalidate>
+                        <div class="form-group">
+                            <label for="currentPassword">Current password</label>
+                            <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password">
+                            <p class="errorMessage" data-error-for="currentPassword"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New password</label>
+                            <input type="password" id="newPassword" name="newPassword" autocomplete="new-password">
+                            <p class="errorMessage" data-error-for="newPassword"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm new password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password">
+                            <p class="errorMessage" id="changePasswordError" data-error-for="confirmPassword"></p>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="buttonLook btn btn-small primaryButton">Update password</button>
+                        </div>
+                    </form>
+                </section>
+                
+                <!--Sessions-->
+                <section class="settings-section" id="sessionsSection">
+                    <div class="section-header">
+                        <h2>Active sessions</h2>
+                        <p>Every device currently signed in to your account.</p>
+                    </div>
+                    
+                    <div class="sessions-list">
+                        <ul class="session-items" id="sessionsList">
+                            <!--JS would populate active sessions here-->
+                        </ul>
+                        <div class="form-actions">
+                            <!--warning button -->
+                            <button class="buttonLook btn btn-small secondaryButton" id="logoutAllButton">Log out of all other devices</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!--Preferences-->
+                <section class="settings-section" id="preferencesSection">
+                    <div class="section-header">
+                        <h2>Preferences</h2>
+                        <p>Saved as you toggle them.</p>
+                    </div>
+                    
+                    <div class="preferences-list">
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <strong>Dark theme</strong>
+                                <span></span>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="false" data-pref="theme"></button>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <strong>Email me when I'm mentioned</strong>
+                                <span>Comments that contain @.</span>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="true" data-pref="mentions"></button>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-label">
+                                <strong>Email me task assignments</strong>
+                                <span>You'll receive an email when you're assigned a task.</span>
+                            </div>
+                            <button class="toggle-switch" role="switch" aria-checked="true" data-pref="assignments"></button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!--Delete account-->
+                <section class="settings-section" id="dangerSection">
+                    <div class="section-header">
+                        <h2>Delete account</h2>
+                        <p>Removes your projects, tasks, and comments. There's no undo and no export.</p>
+                    </div>
+                    <form class="settings-form" id="deleteAccountForm" data-form="delete" novalidate>
+                        <div class="form-group">
+                            <label for="confirmName">Type <span id="deleteConfirmUsername"></span> to confirm</label>
+                            <input type="text" id="confirmName" name="confirmName" autocomplete="off" spellcheck="false">
+                            <p class="errorMessage" data-error-for="confirmName"></p>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <!--Disabled until the type text matches exactly-->
+                            <button type="submit" class="buttonLook btn btn-small btn-danger" id="deleteAccountButton" disabled>Delete account</button>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
+		
+		<footer class="site-footer">
+			<a class="backToTop" href="#top">Back to Top</a>
+			<p class="copyright">&copy; <span id="year"></span> Project Forge</p>
+		</footer>
+		
+		<script type="module" src="/assets/js/core/app.js"></script>
+	</body>
+</html>
