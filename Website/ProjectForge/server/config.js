@@ -1,6 +1,4 @@
 // Environment variables
-require("dotenv").config();
-
 function getEnv(envName, fallbackValue) {
     const envValue = process.env[envName];
     
