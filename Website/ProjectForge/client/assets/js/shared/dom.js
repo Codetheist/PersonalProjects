@@ -130,6 +130,13 @@ export const elements = {
     addCommentError: document.getElementById('addCommentError'),
     commentHeader: document.getElementById('commentsTitle'),
 
+    // Account — Section
+    profileSection: document.getElementById('profileSection'),
+    securitySection: document.getElementById('securitySection'),
+    sessionsSection: document.getElementById('sessionsSection'),
+    preferencesSection: document.getElementById('preferencesSection'),
+    dangerSection: document.getElementById('dangerSection'),
+
     // Account — Sidebar
     userAvatar: document.getElementById('userAvatar'),
     sidebarUsername: document.getElementById('sidebarUsername'),
