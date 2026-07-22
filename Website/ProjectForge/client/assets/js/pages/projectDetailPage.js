@@ -50,10 +50,6 @@ export async function initProjectDetailPage() {
         return;
     }
 
-    if (elements.logoutButton) {
-        elements.logoutButton.hidden = false;
-    }
-
     let selectedTaskId = null;
     let editingTaskId = null;
     
