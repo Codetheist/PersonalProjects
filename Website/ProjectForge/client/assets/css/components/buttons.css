@@ -52,6 +52,10 @@
     font-size: 0.9rem;
 }
 
+.btn-block {
+    width: 100%;
+}
+
 .primaryButton,
 .createButton {
     background: var(--color-accent);
@@ -64,6 +68,12 @@
     background: transparent;
     color: var(--color-text);
     border-color: var(--color-border-light);
+}
+
+.btn-danger {
+    background: var(--color-error, #ff6b6b);
+    color: #fff;
+    border-color: transparent;
 }
 
 .btn-danger:hover,
