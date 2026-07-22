@@ -4,6 +4,7 @@ import { initAuth } from '../features/auth.js';
 import { initHomePage } from '../pages/homePage.js';
 import { initDashboardPage } from '../pages/dashboardPage.js';
 import { initProjectDetailPage } from '../pages/projectDetailPage.js';
+import { initAccountPage } from '../pages/accountPage.js';
 
 const init = () => {
     copyRightYear();
@@ -11,6 +12,7 @@ const init = () => {
     initHomePage();
     initDashboardPage();
     initProjectDetailPage();
+    initAccountPage();
 }
 
 const copyRightYear = () => {
