@@ -32,8 +32,8 @@ export async function initDashboardPage() {
         elements.dashboardUsername.textContent = user.username;
     }
 
-    if (elements.logoutButton) {
-        elements.logoutButton.hidden = false;
+    if (elements.userAvatarBtn) {
+        elements.userAvatarBtn.textContent = user.username.charAt(0).toUpperCase();
     }
     
     elements.createProjectForm?.addEventListener('submit', addProject);
