@@ -196,11 +196,6 @@ if (!elements.isHomePage) return;
     if (elements.dashboardButton) {
         elements.dashboardButton.hidden = true;
     }
-
-    if (elements.logoutButton) {
-        elements.logoutButton.hidden = true;
-    }
-
 }
 
 export async function changeUserPassword(event) {
