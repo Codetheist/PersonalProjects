@@ -32,6 +32,13 @@ function requireAuth(req, res, next) {
     }
 }
 
+function requireAuthPage(req, res, next) {
+    if (!req.session?.userId) {
+        return res.redirect('/#login');
+    }
+    next();
+}
+
 // Guest only
 function guestOnly(req, res, next) {
     if (req.session?.userId) {
@@ -119,6 +126,7 @@ function requireCommentAccess(req, res, next) {
 // Export
 module.exports = {
     requireAuth,
+    requireAuthPage,
     guestOnly,
     requireProjectOwner,
     requireProjectMembership,
