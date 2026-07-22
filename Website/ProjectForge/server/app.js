@@ -12,6 +12,7 @@ const { config } = require("./config");
 const { corsMiddleware } = require('./middleware/cors');
 const { apiRateLimiter } = require('./middleware/rateLimit');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
+const { requireAuthPage } = require('./middleware/auth');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -87,15 +88,15 @@ app.get("/reset-password", (req, res) => {
     res.sendFile(path.join(staticDir, 'reset-password.html'));
 });
 
-app.get("/dashboard", (req, res) => {
+app.get("/dashboard", requireAuthPage, (req, res) => {
     res.sendFile(path.join(staticDir, 'dashboard.html'));
 });
 
-app.get("/project/:id", (req, res) => {
+app.get("/project/:id", requireAuthPage, (req, res) => {
     res.sendFile(path.join(staticDir, 'project.html'));
 });
 
-app.get("/account", (req, res) => {
+app.get("/account", requireAuthPage, (req, res) => {
     res.sendFile(path.join(staticDir, 'account.html'));
 });
 
