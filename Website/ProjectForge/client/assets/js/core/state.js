@@ -7,5 +7,6 @@ export const state = {
     tasks: [],
     selectedTask: null,
     comments: [],
-    editingCommentId: null
+    editingCommentId: null,
+    avatar: null,
 };
