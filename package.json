@@ -3,6 +3,6 @@
     "tailwindcss": "^4.3.3"
   },
   "dependencies": {
-    "@dotenvx/dotenvx": "^2.17.2"
+    "@dotenvx/dotenvx": "^2.38.2"
   }
 }
