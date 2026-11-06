@@ -77,12 +77,14 @@ describe('Permissions rules', () => {
         
         const projectId = projectRes.body.project.id;
         
-        await owner.agent
+        const addMemberRes = await owner.agent
             .post(`/api/projects/${projectId}/members`)
             .send({
-                user_id: member.user.id,
+                username: member.user.username,
                 role: 'member'
             });
+        
+        expect(addMemberRes.status).toBe(201);
         
         const res = await member.agent
             .get(`/api/projects/${projectId}`);
