@@ -8,7 +8,8 @@ const AUTH_ROUTES = {
     me: '/api/auth/me',
     changePassword: '/api/auth/change-password',
     forgotPassword: '/api/auth/forgot-password',
-    resetPassword: '/api/auth/reset-password'
+    resetPassword: '/api/auth/reset-password',
+    updateProfile: '/api/auth/me'
 }
 
 // Authentication API functions
@@ -129,6 +130,25 @@ export async function resetPassword(resetData) {
         },
         credentials: 'same-origin',
         body: JSON.stringify(resetData)
+    });
+
+    const data = await readJson(response);
+    
+    return {
+        ok: response.ok,
+        status: response.status,
+        data
+    };
+}
+
+export async function updateProfile(profileData) {
+    const response = await fetch(AUTH_ROUTES.updateProfile, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(profileData)
     });
 
     const data = await readJson(response);
