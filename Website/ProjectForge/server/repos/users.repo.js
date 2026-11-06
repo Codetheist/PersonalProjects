@@ -206,6 +206,45 @@ class UsersRepo {
             WHERE id = ?
         `).run(userId);
     }
+
+    updateProfile(userId, data) {
+        const user = this.findUserById(userId);
+        
+        if (!user) {
+            throw httpError(404, "User not found");
+        }
+
+        const { username, email } = data;
+        const updatedUsername = username ?? user.username;
+        const updatedEmail = email ?? user.email;
+
+        if (
+            updatedUsername === user.username &&
+            updatedEmail === user.email
+        ) {
+            return user;
+        }
+
+        try {
+            this.db.prepare(`
+                UPDATE users
+                SET username = ?, email = ?
+                WHERE id = ?
+            `).run(updatedUsername, updatedEmail, userId);
+        } catch (err) {
+            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+                if (err.message.includes('username')) {
+                    throw httpError(400, "Username already exists");
+                }
+                if (err.message.includes('email')) {
+                    throw httpError(400, "Email already exists");
+                }
+            }
+            throw err;
+        }
+
+        return this.findUserById(userId);
+    }
 }
 
 module.exports = {
