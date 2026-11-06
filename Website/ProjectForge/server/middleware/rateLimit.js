@@ -12,7 +12,7 @@ function rateLimitError(message) {
 const authRateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
-    skip: () => process.env.NODE_ENV === 'test',
+    skip: () => process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development',
     handler: rateLimitError("Too many authentication attempts from this IP, please try again later.")
 });
 
@@ -20,7 +20,7 @@ const authRateLimiter = rateLimit({
 const apiRateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100,
-    skip: () => process.env.NODE_ENV === 'test',
+    skip: () => process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development',
     handler: rateLimitError("Too many requests from this IP, please try again later.")
 });
 
@@ -28,7 +28,7 @@ const apiRateLimiter = rateLimit({
 const sensitiveRateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 3,
-    skip: () => process.env.NODE_ENV === 'test',
+    skip: () => process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development',
     handler: rateLimitError("Too many requests from this IP, please try again later.")
 });
 
