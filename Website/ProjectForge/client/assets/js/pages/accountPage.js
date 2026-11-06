@@ -1,6 +1,7 @@
 import {
     checkSession,
-    changeUserPassword
+    changeUserPassword,
+    updateUserProfile
 } from '../features/auth.js';
 import { elements } from '../shared/dom.js';
 import { PAGE_ROUTES } from '../core/routes.js';
@@ -100,6 +101,7 @@ export async function initAccountPage() {
             Show errors
             Stop
     */
+    
     elements.profileForm?.addEventListener('submit', (event) => {
         event.preventDefault();
         
@@ -123,6 +125,7 @@ export async function initAccountPage() {
         if (hasError) {
             return;
         }
+
         /* Send profile update request
         If successful:
             Update session/user data
@@ -132,9 +135,33 @@ export async function initAccountPage() {
         If failed:
             Show error message
         */
+        
+        const updatedProfile = {
+            username: elements.profileDisplayName.value.trim(),
+            email: elements.profileEmail.value.trim()
+        };
+
+        updateUserProfile(updatedProfile).then(result => {
+            if (result && result.ok) {
+                elements.sidebarUsername.textContent = result.data.user.username;
+                elements.sidebarEmail.textContent = result.data.user.email;
+                elements.userAvatar.textContent =
+                    result.data.user.username.charAt(0).toUpperCase();
+            } else {
+                const issue = result.data?.error?.issues?.[0];
+                if (issue?.path === 'username') {
+                    showError(displayNameError, issue.message);
+                    return;
+                }
+                if (issue?.path === 'email') {
+                    showError(emailError, issue.message);
+                    return;
+                }
+                showError(displayNameError,
+                    result.data?.error?.message || 'Failed to update profile.');
+            }
+        });
     });
-    
-    
     
     // TODO: Security — handle password change form submission
     /* Account — Security
