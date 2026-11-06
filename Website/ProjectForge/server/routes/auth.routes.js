@@ -4,7 +4,8 @@ const {
     authLoginSchema,
     authChangePasswordSchema,
     authForgotPasswordSchema,
-    authResetPasswordSchema
+    authResetPasswordSchema,
+    authUpdateProfileSchema
 } = require('../validation/schemas');
 const crypto = require('crypto');
 const { asyncHandler } = require('../utils/asyncHandler');
@@ -177,6 +178,23 @@ router.post('/reset-password', authRateLimiter, asyncHandler(async (req, res) =>
 
     // return success response
     res.status(200).json({ message: "Password has been reset successfully" });
+}));
+
+// Update Profile
+router.patch('/me', requireAuth, authRateLimiter, asyncHandler(async (req, res) => {
+    // validate body
+    const data = validate(authUpdateProfileSchema, req.body);
+
+    // update user profile
+    const updatedUser = await usersRepo.updateProfile(
+        req.session.userId,
+        data
+    );
+
+    // return success response
+    res.status(200).json({
+        user: updatedUser
+    });
 }));
 
 /* Future tasks
