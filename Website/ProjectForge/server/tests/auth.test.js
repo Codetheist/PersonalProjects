@@ -40,7 +40,8 @@ describe('Authentication', () => {
         const res = await agent
             .get('/api/auth/me');
         
-        expect(res.statusCode).toBe(401);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.user).toBeNull();
     });
 
     test('login works with correct credentials', async () => {
@@ -71,7 +72,8 @@ describe('Authentication', () => {
         const res = await request(app)
             .get('/api/auth/me');
         
-        expect(res.statusCode).toBe(401);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.user).toBeNull();
     });
 
     test('/me works when logged in', async () => {
@@ -92,6 +94,33 @@ describe('Authentication', () => {
         
         expect(res.statusCode).toBe(200);
         expect(res.body.user.username).toBeDefined();
+    });
+
+    test('update profile works', async () => {
+        const stamp = Date.now();
+        const agent = request.agent(app);
+
+        await agent
+            .post('/api/auth/register')
+            .send({
+                username: `testuser${stamp}`,
+                email: `testuser${stamp}@example.com`,
+                password: 'password123'
+            });
+
+        const newUsername = `updateduser${stamp}`;
+        const newEmail = `updateduser${stamp}@example.com`;
+
+        const res = await agent
+            .patch('/api/auth/me')
+            .send({
+                username: newUsername,
+                email: newEmail
+            });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.user.username).toBe(newUsername);
+        expect(res.body.user.email).toBe(newEmail);
     });
 
     /*
