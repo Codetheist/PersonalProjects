@@ -79,6 +79,13 @@ const authChangePasswordSchema = z.object({
     }
 );
 
+const authUpdateProfileSchema = z.object({
+    username: usernameSchema.optional(),
+    email: emailSchema.optional()
+}).strict().refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update."
+});
+
 // Project schemas
 const projectCreateSchema = z.object({
     name: nameSchema,
@@ -165,6 +172,7 @@ module.exports = {
     authForgotPasswordSchema,
     authResetPasswordSchema,
     authChangePasswordSchema,
+    authUpdateProfileSchema,
     projectCreateSchema,
     projectUpdateSchema,
     projectIdParamSchema,
