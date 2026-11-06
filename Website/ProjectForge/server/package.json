@@ -5,8 +5,8 @@
   "scripts": {
     "start": "dotenvx run -- node server.js",
     "dev": "dotenvx run -- nodemon server.js",
-    "test": "dotenvx run -- jest",
-    "test:watch": "dotenvx run -- jest --watch"
+    "test": "cross-env NODE_ENV=test dotenvx run -- jest",
+    "test:watch": "cross-env NODE_ENV=test dotenvx run -- jest --watch"
   },
   "keywords": [],
   "author": "",
