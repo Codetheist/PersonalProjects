@@ -6,7 +6,8 @@ import {
     currentUser,
     changePassword,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateProfile
 } from '../api/authApi.js';
 import {
     showError,
@@ -215,6 +216,16 @@ export async function changeUserPassword(event) {
     if (!result.ok) {
         showError(elements.changePasswordError, result.data.message || 'Failed to change password.');
         return;
+    }
+
+    return result;
+}
+
+export async function updateUserProfile(profileData) {
+    const result = await updateProfile(profileData);
+
+    if (result.ok) {
+        state.user = result.data.user;
     }
 
     return result;
