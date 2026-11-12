@@ -86,22 +86,11 @@ export async function initAccountPage() {
         elements.logoutButton.hidden = false;
     }
     
-    // TODO: Profile — update display name and email
     // Account — Profile
     elements.profileDisplayName.value = user.username;
     elements.profileEmail.value = user.email;
     
-    /* Profile form submission:
-        Prevent default submit
-        Read display name
-        Read email
-    
-    Validate inputs
-        If validation fails:
-            Show errors
-            Stop
-    */
-    
+    // Profile form submission
     elements.profileForm?.addEventListener('submit', (event) => {
         event.preventDefault();
         
@@ -125,28 +114,23 @@ export async function initAccountPage() {
         if (hasError) {
             return;
         }
-
-        /* Send profile update request
-        If successful:
-            Update session/user data
-            Update sidebar username
-            Update sidebar email
-            Show success message
-        If failed:
-            Show error message
-        */
         
         const updatedProfile = {
             username: elements.profileDisplayName.value.trim(),
             email: elements.profileEmail.value.trim()
         };
 
+        // Send profile update request
         updateUserProfile(updatedProfile).then(result => {
             if (result && result.ok) {
                 elements.sidebarUsername.textContent = result.data.user.username;
                 elements.sidebarEmail.textContent = result.data.user.email;
                 elements.userAvatar.textContent =
                     result.data.user.username.charAt(0).toUpperCase();
+                const successMessage = document.querySelector('[data-success-for="profile"]');
+                if (successMessage) {
+                    successMessage.textContent = 'Profile updated successfully.';
+                }
             } else {
                 const issue = result.data?.error?.issues?.[0];
                 if (issue?.path === 'username') {
@@ -163,36 +147,70 @@ export async function initAccountPage() {
         });
     });
     
-    // TODO: Security — handle password change form submission
-    /* Account — Security
-    elements.changePasswordForm
-    elements.currentPassword
-    elements.newPassword
-    elements.confirmPassword
-    elements.changePasswordError
-    ----------------------------
-    */
-    
-    /* Password form submission:
-        Prevent default submit
-        Read current password
-        Read new password
-        Read confirm password
-    */
-    
-        /* Validate inputs
-    If passwords do not match:
-        Show error
-        Stop
-    */
-    
-    /* Send password change request
-    If successful:
-        Clear password fields
-        Show success message
-    If failed:
-        Show error message
-    */
+    // Account — Security
+    elements.changePasswordForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const changePasswordSuccess = document.querySelector('[data-success-for="security"]');
+        
+        if (changePasswordSuccess) {
+            changePasswordSuccess.textContent = '';
+        }
+
+        errorMessages.forEach(errorMessage => errorMessage.textContent = '');
+
+        const currentPasswordError = document.querySelector('[data-error-for="currentPassword"]');
+        const newPasswordError = document.querySelector('[data-error-for="newPassword"]');
+        const confirmPasswordError = document.querySelector('[data-error-for="confirmPassword"]');
+
+        let hasError = false;
+
+        const currentPassword = elements.currentPassword.value.trim();
+        const newPassword = elements.newPassword.value.trim();
+        const confirmPassword = elements.confirmPassword.value.trim();
+
+        if (!currentPassword) {
+            showError(currentPasswordError, 'Current password is required.');
+            hasError = true;
+        }
+
+        if (!newPassword) {
+            showError(newPasswordError, 'New password is required.');
+            hasError = true;
+        }
+
+        if (!confirmPassword) {
+            showError(confirmPasswordError, 'Confirm password is required.');
+            hasError = true;
+        }
+
+        if (confirmPassword && newPassword !== confirmPassword) {
+            showError(confirmPasswordError, 'Passwords do not match.');
+            hasError = true;
+        }
+
+        if (hasError) {
+            return;
+        }
+        
+        elements.changePasswordError.textContent = '';
+
+        const changePasswordError = elements.changePasswordError;
+        
+        // Send password change request
+        try {
+            await changeUserPassword({currentPassword, newPassword, confirmPassword});
+            
+            elements.currentPassword.value = '';
+            elements.newPassword.value = '';
+            elements.confirmPassword.value = '';
+            if (changePasswordSuccess) {
+                changePasswordSuccess.textContent = 'Password changed successfully.';
+            }
+        } catch(error) {
+            showError(changePasswordError, error.message || 'Failed to change password.');
+        }
+    });
     
     // TODO: Sessions — list active sessions, log out of all other devices
     /* Account — Sessions
