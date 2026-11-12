@@ -199,12 +199,8 @@ if (!elements.isHomePage) return;
     }
 }
 
-export async function changeUserPassword(event) {
-    event?.preventDefault?.();
-    const formData = new FormData(event.target);
-    const currentPassword = formData.get('currentPassword');
-    const newPassword = formData.get('newPassword');
-    const confirmPassword = formData.get('confirmPassword');
+export async function changeUserPassword(passwordData) {
+    const { currentPassword, newPassword, confirmPassword } = passwordData;
 
     if (newPassword !== confirmPassword) {
         showError(elements.changePasswordError, 'Passwords do not match.');
